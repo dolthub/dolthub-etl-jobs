@@ -1,6 +1,5 @@
 import pandas as pd
-from doltpy_etl import Dataset
-from typing import List
+from doltpy_etl import get_df_table_loader
 
 
 def _test_data_generator(name: str, all_time_greatness_rank: 1):
@@ -20,6 +19,5 @@ def get_data_builder():
     return inner
 
 
-def get_dolt_datasets() -> List[Dataset]:
-    return [Dataset('great_players', get_data_builder(), pk_cols=['name'], import_mode='create')]
+loaders = [get_df_table_loader('great_players', get_data_builder(), pk_cols=['name'], import_mode='create')]
 

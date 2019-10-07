@@ -1,5 +1,5 @@
 import pandas as pd
-from doltpy_etl import Dataset
+from doltpy_etl import get_df_table_loader
 import io
 import requests
 from typing import Mapping, Callable, List
@@ -98,9 +98,10 @@ def get_df_builder(ip_to_country_dataset: IpToCountryDataset) -> Callable[[], pd
 
 
 def get_dolt_datasets():
-    def build_dataset(ip_to_country_dataset: IpToCountryDataset) -> Dataset:
-        return Dataset(ip_to_country_dataset.name,
-                       get_df_builder(ip_to_country_dataset),
-                       ip_to_country_dataset.pk_cols)
+    for ip_to_country_dataset in ip_to_country_datasets:
+        yield get_df_table_loader(ip_to_country_dataset.name,
+                                  get_df_builder(ip_to_country_dataset),
+                                  ip_to_country_dataset.pk_cols)
 
-    return [build_dataset(ip_to_country_dataset) for ip_to_country_dataset in ip_to_country_datasets]
+
+ip_loaders = list(get_dolt_datasets())
