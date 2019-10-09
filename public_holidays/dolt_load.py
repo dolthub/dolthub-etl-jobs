@@ -1,8 +1,7 @@
-from doltpy.dolt import Dolt
 import requests as req
 import pandas as pd
 from typing import Callable, Mapping
-from doltpy_etl import Dataset, ETLWorkload
+from doltpy_etl import get_df_table_loader
 
 BASE_URL = 'https://date.nager.at/Api/v2'
 AVAILABLE_COUNTRIES = 'AvailableCountries'
@@ -36,13 +35,8 @@ def _get_codename_lookup() -> Mapping[str, str]:
     return {country['key']: country['value'] for country in countries}
 
 
-def load_to_dolt(dolt_dir: str, start_year: int, end_year: int, commit: bool = False):
-    repo = Dolt(dolt_dir)
-    assert repo.repo_is_clean()
-
-    dolt_datasets = [Dataset('public_holidays', _get_holidays_for_year(year, _get_codename_lookup()), PK_COLS)
-                     for year in range(start_year, end_year)]
-    workload = ETLWorkload(repo, dolt_datasets)
-    workload.load_to_dolt(commit)
-
+def get_loaders(start_year: int, end_year: int):
+    [get_df_table_loader('public_holidays',
+                         _get_holidays_for_year(year, _get_codename_lookup()),
+                         PK_COLS) for year in range(start_year, end_year)]
 

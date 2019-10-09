@@ -20,14 +20,15 @@ $ pip install -e liquidata-etl-jobs
 Verify that the required commands are available in your path:
 ```
 $ dolt-load
-usage: dolt-load [-h] [-c] -d DOLT_DIR [-m MESSAGE] [-b BRANCH] [--dry_run]
+usage: dolt-load [-h] --dolt-dir DOLT_DIR [--commit] [--message MESSAGE]
+                 [--branch BRANCH] [--dry-run]
                  dolt_load_module
-dolt-load: error: the following arguments are required: dolt_load_module, -d/--dolt_dir
+
 $ dolthub-load
-usage: dolthub-load [-h] [-c] [-d DOLT_DIR] [-p] [-m MESSAGE] -r REMOTE_URL
-                    [--clone] [-b BRANCH] [--dry_run]
+usage: dolthub-load [-h] [--dolt-dir DOLT_DIR] [--commit] [--message MESSAGE]
+                    [--branch BRANCH] [--clone] --remote-url REMOTE_URL
+                    [--remote-name REMOTE_NAME] [--push] [--dry-run]
                     dolt_load_module
-dolthub-load: error: the following arguments are required: dolt_load_module, -r/--remote_url
 ```
 
 ## Runnning
@@ -43,7 +44,7 @@ No tables in working set
 ```
 You can now run the script at the command line and see the results:
 ```
-$ dolt \
+$ dolt-load \
     --commit \ 
     --dolt_dir $HOME/test-dolt \
     --message "Added some great players" \
@@ -89,7 +90,7 @@ $ dolthub-load \
     --message "2019-10-01 update to dataset" 
     --commit \
     --clone \
-    ip_to_country
+    ip_to_country.dolt_load.ip_loaders
 ```
 This will perform the following steps:
 1. clone the remote repository `Liquidata/ip-to-country` into a temporary directory
