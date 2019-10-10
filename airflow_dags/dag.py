@@ -63,4 +63,7 @@ mta_dag = DAG('mta_data',
 
 raw_mta_data = PythonOperator(task_id='mta_data',
                               python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper('{}.loaders'.format(MTA_MODULE_PATH)))
+                              op_kwargs=get_args_helper('{}.loaders'.format(MTA_MODULE_PATH),
+                                                        'Update MTA data for date {}'.format(datetime.now()),
+                                                        MTA_REPO_PATH),
+                              dag=mta_dag)
