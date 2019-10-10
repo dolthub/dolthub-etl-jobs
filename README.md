@@ -46,7 +46,7 @@ You can now run the script at the command line and see the results:
 ```
 $ dolt-load \
     --commit \ 
-    --dolt_dir $HOME/test-dolt \
+    --dolt-dir $HOME/test-dolt \
     --message "Added some great players" \
     liquidata_etl.local_write_example
 Commencing load to Dolt with the following options, and the following options

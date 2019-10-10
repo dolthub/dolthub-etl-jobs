@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from doltpy_etl import dolthub_loader
 
 REPO_URL = 'https://doltremoteapi.dolthub.com/oscarbatori/fx-test-data'
-MODULE_PATH = 'fx_rates_example.dolt_load'
+MODULE_PATH = 'liquidata_etl.fx_rates_example.dolt_load'
 
 default_args = {
     'owner': 'liquidata-etl',
@@ -16,6 +16,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+# FX rates DAG
 dag = DAG('fx_rates',
           default_args=default_args,
           schedule_interval=timedelta(hours=1))
@@ -50,3 +51,5 @@ transformed_data = PythonOperator(task_id='fx_rates_averages',
                                   dag=dag)
 
 transformed_data.set_upstream(raw_data)
+
+#
