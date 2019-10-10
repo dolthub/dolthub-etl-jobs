@@ -47,7 +47,7 @@ def get_loaders():
         yield get_df_table_loader(dataset.table_name,
                                   get_mta_data_as_df(get_mta_url(dataset.dataset_id)),
                                   pk_cols,
-                                  tramsformers)
+                                  transformers=tramsformers)
 
 
 loaders = get_loaders()
