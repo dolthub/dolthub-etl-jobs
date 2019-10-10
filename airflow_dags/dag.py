@@ -77,5 +77,7 @@ ip_to_country_dag = DAG('ip_to_country',
 
 raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper('{}.ip_loaders'.format(IP_TO_COUNTRY_REPO)),
+                                   op_kwargs=get_args_helper('{}.ip_loaders'.format(IP_TO_COUNTRY_REPO),
+                                                             'Update IP to Country for date {}'.format(datetime.now()),
+                                                             IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
