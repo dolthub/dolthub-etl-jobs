@@ -69,7 +69,7 @@ raw_mta_data = PythonOperator(task_id='raw_mta_data',
                               dag=mta_dag)
 
 # IP to country mappings
-IP_TO_COUNTRY_REPO = 'Liquidta/ip-to-country'
+IP_TO_COUNTRY_REPO = 'Liquidata/ip-to-country'
 IP_TO_COUNTRY_MODULE_PATH = '{}.ip_to_country.dolt_load'.format(GLOBAL_MODULE_PREFIX)
 ip_to_country_dag = DAG('ip_to_country',
                         default_args=get_default_args_helper(datetime(2019, 10, 8)),
