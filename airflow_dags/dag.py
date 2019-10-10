@@ -61,9 +61,21 @@ mta_dag = DAG('mta_data',
               default_args=get_default_args_helper(datetime(2019, 10, 8)),
               schedule_interval=timedelta(days=1))
 
-raw_mta_data = PythonOperator(task_id='mta_data',
+raw_mta_data = PythonOperator(task_id='raw_mta_data',
                               python_callable=dolthub_loader,
                               op_kwargs=get_args_helper('{}.loaders'.format(MTA_MODULE_PATH),
                                                         'Update MTA data for date {}'.format(datetime.now()),
                                                         MTA_REPO_PATH),
                               dag=mta_dag)
+
+# IP to country mappings
+IP_TO_COUNTRY_REPO = 'Liquidta/ip-to-country'
+IP_TO_COUNTRY_MODULE_PATH = '{}.ip_to_country.dolt_load'.format(GLOBAL_MODULE_PREFIX)
+ip_to_country_dag = DAG('ip_to_country',
+                        default_args=get_default_args_helper(datetime(2019, 10, 8)),
+                        schedule_interval=timedelta(days=1))
+
+raw_ip_to_country = PythonOperator(task_id='ip_to_country',
+                                   python_callable=dolthub_loader,
+                                   op_kwargs=get_args_helper('{}.ip_loaders'.format(IP_TO_COUNTRY_REPO)),
+                                   dag=ip_to_country_dag)
