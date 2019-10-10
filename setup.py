@@ -1,6 +1,6 @@
 from setuptools import setup
 
-PACKAGE_DIRS = ['local_write_example', 'fx_rates_example', 'mta']
+PACKAGE_DIRS = ['local_write_example', 'fx_rates_example', 'mta', 'ip_to_country']
 PREFIX = 'liquidata_etl'
 PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): package for package in PACKAGE_DIRS}
 
