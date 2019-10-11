@@ -1,8 +1,10 @@
 from setuptools import setup
+import os
 
 PACKAGE_DIRS = ['local_write_example', 'fx_rates_example', 'mta', 'ip_to_country']
 PREFIX = 'liquidata_etl'
-PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): package for package in PACKAGE_DIRS}
+PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): os.path.join('airflow_dags', package)
+                            for package in PACKAGE_DIRS}
 
 setup(name='liquidata-etl-jobs',
       version='0.1',
