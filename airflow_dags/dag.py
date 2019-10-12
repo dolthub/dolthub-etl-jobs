@@ -2,10 +2,10 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
 from doltpy_etl import dolthub_loader, DoltTableLoader
-from .mta.dolt_load import loaders as mta_loaders
-from .fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
+from mta.dolt_load import loaders as mta_loaders
+from fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
                                          transformed_table_loaders as fx_rates_transform_loaders)
-from .ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
+from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
 from typing import List
 
 
