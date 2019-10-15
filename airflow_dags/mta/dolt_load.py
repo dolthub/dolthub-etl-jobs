@@ -16,7 +16,7 @@ class MTADataSet:
 
 
 DATASETS = [
-    MTADataSet('wifi_locations', 'pwa9-tmie', ['station_n   ame', 'lines']),
+    MTADataSet('wifi_locations', 'pwa9-tmie', ['station_name', 'lines']),
     MTADataSet('contract_solicitations', 'e3e7-qwer', ['reference_number']),
     MTADataSet('customer_feedback', 'tppa-s6t6'),
     MTADataSet('mta_agency_kpis', 'cy9b-i9w9', ['indicator_sequence', 'period']),
