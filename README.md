@@ -102,4 +102,10 @@ Since we didn't specify a branch, we will default to `master`.
 Try updating a public dataset you have write access to (and coming soon creating a pull request to on that you can't write to). Or, create your own repository and define a Python  module to update it.
 
 ### Airflow
-If you want the job to run on a schedule, you can expose it in Airlow DAG. Examples to follow.
+Our workflow manager is [Apache Airflow](https://airflow.apache.org/), a [tutorial that briefly explains the concept of DAGs and how to define them can be found [here](https://airflow.apache.org/tutorial.html). In order to automate a job define a module in `airflow_dags/you_dataset`. Then in `airflow_dags/dag.py` write code that looks something like:
+```
+from your_dataset.dolt_load import loaders as your_dataset_loaders
+
+# Define DAG here
+```
+Then commit your code, and it will appear in the DAG [view](https://airflow.awsdev.ld-corp.com/admin/) of Airflow. You can test your module using the `dolt-load` and `dolthub-load` command line tools that come with Doltpy.
