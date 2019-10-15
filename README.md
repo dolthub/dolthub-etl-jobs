@@ -102,7 +102,7 @@ Since we didn't specify a branch, we will default to `master`.
 Try updating a public dataset you have write access to (and coming soon creating a pull request to on that you can't write to). Or, create your own repository and define a Python  module to update it.
 
 ### Airflow
-Our workflow manager is [Apache Airflow](https://airflow.apache.org/), a [tutorial that briefly explains the concept of DAGs and how to define them can be found [here](https://airflow.apache.org/tutorial.html). In order to automate a job define a module in `airflow_dags/you_dataset`. Then in `airflow_dags/dag.py` write code that looks something like:
+Our workflow manager is [Apache Airflow](https://airflow.apache.org/), a tutorial that briefly explains the concept of DAGs and how to define them can be found [here](https://airflow.apache.org/tutorial.html). In order to automate a job define a module in `airflow_dags/you_dataset`. Then in `airflow_dags/dag.py` write code that looks something like:
 ```
 from your_dataset.dolt_load import loaders as your_dataset_loaders
 
