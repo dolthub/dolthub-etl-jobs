@@ -1,5 +1,3 @@
-import sys
-sys.path.append('/usr/local/airflow/dags/liquidata-etl-jobs/airflow_dags')
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
