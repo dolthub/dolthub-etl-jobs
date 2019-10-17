@@ -7,7 +7,7 @@ from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
 from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-
+from airflow.operators.bash_operator import BashOperator
 
 def get_default_args_helper(start_date: datetime):
     return {'owner': 'liquidata-etl',
@@ -81,3 +81,12 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                                              'Update IP to Country for date {}'.format(datetime.now()),
                                                              IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
+
+# Tatoeba sentence translations
+dag = DAG('tatoeba_sentence_translations',
+          default_args=get_default_args_helper(datetime(2019, 10, 17)),
+          schedule_interval=timedelta(days=7))
+
+raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
+                                                 bash_command='./tatoeba_sentence_translations/import-from-source.pl ',
+                                                 dag=tatoeba_sentence_translations)
