@@ -33,8 +33,6 @@ my $corrections = {
 };
 
 # Configutration
-my $debug = 0;
-
 my $url_base = 'https://fdc.nal.usda.gov';
 my $info_url = "$url_base/download-datasets.html";
 my $csv_search = '/fdc-datasets/FoodData_Central_csv';
@@ -57,7 +55,7 @@ $download_url = "$url_base$download_url";
 
 # Clone the repository
 my $organization = 'Liquidata';
-my $repo         = 'usda-al-foods';
+my $repo         = 'usda-all-foods';
 my $clone_path   = "$organization/$repo"; 
 run_command("dolt clone $clone_path", 
 	    "Could not clone repo $clone_path");
@@ -114,7 +112,7 @@ sub import_data {
 	my $fixed = correct_csv($path);
 
 	my $import_command = 
-	    "dolt table import -r --continue $table $fixed";
+	    "dolt table import -r $table $fixed";
 	run_command($import_command, "Could not import $table");
 
 	unlink($fixed);
@@ -193,11 +191,9 @@ sub correct_data {
     my $regex = $corrections->{$file}{$id};
 
     if ( $regex ) {
-	print "WAS: $line" if $debug;
 	my $match = $regex->{'match'};
 	my $subst = $regex->{'sub'};
 	$line =~ s/$match/$subst/g;
-	print "FIXED TO:\n$line" if $debug;
     }
     
     return $line;
