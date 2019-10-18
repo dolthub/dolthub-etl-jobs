@@ -8,6 +8,7 @@ from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
+from airflow.configuration import conf
 
 def get_default_args_helper(start_date: datetime):
     return {'owner': 'liquidata-etl',
@@ -88,5 +89,5 @@ tatoeba_sentence_translations_dag = DAG('tatoeba_sentence_translations',
           schedule_interval=timedelta(days=7))
 
 raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
-                                                 bash_command='./tatoeba_sentence_translations/import-from-source.pl ',
+                                                 bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
                                                  dag=tatoeba_sentence_translations_dag)
