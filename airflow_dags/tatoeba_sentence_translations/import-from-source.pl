@@ -39,7 +39,10 @@ import_new_data($translations_url,
 
 # Bail here if the data hasn't changed. We could use a way to store some state
 # between jobs. That way I could md5 the zip files instead of doing the import
-die "No changes to repository" unless `dolt diff`;
+unless ( `dolt diff` ) { 
+    print "No changes to repository. Not creating a commit.";
+    exit;
+}
 
 # Commit the new data to dolt
 run_command('dolt add .', 'Could not add tables');
