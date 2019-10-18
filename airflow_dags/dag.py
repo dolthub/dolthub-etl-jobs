@@ -85,7 +85,7 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
 
 # Tatoeba sentence translations
 tatoeba_sentence_translations_dag = DAG('tatoeba_sentence_translations',
-          default_args=get_default_args_helper(datetime(2019, 10, 17)),
+          default_args=get_default_args_helper(datetime(2019, 10, 21)),
           schedule_interval=timedelta(days=7))
 
 raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
