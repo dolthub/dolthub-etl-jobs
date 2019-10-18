@@ -93,10 +93,8 @@ sub get_data {
     run_command("curl -o $zip_file $input_url",
                 "Could not download $input_url");
 
-    run_command("unzip -o -d downloaded_data $zip_file",
+    run_command("unzip -o -d $zip_dir $zip_file",
 		"Could not unzip $zip_file");
-
-    return $zip_dir;
 }
 
 sub import_data {
