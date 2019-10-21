@@ -4,3 +4,4 @@ __pycache__/
 .idea/
 .DS_Store
 *.egg-info/
+enwiki-latest-pages-articles-multistream.xml.bz2
