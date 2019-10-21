@@ -7,7 +7,8 @@ from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
 from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-
+from airflow.operators.bash_operator import BashOperator
+from airflow.configuration import conf
 
 def get_default_args_helper(start_date: datetime):
     return {'owner': 'liquidata-etl',
@@ -81,3 +82,12 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                                              'Update IP to Country for date {}'.format(datetime.now()),
                                                              IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
+
+# Code Search Net database
+word_net_dag = DAG('word_net',
+                   default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                   schedule_interval=timedelta(days=7))
+
+raw_word_net = BashOperator(task_id='import-data',
+                            bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
+                            dag=word_net_dag)
