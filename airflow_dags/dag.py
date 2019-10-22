@@ -86,6 +86,16 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
 
 
 # Code Search Net database
+word_net_dag = DAG('word_net',
+                   default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                   schedule_interval=timedelta(days=7))
+
+raw_word_net = BashOperator(task_id='import-data',
+                            bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
+                            dag=word_net_dag)
+
+
+# Code Search Net database
 code_search_net_dag = DAG('code_search_net',
                          default_args=get_default_args_helper(datetime(2019, 10, 21)),
                          schedule_interval=timedelta(days=7))
@@ -111,4 +121,5 @@ tatoeba_sentence_translations_dag = DAG('tatoeba_sentence_translations',
 raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
                                                  bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
                                                  dag=tatoeba_sentence_translations_dag)
+
 
