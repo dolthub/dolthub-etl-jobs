@@ -88,6 +88,6 @@ code_search_net_dag = DAG('code_search_net',
                          default_args=get_default_args_helper(datetime(2019, 10, 21)),
                          schedule_interval=timedelta(days=7))
 
-raw_usda_all_foods = BashOperator(task_id='import-data',
-                                  bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
-                                  dag=code_search_net_dag)
+code_search_net = BashOperator(task_id='import-data',
+                               bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
+                               dag=code_search_net_dag)
