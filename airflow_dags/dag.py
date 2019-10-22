@@ -10,6 +10,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.configuration import conf
 
+
 def get_default_args_helper(start_date: datetime):
     return {'owner': 'liquidata-etl',
             'depends_on_past': False,
@@ -83,6 +84,7 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                                              IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
 
+
 # Code Search Net database
 code_search_net_dag = DAG('code_search_net',
                          default_args=get_default_args_helper(datetime(2019, 10, 21)),
@@ -91,3 +93,22 @@ code_search_net_dag = DAG('code_search_net',
 code_search_net = BashOperator(task_id='import-data',
                                bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
                                dag=code_search_net_dag)
+
+# USDA All Foods database
+usda_all_foods_dag = DAG('usda_all_foods',
+                         default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                         schedule_interval=timedelta(days=7))
+
+raw_usda_all_foods = BashOperator(task_id='import-data',
+                                  bash_command='{{conf.get("core", "dags_folder")}}/usda_all_foods/import_from_source.pl ',
+                                  dag=usda_all_foods_dag)
+
+# Tatoeba sentence translations
+tatoeba_sentence_translations_dag = DAG('tatoeba_sentence_translations',
+          default_args=get_default_args_helper(datetime(2019, 10, 21)),
+          schedule_interval=timedelta(days=7))
+
+raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
+                                                 bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
+                                                 dag=tatoeba_sentence_translations_dag)
+
