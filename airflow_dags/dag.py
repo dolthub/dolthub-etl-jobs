@@ -84,6 +84,16 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                                              IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
 
+
+# Code Search Net database
+code_search_net_dag = DAG('code_search_net',
+                         default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                         schedule_interval=timedelta(days=7))
+
+code_search_net = BashOperator(task_id='import-data',
+                               bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
+                               dag=code_search_net_dag)
+
 # USDA All Foods database
 usda_all_foods_dag = DAG('usda_all_foods',
                          default_args=get_default_args_helper(datetime(2019, 10, 21)),
