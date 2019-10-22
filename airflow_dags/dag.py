@@ -92,3 +92,13 @@ usda_all_foods_dag = DAG('usda_all_foods',
 raw_usda_all_foods = BashOperator(task_id='import-data',
                                   bash_command='{{conf.get("core", "dags_folder")}}/usda_all_foods/import_from_source.pl ',
                                   dag=usda_all_foods_dag)
+
+# Tatoeba sentence translations
+tatoeba_sentence_translations_dag = DAG('tatoeba_sentence_translations',
+          default_args=get_default_args_helper(datetime(2019, 10, 21)),
+          schedule_interval=timedelta(days=7))
+
+raw_tatoeba_sentence_translations = BashOperator(task_id='import-data',
+                                                 bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
+                                                 dag=tatoeba_sentence_translations_dag)
+
