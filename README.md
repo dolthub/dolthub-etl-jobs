@@ -31,7 +31,7 @@ usage: dolthub-load [-h] [--dolt-dir DOLT_DIR] [--commit] [--message MESSAGE]
                     dolt_load_module
 ```
 
-## Runnning
+## Running
 There are several options for running scripts and where data will be written, they are enumerated below.
 
 ### Write to Local Dolt
