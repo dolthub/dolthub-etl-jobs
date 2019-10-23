@@ -30,14 +30,20 @@ my $corrections = {
 	    'sub'   => '',
 	},
     },
+    'downloaded_data/food_update_log_entry.csv' => {
+        321829 => {
+            'match' => '[\n\r]+',
+            'sub'   => '',
+        },
+    },
 };
 
-# Configutration
+# Configuration
 my $url_base = 'https://fdc.nal.usda.gov';
 my $info_url = "$url_base/download-datasets.html";
 my $csv_search = '/fdc-datasets/FoodData_Central_csv';
 
-my $current_url = '/fdc-datasets/FoodData_Central_csv_2019-04-02.zip';
+my $current_url = '/fdc-datasets/FoodData_Central_csv_2019-10-11.zip';
 
 my $zip_dir  = 'downloaded_data';
 my $zip_file = "$zip_dir.zip";
@@ -111,8 +117,12 @@ sub import_data {
 
 	my $fixed = correct_csv($path);
 
-	my $import_command = 
-	    "dolt table import -r $table $fixed";
+	my $created_tables = `dolt ls`;
+
+	my $import_command = ( $created_tables =~ /\b$table\b/ ) ? 
+	    "dolt table import -r $table $fixed" :
+	    "dolt table import -c $table $fixed";
+
 	run_command($import_command, "Could not import $table");
 
 	unlink($fixed);
