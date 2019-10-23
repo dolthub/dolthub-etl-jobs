@@ -335,7 +335,7 @@ sub create_supporting_tables {
     
     close LEXSSQL;
 
-    run command("dolt sql -q 'delete from lexs'", 
+    run_command("dolt sql -q 'delete from lexs'", 
 		'Could not delete lexs table');
     run_command('dolt sql < lexs.sql', 'Could not execute lexs.sql');
     unlink('lexs.sql');
@@ -349,7 +349,7 @@ sub create_supporting_tables {
     }
     
     close SYNSETTYPESSQL;
-    runcommand("dolt sql -q 'delete from synset_types'",
+    run_command("dolt sql -q 'delete from synset_types'",
 	       'Could not delete synset_types table');
     run_command('dolt sql < synset-types.sql', 'Could not execute synset-types.sql');
     unlink('synset-types.sql');
@@ -366,7 +366,7 @@ sub create_supporting_tables {
     }
 
     close POINTERTYPESSQL;
-    runcommand("dolt sql -q 'delete from pointers'",
+    run_command("dolt sql -q 'delete from pointers'",
 	       'Could not delete pointers table');
     run_command('dolt sql < pointer-types.sql', 'Could not execute pointer-types.sql');
     unlink('pointer-types.sql'); 
@@ -473,7 +473,7 @@ sub process_data_files {
 	my $table_name = $sql_files{$sql_file};
 	# Delete the current data in the tables because we want the data in 
 	# dolt to mirror the data in the WordNet file exactly. 
-	runcommand("dolt sql -q 'delete from $table_name'",
+	run_command("dolt sql -q 'delete from $table_name'",
 		   'Could not delete lexs table');
 	run_command("dolt sql < $sql_file", "Could not execute $sql_file");
 	unlink($sql_file);
