@@ -4,7 +4,9 @@ import io
 import requests
 from typing import Mapping, Callable, List
 import gzip
+import logging
 
+logger = logging.getLogger(__name__)
 
 DATASET_COLUMNS = {'IPv4ToCountry': ['IPFrom',
                                      'IpTo',
@@ -47,9 +49,8 @@ ip_to_country_datasets = [
 
 
 def fetch_data(ip_to_country_dataset: IpToCountryDataset) -> io.BytesIO:
-
-    print('Fetching zipfile from URL {} for dataset {}'.format(ip_to_country_dataset.url,
-                                                               ip_to_country_dataset.name))
+    logging.info('Fetching zipfile from URL {} for dataset {}'.format(ip_to_country_dataset.url,
+                                                                      ip_to_country_dataset.name))
     req = requests.get(ip_to_country_dataset.url)
     if req.status_code == 200:
         return io.BytesIO(req.content)
@@ -61,7 +62,7 @@ def fetch_data(ip_to_country_dataset: IpToCountryDataset) -> io.BytesIO:
 def process_gzip(raw: io.BytesIO,
                  line_filter: Callable[[str], bool],
                  line_processor: Callable[[str], Mapping[str, str]]) -> Mapping[str, str]:
-    print('Mapping bytes to dictionaries representing lines in a data frame')
+    logging.info('Mapping bytes to dictionaries representing lines in a data frame')
     with gzip.open(raw) as f:
         lines = f.readlines()
         for line in lines:
@@ -70,7 +71,7 @@ def process_gzip(raw: io.BytesIO,
                 if not line_filter(decoded):
                     yield line_processor(decoded)
             except UnicodeDecodeError as _:
-                print('Error decoding line, skipping:\n{}'.format(line))
+                logger.error('Error decoding line, skipping:\n{}'.format(line))
 
 
 def get_line_processor(columns: List[str]) -> Callable[[str], Mapping[str, str]]:

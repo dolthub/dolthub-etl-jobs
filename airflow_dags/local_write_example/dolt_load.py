@@ -1,5 +1,8 @@
 import pandas as pd
 from doltpy_etl import get_df_table_loader
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _test_data_generator(name: str, all_time_greatness_rank: 1):
@@ -8,6 +11,7 @@ def _test_data_generator(name: str, all_time_greatness_rank: 1):
 
 def get_data_builder():
     def inner() -> pd.DataFrame:
+        logger.info('Generating example data for some great players')
         return pd.DataFrame([
             _test_data_generator('Marat Saffin', 1),
             _test_data_generator('Roger Federer', 2),

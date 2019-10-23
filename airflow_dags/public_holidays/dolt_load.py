@@ -2,6 +2,9 @@ import requests as req
 import pandas as pd
 from typing import Callable, Mapping
 from doltpy_etl import get_df_table_loader
+import logging
+
+logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://date.nager.at/Api/v2'
 AVAILABLE_COUNTRIES = 'AvailableCountries'
@@ -22,7 +25,7 @@ def _get_holidays_for_year(year: int, code_name_lookup: Mapping[str, str]) -> Ca
 def _get_holidays_country_year(code: str, name: str, year: int) -> pd.DataFrame:
     try:
         url = _get_country_url(code, year)
-        print('Getting data for {} from {}'.format(name, url))
+        logger.info('Getting data for {} from {}'.format(name, url))
         json = req.get(url).json()
     except:
         raise
@@ -31,7 +34,9 @@ def _get_holidays_country_year(code: str, name: str, year: int) -> pd.DataFrame:
 
 
 def _get_codename_lookup() -> Mapping[str, str]:
-    countries = req.get('{}/{}'.format(BASE_URL, AVAILABLE_COUNTRIES)).json()
+    codename_lookup_url = '{}/{}'.format(BASE_URL, AVAILABLE_COUNTRIES)
+    logger.info('Fetching codenames from {}'.format(codename_lookup_url))
+    countries = req.get(codename_lookup_url).json()
     return {country['key']: country['value'] for country in countries}
 
 

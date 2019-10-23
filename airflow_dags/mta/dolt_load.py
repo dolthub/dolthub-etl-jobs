@@ -2,6 +2,9 @@ import requests as req
 import pandas as pd
 from typing import List
 from doltpy_etl import insert_unique_key, get_df_table_loader
+import logging
+
+logger = logging.getLogger(__name__)
 
 OPEN_DATA_NYC_BASE_URL = 'https://data.ny.gov/resource'
 MAXRECS = 10000000
@@ -9,7 +12,7 @@ MAXRECS = 10000000
 
 class MTADataSet:
 
-    def __init__(self, table_name: str, dataset_id: str, pk_cols: List[str]=None):
+    def __init__(self, table_name: str, dataset_id: str, pk_cols: List[str] = None):
         self.table_name = table_name
         self.dataset_id = dataset_id
         self.pk_cols = pk_cols
@@ -27,6 +30,8 @@ DATASETS = [
 
 
 def get_mta_data_as_df(url: str):
+    logger.info('Fetching data from URL {}'.format(url))
+
     def inner():
         with req.get(url) as request:
             if request.status_code == 200:
