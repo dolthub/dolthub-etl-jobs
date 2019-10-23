@@ -224,7 +224,6 @@ sub clean_input {
     return $string;
 }
 
-
 sub run_command {
     my $command = shift;
     my $error   = shift;

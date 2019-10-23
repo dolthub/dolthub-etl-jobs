@@ -132,4 +132,11 @@ raw_tatoeba_sentence_translations = BashOperator(
     dag=tatoeba_sentence_translations_dag
 )
 
+# Facebook Neural Code Search Evaluation
+neural_code_search_eval_dag = DAG('neural_code_search_eval',
+                                  default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                                  schedule_interval=timedelta(days=7))
 
+raw_neural_code_search_eval = BashOperator(task_id='import-data',
+                                           bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
+                                           dag=neural_code_search_eval_dag)
