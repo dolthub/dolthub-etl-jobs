@@ -7,12 +7,12 @@ use JSON::Parse qw(parse_json json_file_to_perl);
 
 my $url_base = 'https://github.com/facebookresearch/Neural-Code-Search-Evaluation-Dataset/raw/master/data/';
 
-my @files = (
-    '287_android_questions.json',
-    'android_repositories_download_links.txt',
-    'score_sheet.csv',
-    'search_corpus_1.tar.gz',
-    'search_corpus_2.tar.gz',
+my %files = (
+    '287_android_questions.json' => 'd4e6db7c7faeb0d5645d28eeb3b70650',
+    'android_repositories_download_links.txt' => '9ed809cc1d75f9a9f1873bd9382cf696',
+    'score_sheet.csv' => '25b2811bb9efae625e6988b1b56bd36e',
+    'search_corpus_1.tar.gz' => 'cbb0d6461284cd64fca0bf39d9c194a3',
+    'search_corpus_2.tar.gz' => '29755fc02eadf98c5b86d8348099ff69',
     );
 
 my $tmpdir = 'data';
@@ -26,9 +26,14 @@ run_command("dolt clone $clone_path",
 
 chdir($repo);
 
-download_and_unpack($url_base, \@files, $tmpdir);
+my @new = download_and_unpack($url_base, \%files, $tmpdir);
 
-import_files();
+unless ( @new ) {
+    print "No new files to import\n";
+    exit;
+}
+
+import_files($tmpdir, @new);
 
 publish($url_base);
 
@@ -42,9 +47,17 @@ sub download_and_unpack {
     run_command("mkdir $tmpdir", "Could not create $tmpdir");
     chdir($tmpdir);
     
-    foreach my $file ( @{$files} ) {
-	my $url = "$url_base/$file";
+    my @new;
+    foreach my $file ( keys %{$files} ) {
+	my $current_md5 = $files->{$file};
+	my $url         = "$url_base/$file";
 	run_command("curl -L -O $url", "Could not download $url");
+	
+        my $md5 = `md5 -q $file`;
+        chomp($md5);
+        next if ( $md5 eq $current_md5 );
+
+	push @new, $file; 
 	
 	if ( $file =~ /\.tar\.gz/ ) {
 	    run_command("tar -xzvf $file", "Could not unzip $file");
@@ -52,15 +65,29 @@ sub download_and_unpack {
     }
 	
     chdir('..');
+
+    return @new;
 }
 
 sub import_files {
-    import_download_links("$tmpdir/$files[1]");
-    import_score_sheet("$tmpdir/$files[2]");
-    import_questions("$tmpdir/$files[0]");
-    import_search_corpus($tmpdir, 
-    			 'search_corpus_1.jsonl',
-     			 'search_corpus_2.jsonl');
+    my $tmpdir = shift;
+    my @files = @_;
+
+    my $finished_search_corpus = 0;
+    foreach my $file ( @files ) {
+	if ( $file eq 'android_repositories_download_links.txt' ) {
+	    import_download_links("$tmpdir/$file");
+	} elsif ( $file eq 'score_sheet.csv' ) {
+	    import_score_sheet("$tmpdir/$file");
+	} elsif ( $file eq '287_android_questions.json' ) {
+	    import_questions("$tmpdir/$file");
+	} elsif ( $file =~ /search_corpus/ && !$finished_search_corpus ) {
+	    import_search_corpus($tmpdir, 
+				 'search_corpus_1.jsonl',
+				 'search_corpus_2.jsonl');
+	    $finished_search_corpus = 1;
+	}
+    }
 }
 
 sub publish {
