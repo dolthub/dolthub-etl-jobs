@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from doltpy_etl import dolthub_loader, DoltTableLoader
+from doltpy.etl import dolthub_loader, DoltTableLoader
 from mta.dolt_load import loaders as mta_loaders
 from fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
                                          transformed_table_loaders as fx_rates_transform_loaders)

@@ -1,5 +1,5 @@
 import pandas as pd
-from doltpy_etl import get_df_table_loader
+from doltpy.etl import get_df_table_loader
 import logging
 
 logger = logging.getLogger(__name__)

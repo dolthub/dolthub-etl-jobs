@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
-from doltpy_etl import get_df_table_loader, get_table_transfomer
-from doltpy import Dolt
+from doltpy.etl import get_df_table_loader, get_table_transfomer
+from doltpy.core import Dolt
 import logging
 
 logger = logging.getLogger(__name__)

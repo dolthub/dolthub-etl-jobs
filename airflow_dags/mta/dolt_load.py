@@ -1,7 +1,7 @@
 import requests as req
 import pandas as pd
 from typing import List
-from doltpy_etl import insert_unique_key, get_df_table_loader
+from doltpy.etl import insert_unique_key, get_df_table_loader
 import logging
 
 logger = logging.getLogger(__name__)
