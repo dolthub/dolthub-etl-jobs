@@ -52,9 +52,11 @@ sub download_and_unpack {
 	my $current_md5 = $files->{$file};
 	my $url         = "$url_base/$file";
 	run_command("curl -L -O $url", "Could not download $url");
+
+	my $md5 = `md5sum $file`;
+	my @split_md5 = split(/\s+/, $md5);
+	$md5 = $split_md5[0];
 	
-        my $md5 = `md5 -q $file`;
-        chomp($md5);
         next if ( $md5 eq $current_md5 );
 
 	push @new, $file; 
