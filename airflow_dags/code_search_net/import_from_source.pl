@@ -77,8 +77,11 @@ sub download_and_unpack {
 	my $url  = "$url_base$file";
 
 	run_command("curl -O $url", "Could not download $url");
-	my $md5 = `md5 -q $file`;
-	chomp($md5);
+
+	my $md5 = `md5sum $file`;
+	my @split_md5 = split(/\s+/, $md5);
+	$md5 = $split_md5[0];
+
 	next if ( $md5 eq $md5s{$language} );
 	push @new, $language;
 	run_command("unzip -o $file", "Could not unzip $file");

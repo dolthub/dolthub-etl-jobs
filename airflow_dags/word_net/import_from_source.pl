@@ -298,8 +298,9 @@ sub download_and_unpack {
     my $file = `ls -1 .`;
     chomp($file);
 
-    my $md5 = `md5 -q $file`;
-    chomp($md5);
+    my $md5 = `md5sum $file`;
+    my @split_md5 = split(/\s+/, $md5);
+    $md5 = $split_md5[0];
 
     if ( $current_md5 eq $md5 ) {
 	chdir('..');
