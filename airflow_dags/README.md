@@ -56,6 +56,9 @@ In `dag.py`, create an entry for your new import job. In there simplest form you
 
 *Bash example*
 
+Use the `bash_command` to run any arbitrary import. There's a bunch of Perl script examples in this package but you 
+can execute any bash command this way.
+
     word_net_dag = DAG('word_net',
                        default_args=get_default_args_helper(datetime(2019, 10, 21)),
                        schedule_interval=timedelta(days=7))
@@ -65,9 +68,11 @@ In `dag.py`, create an entry for your new import job. In there simplest form you
                                 dag=word_net_dag)
 
 Note the space after the `bash_command` string. That's important. Without it, airflow will try to interpret that string as a
-Jinja template and you'll get really crytic errors.
+Jinja template and you'll get really crytic errors. 
 
 *Python Example*
+
+We have a Python library called DoltPy that helps with Dolt imports. It exposes an interface named `dolthub_loader`.
 
     IP_TO_COUNTRY_REPO = 'Liquidata/ip-to-country'
     ip_to_country_dag = DAG('ip_to_country',
