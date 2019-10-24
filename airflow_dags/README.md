@@ -64,7 +64,7 @@ In `dag.py`, create an entry for your new import job. In there simplest form you
                                 bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
                                 dag=word_net_dag)
 
-Note the space after the bash_command. That's important. Without it, airflow will try to interpret that string as a
+Note the space after the `bash_command` string. That's important. Without it, airflow will try to interpret that string as a
 Jinja template and you'll get really crytic errors.
 
 *Python Example*
