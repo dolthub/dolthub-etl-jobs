@@ -85,9 +85,9 @@ raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                    dag=ip_to_country_dag)
 
 
-# Code Search Net database
+# WordNet database
 word_net_dag = DAG('word_net',
-                   default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                   default_args=get_default_args_helper(datetime(2019, 10, 22)),
                    schedule_interval=timedelta(days=7))
 
 raw_word_net = BashOperator(task_id='import-data',
@@ -97,7 +97,7 @@ raw_word_net = BashOperator(task_id='import-data',
 
 # Code Search Net database
 code_search_net_dag = DAG('code_search_net',
-                         default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                         default_args=get_default_args_helper(datetime(2019, 10, 23)),
                          schedule_interval=timedelta(days=7))
 
 code_search_net = BashOperator(
@@ -109,7 +109,7 @@ code_search_net = BashOperator(
 # USDA All Foods database
 usda_all_foods_dag = DAG(
     'usda_all_foods',
-    default_args=get_default_args_helper(datetime(2019, 10, 21)),
+    default_args=get_default_args_helper(datetime(2019, 10, 24)),
     schedule_interval=timedelta(days=7)
 )
 
@@ -134,7 +134,7 @@ raw_tatoeba_sentence_translations = BashOperator(
 
 # Facebook Neural Code Search Evaluation
 neural_code_search_eval_dag = DAG('neural_code_search_eval',
-                                  default_args=get_default_args_helper(datetime(2019, 10, 21)),
+                                  default_args=get_default_args_helper(datetime(2019, 10, 25)),
                                   schedule_interval=timedelta(days=7))
 
 raw_neural_code_search_eval = BashOperator(task_id='import-data',
