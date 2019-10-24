@@ -9,12 +9,11 @@ Dolt is a relational database, and thus one way to create Dolt tables is to crea
 You can help us make interesting data public and clean by adding a dataset to this repository, or adding jobs that transform and clean existing data on DoltHub. 
 
 ## Development
-To start developing ETL jobs for Liquidata's public datasets you need to clone the code, and then install `doltpy` from source control, since it's not yet on `PyPi`:
+To start developing ETL jobs for Liquidata's public datasets you need to clone the code, and then install `doltpy` from `PyPi`:
 ```bash
 $ mkdir doltdev && cd "$_"
-$ git clone https://github.com/liquidata-inc/liquidata-etl-jobs liquidata-etl-jobs
-$ git clone https://github.com/liquidata-inc/doltpy doltpy
 $ pip install doltpy
+$ git clone https://github.com/liquidata-inc/liquidata-etl-jobs liquidata-etl-jobs
 $ pip install -e liquidata-etl-jobs
 ```
 Verify that the required commands are available in your path:
