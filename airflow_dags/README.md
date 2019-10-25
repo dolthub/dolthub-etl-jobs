@@ -30,7 +30,7 @@ The general flow of most of these jobs is:
 1. Download the data you want to import
 1. Check and see if the data has changed since last job run. If no change, exit.
 1. Import the data into the dolt repo. If the data downloaded from the web is assumed to be truth, delete the current 
-data before importing or use dolt table import -r.
+data before importing or use `dolt table import -r`.
 1. Run `dolt diff`. Exit if nothing has changed.
 1. `dolt add .` to stage the changes
 1. `dolt commit` with a descriptive automated commit message
