@@ -92,7 +92,7 @@ Make sure your running airflow can see your new DAG by running `airflow list_dag
 locally using `airflow test <dag> <task> <date>` (ie. `airflow test word_net import-data 2019-10-22`). This runs the job as
 airflow would in production. Fix any errors that occur.
 
-## Create a pull request to this repoistory
+## Create a pull request to this repository
 
 Once you have your job working, create a pull request to this directory. Someone here at Liquidata will review it and 
 suggest any changes. Once the PR is reviewed, the code will be deployed and you'll be able to see your DAG and the status 
