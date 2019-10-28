@@ -35,7 +35,7 @@ FILTERS = {
 }
 
 
-def fetch_data():
+def fetch_data(filter_type: str):
     if path.exists(DUMP_PATH):
         logging.info('Using existing XML dump.')
     else:
@@ -46,16 +46,14 @@ def fetch_data():
                 if chunk:
                     f.write(chunk)
         logging.info('Finished downloading XML dump')
-    process_bz2()
+    process_bz2(filter_type)
 
 
-def process_bz2():
+def process_bz2(filter_type: str):
     logging.info("Processing dump with filter: {}".format(sys.argv[3]))
     start = time.time()
+    filter_string = 'no_filter' if filter_type not in FILTERS else FILTERS[filter_type]
 
-    filter_string = ''
-    if sys.argv[3] is not 'no_filter':
-        filter_string = sys.argv[3]
     with subprocess.Popen(
         'bzcat {} | {} --no_templates -o - -'.format(DUMP_PATH, WIKIEXTRACTOR_PATH),
         stdout=subprocess.PIPE,
@@ -131,9 +129,9 @@ def remove_unwanted_punctuation(word: str):
     return word
 
 
-def get_df_builder() -> Callable[[], pd.DataFrame]:
+def get_df_builder(filter_type: str) -> Callable[[], pd.DataFrame]:
     def inner() -> pd.DataFrame:
-        fetch_data()
+        fetch_data(filter_type)
         logging.info('Successfully added {} words'.format(len(WORD_USES.items())))
         df = pd.DataFrame([{'word': word, 'frequency': frequency}
                           for word, frequency in WORD_USES.items()])
@@ -142,5 +140,5 @@ def get_df_builder() -> Callable[[], pd.DataFrame]:
     return inner
 
 
-FILTERS = ['no_numbers', 'no_abbreviations', 'ASCII_only', 'strict', 'convert_to_ASCII', 'stemmed']
-loaders = [get_df_table_loader('word_frequency', get_df_builder(), pk_cols=['word'], import_mode='replace')]
+def get_loaders(filter_type: str):
+    return [get_df_table_loader('word_frequency', get_df_builder(filter_type), pk_cols=['word'], import_mode='replace')]
