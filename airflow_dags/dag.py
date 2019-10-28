@@ -11,7 +11,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.configuration import conf
 
 
-def get_default_args_helper(start_date: datetime):
+def get_default_airflow_args_helper(start_date: datetime):
     return {'owner': 'liquidata-etl',
             'depends_on_past': False,
             'start_date': start_date,
@@ -21,11 +21,14 @@ def get_default_args_helper(start_date: datetime):
             'retry_delay': timedelta(minutes=5)}
 
 
-def get_args_helper(loaders: List[DoltTableLoader], message: str, remote_url: str):
+def get_dolt_loader_args_helper(loaders: List[DoltTableLoader],
+                                message: str,
+                                remote_url: str,
+                                branch: str = 'master'):
     return dict(loaders=loaders,
                 dolt_dir=None,
                 clone=True,
-                branch='master',
+                branch=branch,
                 commit=True,
                 push=True,
                 remote_name='origin',
@@ -37,22 +40,22 @@ def get_args_helper(loaders: List[DoltTableLoader], message: str, remote_url: st
 # FX rates DAG
 FX_RATES_REPO_PATH = 'oscarbatori/fx-test-data'
 fx_rates_dag = DAG('fx_rates',
-                   default_args=get_default_args_helper(datetime(2019, 10, 9)),
+                   default_args=get_default_airflow_args_helper(datetime(2019, 10, 9)),
                    schedule_interval=timedelta(hours=1))
 
 
 fx_rates_raw_data = PythonOperator(task_id='fx_rates_raw',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(fx_rates_raw_loaders,
-                                                             'Update raw data {}'.format(datetime.now()),
-                                                             FX_RATES_REPO_PATH),
+                                   op_kwargs=get_dolt_loader_args_helper(fx_rates_raw_loaders,
+                                                                         'Update raw data {}'.format(datetime.now()),
+                                                                         FX_RATES_REPO_PATH),
                                    dag=fx_rates_dag)
 
 fx_rates_averages = PythonOperator(task_id='fx_rates_averages',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(fx_rates_transform_loaders,
-                                                             'Update averages {}'.format(datetime.now()),
-                                                             FX_RATES_REPO_PATH),
+                                   op_kwargs=get_dolt_loader_args_helper(fx_rates_transform_loaders,
+                                                                         'Update averages {}'.format(datetime.now()),
+                                                                         FX_RATES_REPO_PATH),
                                    dag=fx_rates_dag)
 
 fx_rates_averages.set_upstream(fx_rates_raw_data)
@@ -61,33 +64,37 @@ fx_rates_averages.set_upstream(fx_rates_raw_data)
 # MTA data DAG
 MTA_REPO_PATH = 'oscarbatori/mta-data'
 mta_dag = DAG('mta_data',
-              default_args=get_default_args_helper(datetime(2019, 10, 8)),
+              default_args=get_default_airflow_args_helper(datetime(2019, 10, 8)),
               schedule_interval=timedelta(days=1))
 
 raw_mta_data = PythonOperator(task_id='raw_mta_data',
                               python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper(mta_loaders,
-                                                        'Update MTA data for date {}'.format(datetime.now()),
-                                                        MTA_REPO_PATH),
+                              op_kwargs=get_dolt_loader_args_helper(
+                                  mta_loaders,
+                                  'Update MTA data for date {}'.format(datetime.now()),
+                                  MTA_REPO_PATH
+                              ),
                               dag=mta_dag)
 
 # IP to country mappings
 IP_TO_COUNTRY_REPO = 'Liquidata/ip-to-country'
 ip_to_country_dag = DAG('ip_to_country',
-                        default_args=get_default_args_helper(datetime(2019, 10, 8)),
+                        default_args=get_default_airflow_args_helper(datetime(2019, 10, 8)),
                         schedule_interval=timedelta(days=1))
 
 raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(ip_to_country_loaders,
-                                                             'Update IP to Country for date {}'.format(datetime.now()),
-                                                             IP_TO_COUNTRY_REPO),
+                                   op_kwargs=get_dolt_loader_args_helper(
+                                       ip_to_country_loaders,
+                                       'Update IP to Country for date {}'.format(datetime.now()),
+                                       IP_TO_COUNTRY_REPO
+                                   ),
                                    dag=ip_to_country_dag)
 
 
-# WordNet database
+# Code Search Net database
 word_net_dag = DAG('word_net',
-                   default_args=get_default_args_helper(datetime(2019, 10, 22)),
+                   default_args=get_default_airflow_args_helper(datetime(2019, 10, 21)),
                    schedule_interval=timedelta(days=7))
 
 raw_word_net = BashOperator(task_id='import-data',
@@ -97,7 +104,7 @@ raw_word_net = BashOperator(task_id='import-data',
 
 # Code Search Net database
 code_search_net_dag = DAG('code_search_net',
-                         default_args=get_default_args_helper(datetime(2019, 10, 23)),
+                         default_args=get_default_airflow_args_helper(datetime(2019, 10, 21)),
                          schedule_interval=timedelta(days=7))
 
 code_search_net = BashOperator(
@@ -109,7 +116,7 @@ code_search_net = BashOperator(
 # USDA All Foods database
 usda_all_foods_dag = DAG(
     'usda_all_foods',
-    default_args=get_default_args_helper(datetime(2019, 10, 24)),
+    default_args=get_default_airflow_args_helper(datetime(2019, 10, 21)),
     schedule_interval=timedelta(days=7)
 )
 
@@ -122,7 +129,7 @@ raw_usda_all_foods = BashOperator(
 # Tatoeba sentence translations
 tatoeba_sentence_translations_dag = DAG(
     'tatoeba_sentence_translations',
-    default_args=get_default_args_helper(datetime(2019, 10, 21)),
+    default_args=get_default_airflow_args_helper(datetime(2019, 10, 21)),
     schedule_interval=timedelta(days=7)
 )
 
@@ -134,7 +141,7 @@ raw_tatoeba_sentence_translations = BashOperator(
 
 # Facebook Neural Code Search Evaluation
 neural_code_search_eval_dag = DAG('neural_code_search_eval',
-                                  default_args=get_default_args_helper(datetime(2019, 10, 25)),
+                                  default_args=get_default_airflow_args_helper(datetime(2019, 10, 21)),
                                   schedule_interval=timedelta(days=7))
 
 raw_neural_code_search_eval = BashOperator(task_id='import-data',
