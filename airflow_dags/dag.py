@@ -18,6 +18,7 @@ def get_default_args_helper(start_date: datetime):
             'email': ['airflow@liquidata.co'],
             'email_on_failure': False,
             'email_on_retry': False,
+            'catchup': False,
             'retry_delay': timedelta(minutes=5)}
 
 
