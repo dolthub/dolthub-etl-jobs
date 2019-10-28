@@ -475,7 +475,7 @@ sub process_data_files {
 	# Delete the current data in the tables because we want the data in 
 	# dolt to mirror the data in the WordNet file exactly. 
 	run_command("dolt sql -q 'delete from $table_name'",
-		   'Could not delete lexs table');
+		    "Could not delete $table_name table");
 	run_command("dolt sql < $sql_file", "Could not execute $sql_file");
 	unlink($sql_file);
     }
