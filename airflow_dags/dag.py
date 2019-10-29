@@ -4,7 +4,8 @@ from mta.dolt_load import loaders as mta_loaders
 from fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
                                          transformed_table_loaders as fx_rates_transform_loaders)
 from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
-from wikipedia_word_frequency.dolt_load import get_loaders as get_wikipedia_loaders
+from wikipedia_word_frequency.dolt_load import (get_loaders as get_wikipedia_loaders,
+                                                create_and_push_base_branch as wiki_create_branch)
 from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -145,37 +146,46 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 DUMP_DATE = datetime.now() - timedelta(days=4)
-# FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
-FORMATTED_DATE = '10-8-19'
-FILTERS = ['no_numbers', 'no_abbreviations', 'ASCII_only', 'strict', 'convert_to_ASCII', 'stemmed']
+FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
+
 # XML dumps released on the 1st and 20th of every month. This job should run 4 days after.
 CRON_EXPRESSION = '0 8 5,24 * *'
+wikipedia_dag = DAG('wikipedia-word-frequency',
+                    default_args=get_default_args_helper(datetime(2019, 10, 18)),
+                    schedule_interval=CRON_EXPRESSION)
 
 
 def define_wikipedia_dag():
-    wikipedia_dag = DAG('wikipedia-word-frequency',
-                        default_args=get_default_args_helper(datetime(2019, 10, 18)),
-                        schedule_interval=CRON_EXPRESSION)
-
     wikipedia_no_filter = PythonOperator(task_id='no_filter',
                                          python_callable=dolthub_loader,
-                                         op_kwargs=get_args_helper(get_wikipedia_loaders('no_filter'),
+                                         op_kwargs=get_args_helper(get_wikipedia_loaders('none'),
                                                                    'Update Wikipedia word frequencies for {} XML dump'.format(FORMATTED_DATE),
                                                                    WIKIPEDIA_REPO),
                                          dag=wikipedia_dag)
 
-    # TODO: create branch with dump date and push to origin before applying filters
+    wikipedia_base_branch = PythonOperator(task_id='create_base',
+                                           python_callable=wiki_create_branch,
+                                           op_kwargs=(dict(remote=WIKIPEDIA_REPO,
+                                                           branch_name=FORMATTED_DATE)),
+                                           dag=wikipedia_dag)
 
-    for word_filter in FILTERS:
+    wikipedia_base_branch.set_upstream(wikipedia_no_filter)
+
+    filters = ['no_numbers', 'no_abbreviations', 'ASCII_only', 'strict', 'convert_to_ASCII', 'stemmed']
+    for word_filter in filters:
         branch_name = '{}/filter_{}'.format(FORMATTED_DATE, word_filter)
+        commit_msg = 'Update Wikipedia word frequencies with {} filter for {} XML dump'.format(
+                                                                             word_filter, FORMATTED_DATE)
         wikipedia_with_filter = PythonOperator(task_id=word_filter,
                                                python_callable=dolthub_loader,
-                                               op_kwargs=get_args_helper(get_wikipedia_loaders(branch_name),
-                                                                         'Update Wikipedia word frequencies with {} filter for {} XML dump'.format(word_filter, FORMATTED_DATE),
+                                               op_kwargs=get_args_helper(get_wikipedia_loaders(word_filter),
+                                                                         commit_msg,
                                                                          WIKIPEDIA_REPO,
                                                                          branch=branch_name),
                                                dag=wikipedia_dag)
 
-        wikipedia_with_filter.set_upstream(wikipedia_no_filter)
+        wikipedia_with_filter.set_upstream(wikipedia_base_branch)
+
 
 define_wikipedia_dag()
+
