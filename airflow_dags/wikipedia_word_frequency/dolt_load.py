@@ -4,12 +4,12 @@ import time
 import logging
 import requests
 import tempfile
+from collections import defaultdict
+from os import path, remove
 from doltpy.etl import get_df_table_loader
 from doltpy.core.dolt import Dolt
 import pandas as pd
-from collections import defaultdict
 from typing import Callable
-from os import path
 from unidecode import unidecode
 from nltk.stem import PorterStemmer
 
@@ -25,10 +25,10 @@ WORD_USES = defaultdict(int)
 WORDS_TO_STEM = defaultdict(int)
 
 LINE_TRANS = str.maketrans('–’', "-\'")
+WORD_SPLIT = re.compile(r'[^\w\-\'\.&]|[\'\-\'\.&\/_]{2,}')
 
 FILTERS = {
-    'word_split': re.compile(r'[^\w\-\'\.&]|[\'\-\'\.&\/_]{2,}'),
-    'raw': re.compile(r'^[\w\.\-\/][\w\.\'\-\/&]*[\w\.\-]*$'),
+    'none': re.compile(r'^[\w\.\-\/][\w\.\'\-\/&]*[\w\.\-]*$'),
     'no_numbers': re.compile(r'.*[0-9].*'),
     'ASCII_only': re.compile(r'^[a-z0-9\-][a-z0-9\.\'\-&]*[a-z0-9\.\-]$'),
     'no_abbreviations': re.compile(r'.*[&\.].*'),
@@ -51,8 +51,9 @@ def fetch_data(filter_type: str):
 
 
 def process_bz2(filter_type: str):
-    logging.info("Processing dump with filter: {}".format(filter_type))
+    logging.info('Processing dump with filter: {}'.format(filter_type))
     start = time.time()
+    assert_filter_exists(filter_type)
 
     with subprocess.Popen(
         'bzcat {} | {} --no_templates -o - -'.format(DUMP_PATH, WIKIEXTRACTOR_PATH),
@@ -64,14 +65,24 @@ def process_bz2(filter_type: str):
             line = line.translate(LINE_TRANS)
             if not is_line_tag(line):
                 line = line.lower()
-                for word in filter(None, FILTERS.get('word_split').split(line)):
+                for word in filter(None, WORD_SPLIT.split(line)):
                     if filter_type == 'stemmed':
                         add_to_dict(word, filter_type, WORDS_TO_STEM)
                     else:
                         add_to_dict(word, filter_type, WORD_USES)
+
     if filter_type == 'stemmed':
         stem_words()
-    logging.info('ET completed in {}'.format(time.time() - start))
+    duration = (time.time() - start)/60
+    logging.info('ET completed in %.1f minutes', duration)
+
+
+def assert_filter_exists(filter_type: str):
+    valid_filters = ['stemmed', 'convert_to_ASCII']
+    valid_filters.extend([wf for wf in FILTERS])
+    is_valid = filter_type in valid_filters
+    invalid_msg = '{} is not a valid word filter. Valid filters are {}'.format(filter_type, ', '.join(valid_filters))
+    assert is_valid, invalid_msg
 
 
 def is_line_tag(line: str):
@@ -79,34 +90,20 @@ def is_line_tag(line: str):
 
 
 def add_to_dict(word: str, filter_type: str, word_dict: defaultdict):
-    word, passes_filter = filter_word(word, filter_type)
-    if passes_filter and len(word) > 0 and word is not None:
+    word, passed_filter = filter_word(word, filter_type)
+    if passed_filter and len(word) > 0 and word is not None:
         word_dict[word] += 1
 
 
 def filter_word(word: str, filter_type: str):
     word = remove_unwanted_punctuation(word)
-    if not FILTERS.get('raw').match(word):
+    if not FILTERS.get('none').match(word):
         return word, False
-    if 'convert_to_ASCII' in filter_type:
-        word = unidecode(word)
-    if fails_filter(filter_type, 'no_numbers', word):
-        return word, False
-    if fails_filter(filter_type, 'ASCII_only', word):
-        return word, False
-    if fails_filter(filter_type, 'no_abbreviations', word):
-        return word, False
-    if fails_filter(filter_type, 'strict', word):
-        return word, False
-    return word, True
-
-
-def fails_filter(filter_type: str, curr_filter: str, word: str):
-    if curr_filter == filter_type:
-        if curr_filter[:2] == 'no':
-            return FILTERS.get(curr_filter).match(word)
-        return not FILTERS.get(curr_filter).match(word)
-    return False
+    if filter_type == 'convert_to_ASCII':
+        return unidecode(word), True
+    if filter_type == 'stemmed' or filter_type == 'none':
+        return word, True
+    return word, passes_filter(filter_type, word)
 
 
 def remove_unwanted_punctuation(word: str):
@@ -116,8 +113,13 @@ def remove_unwanted_punctuation(word: str):
             word = word[1:]
         elif word[-1] in punctuation:
             word = word[:-1]
-
     return word
+
+
+def passes_filter(filter_type: str, word: str):
+    if filter_type[:2] == 'no':
+        return not FILTERS.get(filter_type).match(word)
+    return FILTERS.get(filter_type).match(word)
 
 
 def stem_words():
@@ -132,7 +134,7 @@ def stem_words():
 def get_df_builder(filter_type: str) -> Callable[[], pd.DataFrame]:
     def inner() -> pd.DataFrame:
         fetch_data(filter_type)
-        logging.info('Successfully added {} words'.format(len(WORD_USES.items())))
+        logging.info('Successfully processed {} words from dump'.format(len(WORD_USES.items())))
         df = pd.DataFrame([{'word': word, 'frequency': frequency}
                           for word, frequency in WORD_USES.items()])
         return df.astype({'frequency': 'int'})
@@ -145,13 +147,17 @@ def get_loaders(filter_type: str):
 
 
 # DAG helpers
-def create_and_push_base_branch(remote: str, branch_name: str):
+def create_and_push_branch(remote: str, branch_name: str):
     temp_dir = tempfile.mkdtemp()
     repo = Dolt(temp_dir)
-    logging.info('Cloning repo from {}'.format(remote))
+    logging.info('Cloning repo from {} to {}'.format(remote, temp_dir))
     repo.clone(remote)
     logging.info('Creating branch {}'.format(branch_name))
     repo.create_branch(branch_name)
     logging.info('Pushing branch {} to origin'.format(branch_name))
     repo.push('origin', branch_name)
 
+
+def cleanup():
+    remove(DUMP_PATH)
+    logging.info('Wikipedia dump removed from current directory')
