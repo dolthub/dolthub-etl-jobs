@@ -174,6 +174,11 @@ def define_wikipedia_dag():
 
     wikipedia_base_branch.set_upstream(wikipedia_no_filter)
 
+    wikipedia_cleanup = PythonOperator(
+        task_id='cleanup',
+        python_callable=wiki_cleanup,
+        dag=wikipedia_dag)
+
     filters = ['no_numbers', 'no_abbreviations', 'ASCII_only', 'strict', 'convert_to_ASCII', 'stemmed']
     for word_filter in filters:
         wikipedia_with_filter = PythonOperator(
@@ -185,15 +190,8 @@ def define_wikipedia_dag():
                                       WIKIPEDIA_REPO,
                                       branch='{}/filter_{}'.format(FORMATTED_DATE, word_filter)),
             dag=wikipedia_dag)
-
+        wikipedia_with_filter.set_downstream(wikipedia_cleanup)
         wikipedia_with_filter.set_upstream(wikipedia_base_branch)
-
-    wikipedia_cleanup = PythonOperator(
-        task_id='cleanup',
-        python_callable=wiki_cleanup,
-        dag=wikipedia_dag)
-
-    wikipedia_cleanup.set_upstream(wikipedia_with_filter)
 
 
 define_wikipedia_dag()
