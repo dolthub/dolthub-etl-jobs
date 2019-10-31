@@ -1,7 +1,7 @@
 from setuptools import setup
 import os
 
-PACKAGE_DIRS = ['local_write_example', 'fx_rates_example', 'mta', 'ip_to_country']
+PACKAGE_DIRS = ['local_write_example', 'fx_rates_example', 'mta', 'ip_to_country', 'wikipedia_word_frequency']
 PREFIX = 'liquidata_etl'
 PREFIXED_PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): os.path.join('airflow_dags', package)
                                      for package in PACKAGE_DIRS}

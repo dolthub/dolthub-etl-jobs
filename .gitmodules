@@ -1,0 +1,3 @@
+[submodule "wikipedia_word_frequency/wikiextractor"]
+	path = wikipedia_word_frequency/wikiextractor
+	url = https://github.com/attardi/wikiextractor

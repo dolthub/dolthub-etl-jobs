@@ -4,6 +4,9 @@ from mta.dolt_load import loaders as mta_loaders
 from fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
                                          transformed_table_loaders as fx_rates_transform_loaders)
 from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
+from wikipedia_word_frequency.dolt_load import (get_loaders as get_wikipedia_loaders,
+                                                create_and_push_branch as wiki_create_and_push_branch,
+                                                cleanup as wiki_cleanup)
 from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -22,11 +25,11 @@ def get_default_args_helper(start_date: datetime):
             'retry_delay': timedelta(minutes=5)}
 
 
-def get_args_helper(loaders: List[DoltTableLoader], message: str, remote_url: str):
+def get_args_helper(loaders: List[DoltTableLoader], message: str, remote_url: str, branch='master'):
     return dict(loaders=loaders,
                 dolt_dir=None,
                 clone=True,
-                branch='master',
+                branch=branch,
                 commit=True,
                 push=True,
                 remote_name='origin',
@@ -141,3 +144,56 @@ neural_code_search_eval_dag = DAG('neural_code_search_eval',
 raw_neural_code_search_eval = BashOperator(task_id='import-data',
                                            bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
                                            dag=neural_code_search_eval_dag)
+
+# Wikipedia word frequency
+WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
+DUMP_DATE = datetime.now() - timedelta(days=4)
+FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
+
+# XML dumps released on the 1st and 20th of every month. This job should run 4 days after.
+wikipedia_dag = DAG(
+    'wikipedia-word-frequency',
+    default_args=get_default_args_helper(datetime(2019, 10, 18)),
+    schedule_interval='0 8 5,24 * *')
+
+
+def define_wikipedia_dag():
+    wikipedia_no_filter = PythonOperator(
+        task_id='no_filter',
+        python_callable=dolthub_loader,
+        op_kwargs=get_args_helper(get_wikipedia_loaders('none'),
+                                  'Update Wikipedia word frequencies for {} XML dump'.format(FORMATTED_DATE),
+                                  WIKIPEDIA_REPO),
+        dag=wikipedia_dag)
+
+    wikipedia_base_branch = PythonOperator(
+        task_id='base_branch',
+        python_callable=wiki_create_and_push_branch,
+        op_kwargs=(dict(remote=WIKIPEDIA_REPO,
+                        branch_name=FORMATTED_DATE)),
+        dag=wikipedia_dag)
+
+    wikipedia_base_branch.set_upstream(wikipedia_no_filter)
+
+    wikipedia_cleanup = PythonOperator(
+        task_id='cleanup',
+        python_callable=wiki_cleanup,
+        dag=wikipedia_dag)
+
+    filters = ['no_numbers', 'no_abbreviations', 'ASCII_only', 'strict', 'convert_to_ASCII', 'stemmed']
+    for word_filter in filters:
+        wikipedia_with_filter = PythonOperator(
+            task_id=word_filter,
+            python_callable=dolthub_loader,
+            op_kwargs=get_args_helper(get_wikipedia_loaders(word_filter),
+                                      'Update Wikipedia word frequencies with {} filter for {} XML dump'.format(
+                                          word_filter, FORMATTED_DATE),
+                                      WIKIPEDIA_REPO,
+                                      branch='{}/filter_{}'.format(FORMATTED_DATE, word_filter)),
+            dag=wikipedia_dag)
+        wikipedia_with_filter.set_downstream(wikipedia_cleanup)
+        wikipedia_with_filter.set_upstream(wikipedia_base_branch)
+
+
+define_wikipedia_dag()
+
