@@ -42,7 +42,7 @@ def fetch_data(filter_type: str):
     else:
         logging.info('Fetching Wikipedia XML dump from URL {}'.format(DUMP_URL))
         r = requests.get(DUMP_URL, stream=True)
-        with open(DUMP_PATH, 'wb') as f:
+        with open(BZ2_FILE_NAME, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
@@ -56,7 +56,7 @@ def process_bz2(filter_type: str):
     assert_filter_exists(filter_type)
 
     with subprocess.Popen(
-        'bzcat {} | {} --no_templates -o - -'.format(DUMP_PATH, WIKIEXTRACTOR_PATH),
+        'bzcat {} | {} --no_templates -o - -'.format(BZ2_FILE_NAME, WIKIEXTRACTOR_PATH),
         stdout=subprocess.PIPE,
         shell=True,
     ) as proc:
