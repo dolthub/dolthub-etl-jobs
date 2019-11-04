@@ -6,7 +6,7 @@ import requests
 import tempfile
 from collections import defaultdict
 from os import path
-from doltpy.etl import get_df_table_loader, load_to_dolt
+from doltpy.etl import get_df_table_writer, get_dolt_loader
 from doltpy.core.dolt import Dolt
 import pandas as pd
 from typing import Callable, List
@@ -132,65 +132,18 @@ def get_filter_df_builder(filter_type: str) -> Callable[[], pd.DataFrame]:
     return inner
 
 
-def load_and_push(repo: Dolt,
-                  loaders: List[DoltTableLoader],
-                  branch_date: str,
-                  remote: str,
-                  branch: str,
-                  message: str):
-    commit = True
-    logger.info(
-        '''Commencing to load to DoltHub with the following options:
-                        - dolt_dir  {dolt_dir}
-                        - commit    {commit}
-                        - message   {message}
-                        - branch    {branch}
-                        - remote    {remote}
-                        - push      {push}
-        '''.format(dolt_dir=repo.repo_dir,
-                   commit=commit,
-                   message=message,
-                   branch=branch,
-                   remote=remote,
-                   push=True))
-    load_to_dolt(repo, loaders, commit, message, branch)
-    logger.info('Pushing changes to remote {} on branch {}'.format(remote, branch))
-    repo.push('origin', branch)
-    current_branch = repo.get_current_branch()
-    if current_branch != branch_date and branch != 'master':
-        repo.checkout(branch_date)
-
-
-def create_and_push_branch(repo: Dolt, branch_name: str):
-    logging.info('Creating branch {}'.format(branch_name))
-    repo.create_branch(branch_name)
-    logging.info('Pushing branch {} to origin'.format(branch_name))
-    repo.push('origin', branch_name)
-
-
-def load_wikipedia_branches(remote: str, branch_date: str):
-    temp_dir = tempfile.mkdtemp()
-    repo = Dolt(temp_dir)
-    logging.info('Cloning repo from {} to {}'.format(remote, temp_dir))
-    repo.clone(remote)
-
-    # handle master
-    master_loaders = [get_df_table_loader('word_frequency',
+def get_wikipedia_loaders(branch_date: str):
+    loaders = []
+    master_writer = get_df_table_writer('word_frequency',
                                           get_master_df_builder(),
                                           pk_cols=['word'],
-                                          import_mode='replace')]
+                                          import_mode='replace')
     message = 'Update Wikipedia word frequencies for {} XML dump'.format(branch_date)
-    load_and_push(repo, master_loaders, branch_date, remote, 'master', message)
+    loaders.append(get_dolt_loader([master_writer], True, message, 'master'))
 
-    # create and push base branch
-    create_and_push_branch(repo, branch_date)
-
-    # handle filter branches
     for filter_name in FILTER_NAMES:
-        filter_loaders = [get_df_table_loader('word_frequency',
-                                              get_filter_df_builder(filter_name),
-                                              pk_cols=['word'],
-                                              import_mode='replace')]
+        filter_writer = get_df_table_writer('word_frequency', filter_name, pk_cols=['word'], import_mode='replace')
         branch_name = '{}/filter_{}'.format(branch_date, filter_name)
-        message = 'Update Wikipedia word frequencies with {} filter for {} XML dump'.format(filter_name, branch_date)
-        load_and_push(repo, filter_loaders, branch_date, remote, branch_name, message)
+        loaders.append(get_dolt_loader([filter_writer], True, message, branch_name))
+
+    return loaders

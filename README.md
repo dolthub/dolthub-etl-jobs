@@ -43,16 +43,9 @@ No tables in working set
 ```
 You can now run the script at the command line and see the results:
 ```
-$ dolt-load \
-    --commit \ 
-    --dolt-dir $HOME/test-dolt \
-    --message "Added some great players" \
-    liquidata_etl.local_write_example
+$ dolt-load --dolt-dir $HOME/test-dolt liquidata_etl.local_write_example
 Commencing load to Dolt with the following options, and the following options
-                - module    local_write_example
-                - dolt_dir  /Users/oscarbatori/test-dolt
-                - commit    True
-                - branch    master
+                - dolt_dir  /Users/oscarbatori/test-dolt]
         
 Loading Dolt repo at /Users/oscarbatori/test-dolt
 Loading data to table great_players with primary keys ['name']

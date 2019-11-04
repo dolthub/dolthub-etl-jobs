@@ -1,15 +1,16 @@
 from datetime import datetime, timedelta
-from doltpy.etl import dolthub_loader, DoltTableLoader
-from mta.dolt_load import loaders as mta_loaders
-from fx_rates_example.dolt_load import (raw_table_loaders as fx_rates_raw_loaders,
-                                         transformed_table_loaders as fx_rates_transform_loaders)
-from ip_to_country.dolt_load import ip_loaders as ip_to_country_loaders
-from wikipedia_word_frequency.dolt_load import load_wikipedia_branches
+from doltpy.etl import dolthub_loader, DoltLoaderBuilder
+from mta.dolt_load import get_loaders as get_mta_loaders
+from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_raw_loaders,
+                                        get_transformed_table_loaders as get_fx_rates_transform_loaders)
+from ip_to_country.dolt_load import get_loaders as get_ip_loaders
+from wikipedia_word_frequency.dolt_load import get_wikipedia_loaders
 from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.configuration import conf
+from functools import partial
 
 
 def get_default_args_helper(start_date: datetime):
@@ -23,15 +24,12 @@ def get_default_args_helper(start_date: datetime):
             'retry_delay': timedelta(minutes=5)}
 
 
-def get_args_helper(loaders: List[DoltTableLoader], message: str, remote_url: str, branch='master'):
-    return dict(loaders=loaders,
+def get_args_helper(loader_builder: DoltLoaderBuilder, remote_url: str):
+    return dict(loader_builder=loader_builder,
                 dolt_dir=None,
                 clone=True,
-                branch=branch,
-                commit=True,
                 push=True,
                 remote_name='origin',
-                message=message,
                 dry_run=False,
                 remote_url=remote_url)
 
@@ -45,16 +43,12 @@ fx_rates_dag = DAG('fx_rates',
 
 fx_rates_raw_data = PythonOperator(task_id='fx_rates_raw',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(fx_rates_raw_loaders,
-                                                             'Update raw data {}'.format(datetime.now()),
-                                                             FX_RATES_REPO_PATH),
+                                   op_kwargs=get_args_helper(get_fx_rates_raw_loaders, FX_RATES_REPO_PATH),
                                    dag=fx_rates_dag)
 
 fx_rates_averages = PythonOperator(task_id='fx_rates_averages',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(fx_rates_transform_loaders,
-                                                             'Update averages {}'.format(datetime.now()),
-                                                             FX_RATES_REPO_PATH),
+                                   op_kwargs=get_args_helper(get_fx_rates_transform_loaders, FX_RATES_REPO_PATH),
                                    dag=fx_rates_dag)
 
 fx_rates_averages.set_upstream(fx_rates_raw_data)
@@ -68,9 +62,7 @@ mta_dag = DAG('mta_data',
 
 raw_mta_data = PythonOperator(task_id='raw_mta_data',
                               python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper(mta_loaders,
-                                                        'Update MTA data for date {}'.format(datetime.now()),
-                                                        MTA_REPO_PATH),
+                              op_kwargs=get_args_helper(get_mta_loaders, MTA_REPO_PATH),
                               dag=mta_dag)
 
 # IP to country mappings
@@ -81,9 +73,7 @@ ip_to_country_dag = DAG('ip_to_country',
 
 raw_ip_to_country = PythonOperator(task_id='ip_to_country',
                                    python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(ip_to_country_loaders,
-                                                             'Update IP to Country for date {}'.format(datetime.now()),
-                                                             IP_TO_COUNTRY_REPO),
+                                   op_kwargs=get_args_helper(get_ip_loaders, IP_TO_COUNTRY_REPO),
                                    dag=ip_to_country_dag)
 
 
@@ -155,7 +145,7 @@ wikipedia_dag = DAG(
     schedule_interval='0 8 5,24 * *')
 
 wikipedia_word_frequencies = PythonOperator(task_id='load_branches',
-                                            python_callable=load_wikipedia_branches,
-                                            op_kwargs=dict(remote=WIKIPEDIA_REPO,
-                                                           branch_date=FORMATTED_DATE),
+                                            python_callable=dolthub_loader,
+                                            op_kwargs=get_args_helper(partial(get_wikipedia_loaders, FORMATTED_DATE),
+                                                                      WIKIPEDIA_REPO),
                                             dag=wikipedia_dag)
