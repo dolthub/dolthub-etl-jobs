@@ -135,14 +135,17 @@ def get_filter_df_builder(filter_type: str) -> Callable[[], pd.DataFrame]:
 def get_wikipedia_loaders(branch_date: str):
     loaders = []
     master_writer = get_df_table_writer('word_frequency',
-                                          get_master_df_builder(),
-                                          pk_cols=['word'],
-                                          import_mode='replace')
+                                        get_master_df_builder(),
+                                        pk_cols=['word'],
+                                        import_mode='replace')
     message = 'Update Wikipedia word frequencies for {} XML dump'.format(branch_date)
     loaders.append(get_dolt_loader([master_writer], True, message, 'master'))
 
     for filter_name in FILTER_NAMES:
-        filter_writer = get_df_table_writer('word_frequency', filter_name, pk_cols=['word'], import_mode='replace')
+        filter_writer = get_df_table_writer('word_frequency',
+                                            get_filter_df_builder(filter_name),
+                                            pk_cols=['word'],
+                                            import_mode='replace')
         branch_name = '{}/filter_{}'.format(branch_date, filter_name)
         loaders.append(get_dolt_loader([filter_writer], True, message, branch_name))
 
