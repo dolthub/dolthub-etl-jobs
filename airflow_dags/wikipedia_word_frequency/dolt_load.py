@@ -6,7 +6,7 @@ import requests
 import tempfile
 from collections import defaultdict
 from os import path
-from doltpy.etl import get_df_table_writer, get_dolt_loader
+from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
 from doltpy.core.dolt import Dolt
 import pandas as pd
 from typing import Callable, List
@@ -140,6 +140,8 @@ def get_wikipedia_loaders(branch_date: str):
                                         import_mode='replace')
     message = 'Update Wikipedia word frequencies for {} XML dump'.format(branch_date)
     loaders.append(get_dolt_loader([master_writer], True, message, 'master'))
+
+    loaders.append(get_branch_creator(branch_date))
 
     for filter_name in FILTER_NAMES:
         filter_writer = get_df_table_writer('word_frequency',
