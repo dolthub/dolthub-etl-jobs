@@ -3,13 +3,12 @@ import subprocess
 import time
 import logging
 import requests
-import tempfile
 from collections import defaultdict
 from os import path
 from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
 from doltpy.core.dolt import Dolt
 import pandas as pd
-from typing import Callable, List
+from typing import Callable
 from unidecode import unidecode
 from nltk.stem import PorterStemmer
 

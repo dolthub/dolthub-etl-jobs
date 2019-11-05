@@ -3,13 +3,11 @@ from doltpy.etl import dolthub_loader, DoltLoaderBuilder
 from mta.dolt_load import get_loaders as get_mta_loaders
 from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_raw_loaders,
                                         get_transformed_table_loaders as get_fx_rates_transform_loaders)
-from ip_to_country.dolt_load import get_loaders as get_ip_loaders
+from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
 from wikipedia_word_frequency.dolt_load import get_wikipedia_loaders
-from typing import List
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from airflow.configuration import conf
 from functools import partial
 
 
@@ -144,7 +142,7 @@ wikipedia_dag = DAG(
     default_args=get_default_args_helper(datetime(2019, 10, 18)),
     schedule_interval='0 8 5,24 * *')
 
-wikipedia_word_frequencies = PythonOperator(task_id='load_branches',
+wikipedia_word_frequencies = PythonOperator(task_id='import-data',
                                             python_callable=dolthub_loader,
                                             op_kwargs=get_args_helper(partial(get_wikipedia_loaders, FORMATTED_DATE),
                                                                       WIKIPEDIA_REPO),
