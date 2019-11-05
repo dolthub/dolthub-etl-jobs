@@ -148,6 +148,8 @@ def get_wikipedia_loaders(branch_date: str):
                                             pk_cols=['word'],
                                             import_mode='replace')
         branch_name = '{}/filter_{}'.format(branch_date, filter_name)
-        loaders.append(get_dolt_loader([filter_writer], True, message, branch_name))
+        filter_message = 'Update Wikipedia word frequencies with {} filter for {} XML dump'.format(branch_date,
+                                                                                                   filter_name)
+        loaders.append(get_dolt_loader([filter_writer], True, filter_message, branch_name))
 
     return loaders

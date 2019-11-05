@@ -134,7 +134,7 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 DUMP_DATE = datetime.now() - timedelta(days=4)
-FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
+FORMATTED_DATE = DUMP_DATE.strftime("%-m-%-d-%y")
 
 # XML dumps released on the 1st and 20th of every month. This job should run 4 days after.
 wikipedia_dag = DAG(
