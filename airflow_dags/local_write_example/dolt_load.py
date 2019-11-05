@@ -1,5 +1,5 @@
 import pandas as pd
-from doltpy.etl import get_df_table_loader
+from doltpy.etl import get_df_table_writer, get_dolt_loader
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,5 +23,6 @@ def get_data_builder():
     return inner
 
 
-loaders = [get_df_table_loader('great_players', get_data_builder(), pk_cols=['name'], import_mode='create')]
-
+def get_loaders():
+    writer = get_df_table_writer('great_players', get_data_builder(), pk_cols=['name'], import_mode='create')
+    return [get_dolt_loader([writer], True, 'Added some great players!')]

@@ -1,5 +1,6 @@
 import pandas as pd
-from doltpy.etl import get_df_table_loader
+from doltpy.etl import get_df_table_writer, get_dolt_loader
+from datetime import datetime
 import io
 import requests
 from typing import Mapping, Callable, List
@@ -100,9 +101,7 @@ def get_df_builder(ip_to_country_dataset: IpToCountryDataset) -> Callable[[], pd
 
 def get_dolt_datasets():
     for ip_to_country_dataset in ip_to_country_datasets:
-        yield get_df_table_loader(ip_to_country_dataset.name,
-                                  get_df_builder(ip_to_country_dataset),
-                                  ip_to_country_dataset.pk_cols)
-
-
-ip_loaders = list(get_dolt_datasets())
+        writer = get_df_table_writer(ip_to_country_dataset.name,
+                                     get_df_builder(ip_to_country_dataset),
+                                     ip_to_country_dataset.pk_cols)
+        yield get_dolt_loader([writer], True, 'Update IP to Country for date {}'.format(datetime.now()),)

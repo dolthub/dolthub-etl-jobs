@@ -1,7 +1,7 @@
 import requests as req
 import pandas as pd
 from typing import Callable, Mapping
-from doltpy.etl import get_df_table_loader
+from doltpy.etl import get_df_table_writer, get_dolt_loader
 import logging
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,8 @@ def _get_codename_lookup() -> Mapping[str, str]:
 
 
 def get_loaders(start_year: int, end_year: int):
-    [get_df_table_loader('public_holidays',
-                         _get_holidays_for_year(year, _get_codename_lookup()),
-                         PK_COLS) for year in range(start_year, end_year)]
+    writers = [get_df_table_writer('public_holidays',
+                                   _get_holidays_for_year(year, _get_codename_lookup()),
+                                   PK_COLS) for year in range(start_year, end_year)]
 
+    return [get_dolt_loader(writers, True, 'Update public holidays for years {} to {}'.format(start_year, end_year))]
