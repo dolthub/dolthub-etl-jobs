@@ -1,7 +1,7 @@
 ## Background
 [DoltHub](https://www.dolthub.com) hosts [Dolt](https://github.com/liquidata-inc/dolt) databases. If you don't know what Dolt is, then you will need to start with by familiarizing yourself with it before proceeding with this repo.
 
-Liquidata is the company that created Dolt, and DoltHub. We host public data for free, and this repository is how much of the public data under the Liquidata organization is created and maintained. At a high level each module maintains a public repository. Each repository roughly corresponds to a data source.
+Liquidata is the company that created Dolt and DoltHub. We host public data for free, and this repository is how much of the public data under the Liquidata organization is created and maintained. At a high level each module maintains a public repository. Each repository roughly corresponds to a data source.
 
 ## How does this work?
 Dolt is a relational database, and thus one way to create Dolt tables is to create `pandas.DataFrame` objects, and then use `doltpy` to load them into a Dolt database. We run an [Airflow](https://airflow.apache.org/) instance that executes jobs that produce interesting public datasets, and then load them to Dolt.
@@ -31,7 +31,7 @@ usage: dolthub-load [-h] [--dolt-dir DOLT_DIR] [--commit] [--message MESSAGE]
 ```
 
 ## Running
-There are several options for running scripts and where data will be written, they are enumerated below.
+There are several options for running scripts and where data will be written. They are enumerated below.
 
 ### Write to Local Dolt
 There is a package called `local_write_example` that shows how to use the script `shared_loaders/dolt_load.py`. To start with ensure that you have a test Dolt repo set up:
@@ -44,8 +44,8 @@ No tables in working set
 You can now run the script at the command line and see the results:
 ```
 $ dolt-load --dolt-dir $HOME/test-dolt liquidata_etl.local_write_example
-Commencing load to Dolt with the following options, and the following options
-                - dolt_dir  /Users/oscarbatori/test-dolt]
+Commencing load to Dolt with the following options:
+                - dolt_dir  /Users/oscarbatori/test-dolt
         
 Loading Dolt repo at /Users/oscarbatori/test-dolt
 Loading data to table great_players with primary keys ['name']
@@ -89,12 +89,13 @@ This will perform the following steps:
 2. execute the function in the module `ip_to_country.get_dolt_datasets` and write those datasets to the local copy of the repository
 3. generate a commit with the message specified by the `message` argument
 4. push the commit back
+
 Since we didn't specify a branch, we will default to `master`.
 
 Try updating a public dataset you have write access to (and coming soon creating a pull request to on that you can't write to). Or, create your own repository and define a Python  module to update it.
 
 ### Airflow
-Our workflow manager is [Apache Airflow](https://airflow.apache.org/), a tutorial that briefly explains the concept of DAGs and how to define them can be found [here](https://airflow.apache.org/tutorial.html). In order to automate a job define a module in `airflow_dags/you_dataset`. Then in `airflow_dags/dag.py` write code that looks something like:
+Our workflow manager is [Apache Airflow](https://airflow.apache.org/) - a tutorial that briefly explains the concept of DAGs and how to define them can be found [here](https://airflow.apache.org/tutorial.html). In order to automate a job define a module in `airflow_dags/you_dataset`. Then in `airflow_dags/dag.py` write code that looks something like:
 ```
 from your_dataset.dolt_load import loaders as your_dataset_loaders
 
