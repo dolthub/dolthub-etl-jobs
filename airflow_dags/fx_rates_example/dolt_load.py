@@ -1,7 +1,8 @@
 import pandas as pd
 import requests
-from doltpy.etl import get_df_table_loader, get_table_transfomer
+from doltpy.etl import get_df_table_writer, get_table_transfomer, get_dolt_loader
 from doltpy.core import Dolt
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,5 +31,14 @@ def get_average_rates(df: pd.DataFrame) -> pd.DataFrame:
     return df.groupby('currency').mean().reset_index()[['currency', 'rate']].rename(columns={'rate': 'average_rate'})
 
 
-raw_table_loaders = [get_df_table_loader('eur_fx_rates', get_data, ['currency', 'timestamp'])]
-transformed_table_loaders = [get_table_transfomer(get_average, 'eur_fx_rate_averages', ['currency'], get_average_rates)]
+def get_raw_table_loaders():
+    raw_table_loaders = [get_df_table_writer('eur_fx_rates', get_data, ['currency', 'timestamp'])]
+    return get_dolt_loader(raw_table_loaders, True, 'Updated raw FX rates for date {}'.format(datetime.now()))
+
+
+def get_transformed_table_loaders():
+    transformed_table_loaders = [get_table_transfomer(get_average,
+                                                      'eur_fx_rate_averages',
+                                                      ['currency'],
+                                                      get_average_rates)]
+    return [get_dolt_loader(transformed_table_loaders, True, 'Updated averages for date {}'.format(datetime.now()))]

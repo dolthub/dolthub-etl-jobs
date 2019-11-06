@@ -1,8 +1,9 @@
 import requests as req
 import pandas as pd
 from typing import List
-from doltpy.etl import insert_unique_key, get_df_table_loader
+from doltpy.etl import get_dolt_loader, get_df_table_writer, insert_unique_key
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,9 @@ def get_loaders():
         tramsformers = [] if dataset.pk_cols else [insert_unique_key]
         pk_cols = ['hash_id'] if not dataset.pk_cols else dataset.pk_cols
 
-        yield get_df_table_loader(dataset.table_name,
-                                  get_mta_data_as_df(get_mta_url(dataset.dataset_id)),
-                                  pk_cols,
-                                  transformers=tramsformers)
+        writer =  get_df_table_writer(dataset.table_name,
+                                      get_mta_data_as_df(get_mta_url(dataset.dataset_id)),
+                                      pk_cols,
+                                      transformers=tramsformers)
 
-
-loaders = get_loaders()
+        yield get_dolt_loader([writer], True, 'Update MTA data for date {}'.format(datetime.now()))
