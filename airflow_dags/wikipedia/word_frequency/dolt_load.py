@@ -5,6 +5,7 @@ import logging
 import requests
 from collections import defaultdict
 from os import path
+from pathlib import Path
 from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
 from doltpy.core.dolt import Dolt
 import pandas as pd
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 CURR_DIR = path.dirname(path.abspath(__file__))
 BZ2_FILE_NAME = 'enwiki-latest-pages-articles-multistream.xml.bz2'
 DUMP_URL = 'https://dumps.wikimedia.your.org/enwiki/latest/{}'.format(BZ2_FILE_NAME)
-WIKIEXTRACTOR_PATH = path.join(CURR_DIR, 'wikiextractor/WikiExtractor.py')
+WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
 
 WORD_USES = defaultdict(int)
 

@@ -2974,6 +2974,8 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
     # Mapper process
     page_num = 0
     for page_data in pages_from(input):
+        if page_num == 4000:
+            break
         id, revid, title, ns, catSet, page = page_data
         if keepPage(ns, catSet, page):
             # slow down
