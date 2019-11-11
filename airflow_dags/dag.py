@@ -24,6 +24,7 @@ def get_default_args_helper(start_date: datetime):
 
 
 def get_args_helper(loader_builder: DoltLoaderBuilder, remote_url: str):
+    # Change back before deploying to Airflow
     return dict(loader_builder=loader_builder,
                 dolt_dir='/Users/taylor/Desktop/wikipedia-ngrams',
                 clone=False,
@@ -153,6 +154,8 @@ wikipedia_word_frequencies = PythonOperator(task_id='import-data',
 
 # Wikipedia ngrams
 WIKIPEDIA_NGRAMS_REPO = 'Liquidata/wikipedia-ngrams'
+# Should change to latest before deploying to Airflow
+DUMP_TARGET = '20190720'
 wikipedia_ngrams_dag = DAG(
     'wikipedia-ngrams',
     default_args=get_default_args_helper(datetime(2019, 11, 5)),
@@ -161,7 +164,7 @@ wikipedia_ngrams_dag = DAG(
 
 wikipedia_ngrams = PythonOperator(task_id='import-data',
                                   python_callable=dolthub_loader,
-                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE),
+                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE, '20190720'),
                                                             WIKIPEDIA_NGRAMS_REPO),
                                   dag=wikipedia_ngrams_dag)
 
