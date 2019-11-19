@@ -24,11 +24,10 @@ def get_default_args_helper(start_date: datetime):
 
 
 def get_args_helper(loader_builder: DoltLoaderBuilder, remote_url: str):
-    # Change back before deploying to Airflow
     return dict(loader_builder=loader_builder,
-                dolt_dir='/Users/taylor/Desktop/wikipedia-ngrams',
-                clone=False,
-                push=False,
+                dolt_dir=None,
+                clone=True,
+                push=True,
                 remote_name='origin',
                 dry_run=False,
                 remote_url=remote_url)
@@ -135,7 +134,7 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
 
 # Wikipedia dump variables
 DUMP_DATE = datetime.now() - timedelta(days=4)
-FORMATTED_DATE = DUMP_DATE.strftime("%-m-%-d-%y")
+FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
 # XML dumps released on the 1st and 20th of every month. These jobs should run 4 days after.
 CRON_FORMAT = '0 8 5,24 * *'
 
@@ -154,8 +153,7 @@ wikipedia_word_frequencies = PythonOperator(task_id='import-data',
 
 # Wikipedia ngrams
 WIKIPEDIA_NGRAMS_REPO = 'Liquidata/wikipedia-ngrams'
-# Should change to latest before deploying to Airflow
-DUMP_TARGET = '20190720'
+DUMP_TARGET = 'latest'
 wikipedia_ngrams_dag = DAG(
     'wikipedia-ngrams',
     default_args=get_default_args_helper(datetime(2019, 11, 5)),
@@ -164,7 +162,7 @@ wikipedia_ngrams_dag = DAG(
 
 wikipedia_ngrams = PythonOperator(task_id='import-data',
                                   python_callable=dolthub_loader,
-                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE, '20190720'),
+                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE, DUMP_TARGET),
                                                             WIKIPEDIA_NGRAMS_REPO),
                                   dag=wikipedia_ngrams_dag)
 
