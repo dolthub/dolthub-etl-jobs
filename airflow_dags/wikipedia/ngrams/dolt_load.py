@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 
 CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
-UNI_SHARD_LEN = int(1e6)
+UNI_SHARD_LEN = int(3e6)
 BI_SHARD_LEN = 250000
 TRI_SHARD_LEN = 50000
 
 NGRAM_DICTS = {
     'unigram': defaultdict(lambda: defaultdict(int)),
     'bigram': defaultdict(lambda: defaultdict(int)),
-    'trigram': defaultdict(lambda: defaultdict(int)),
+    # 'trigram': defaultdict(lambda: defaultdict(int)),
 }
 
 LINE_TRANS = str.maketrans('–’', "-\'")
@@ -123,9 +123,6 @@ def add_ngrams(article: str, article_count: int):
 def get_ngram_df_builder(ngram_name: str, lower: str) -> Callable[[], pd.DataFrame]:
 
     def inner() -> pd.DataFrame:
-        logging.info('Starting merge')
-        merge_csvs(ngram_name, lower)
-        logging.info('Successfully merged all {} csvs'.format(ngram_name))
         df = pd.read_csv('all_{}s{}.csv'.format(ngram_name, lower))
         return df.astype({'total_count': 'int', 'article_count': 'int'})
 
@@ -149,6 +146,9 @@ def get_writers(date_string: str, article_count: int, lower=''):
     writers = []
 
     for ngram_name in NGRAM_DICTS.keys():
+        logging.info('Starting merge for {}s'.format(ngram_name))
+        merge_csvs(ngram_name, lower)
+        logging.info('Successfully merged all {} csvs'.format(ngram_name))
         table_name = ngram_name + '_counts'
         writers.append(get_df_table_writer(table_name,
                                            get_ngram_df_builder(ngram_name, lower),
@@ -171,7 +171,9 @@ def get_dolt_datasets(date_string: str, dump_target: str):
     :return:
     """
     loaders = []
-    article_count = fetch_data(dump_target)
+    # article_count = fetch_data(dump_target)
+    article_count = 5903531
+    date_string = '8-01-19'
 
     # Get case-sensitive ngrams
     writers = get_writers(date_string, article_count)
