@@ -100,8 +100,11 @@ def get_df_builder(ip_to_country_dataset: IpToCountryDataset) -> Callable[[], pd
 
 
 def get_dolt_datasets():
+    table_writers = []
     for ip_to_country_dataset in ip_to_country_datasets:
         writer = get_df_table_writer(ip_to_country_dataset.name,
                                      get_df_builder(ip_to_country_dataset),
                                      ip_to_country_dataset.pk_cols)
-        yield get_dolt_loader([writer], True, 'Update IP to Country for date {}'.format(datetime.now()),)
+        table_writers.append(writer)
+
+    return [get_dolt_loader(table_writers, True, 'Update IP to Country for date {}'.format(datetime.now()))]

@@ -46,13 +46,16 @@ def get_mta_url(dataset_id: str) -> str:
 
 
 def get_loaders():
+    table_writers = []
     for dataset in DATASETS:
         tramsformers = [] if dataset.pk_cols else [insert_unique_key]
         pk_cols = ['hash_id'] if not dataset.pk_cols else dataset.pk_cols
 
-        writer =  get_df_table_writer(dataset.table_name,
-                                      get_mta_data_as_df(get_mta_url(dataset.dataset_id)),
-                                      pk_cols,
-                                      transformers=tramsformers)
+        writer = get_df_table_writer(dataset.table_name,
+                                     get_mta_data_as_df(get_mta_url(dataset.dataset_id)),
+                                     pk_cols,
+                                     transformers=tramsformers)
 
-        yield get_dolt_loader([writer], True, 'Update MTA data for date {}'.format(datetime.now()))
+        table_writers.append(writer)
+
+    return [get_dolt_loader(table_writers, True, 'Update MTA data for date {}'.format(datetime.now()))]
