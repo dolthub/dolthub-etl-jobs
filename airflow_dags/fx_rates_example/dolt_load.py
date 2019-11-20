@@ -33,7 +33,7 @@ def get_average_rates(df: pd.DataFrame) -> pd.DataFrame:
 
 def get_raw_table_loaders():
     raw_table_loaders = [get_df_table_writer('eur_fx_rates', get_data, ['currency', 'timestamp'])]
-    return get_dolt_loader(raw_table_loaders, True, 'Updated raw FX rates for date {}'.format(datetime.now()))
+    return [get_dolt_loader(raw_table_loaders, True, 'Updated raw FX rates for date {}'.format(datetime.now()))]
 
 
 def get_transformed_table_loaders():
