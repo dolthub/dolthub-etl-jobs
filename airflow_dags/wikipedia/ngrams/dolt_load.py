@@ -23,12 +23,12 @@ CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
 UNI_SHARD_LEN = int(3e6)
 BI_SHARD_LEN = 250000
-TRI_SHARD_LEN = 50000
+TRI_SHARD_LEN = 30000
 
 NGRAM_DICTS = {
     'unigram': defaultdict(lambda: defaultdict(int)),
     'bigram': defaultdict(lambda: defaultdict(int)),
-    # 'trigram': defaultdict(lambda: defaultdict(int)),
+    'trigram': defaultdict(lambda: defaultdict(int)),
 }
 
 LINE_TRANS = str.maketrans('–’', "-\'")
@@ -159,6 +159,7 @@ def get_writers(date_string: str, article_count: int, lower=''):
                                        get_counts_df_builder(date_string, article_count),
                                        ['dump_date'],
                                        import_mode='update'))
+
     return writers
 
 
@@ -171,9 +172,7 @@ def get_dolt_datasets(date_string: str, dump_target: str):
     :return:
     """
     loaders = []
-    # article_count = fetch_data(dump_target)
-    article_count = 5903531
-    date_string = '8-01-19'
+    article_count = fetch_data(dump_target)
 
     # Get case-sensitive ngrams
     writers = get_writers(date_string, article_count)
@@ -182,7 +181,7 @@ def get_dolt_datasets(date_string: str, dump_target: str):
     loaders.append(get_branch_creator('{}/case-sensitive'.format(date_string)))
 
     # Get case-insensitive ngrams
-    shard_len = int(2e7)
+    shard_len = int(3e7)
     for ngram_name in NGRAM_DICTS.keys():
         get_lowered_ngrams(ngram_name, shard_len)
     l_message = 'Update case-insensitive ngrams for dump date {}'.format(date_string)
@@ -268,33 +267,33 @@ def write_to_csv(csv_num: str, ngram_name: str):
     NGRAM_DICTS[ngram_name] = defaultdict(lambda: defaultdict(int))
 
 
-def merge_csvs(ngram_str: str, lower: str):
+def merge_csvs(ngram_name: str, lower: str):
     """
     Takes sorted ngram csvs and merges them into one csv,
     aggregating counts for each ngram
-    :param ngram_str:
+    :param ngram_name:
     :param lower:
     :return:
     """
-    paths = glob('{}s{}_*.csv'.format(ngram_str, lower))
+    paths = glob('{}s{}_*.csv'.format(ngram_name, lower))
     files = map(open, paths)
-    output_file = open('all_{}s{}.csv'.format(ngram_str, lower), 'w')
-    csvwriter = csv.writer(output_file)
+    output_file = open('all_{}s{}.csv'.format(ngram_name, lower), 'w')
+    csv_writer = csv.writer(output_file)
     curr_ngram = ''
     line_to_write = []
     # Write header
-    csvwriter.writerow([ngram_str, 'total_count', 'article_count'])
+    csv_writer.writerow([ngram_name, 'total_count', 'article_count'])
     for line in merge(*[decorated_file(f) for f in files]):
         if line[0] != curr_ngram:
             if len(curr_ngram) > 0:
-                csvwriter.writerow(line_to_write)
+                csv_writer.writerow(line_to_write)
             curr_ngram = line[0]
             line_to_write = line
         else:
             line_to_write[1] += line[1]
             line_to_write[2] += line[2]
     # Write last row
-    csvwriter.writerow(line_to_write)
+    csv_writer.writerow(line_to_write)
 
 
 def decorated_file(file):
@@ -335,21 +334,21 @@ def get_lowered_ngram(ngram: str):
     return ngram.lower()
 
 
-def get_lowered_ngrams(ngram_str: str, shard_len: int):
+def get_lowered_ngrams(ngram_name: str, shard_len: int):
     """
     Reads ngrams csv and lowers every ngram, writing to new csvs
-    :param ngram_str:
+    :param ngram_name:
     :param shard_len:
     :return:
     """
-    df = pd.read_csv('all_{}s.csv'.format(ngram_str))
+    df = pd.read_csv('all_{}s.csv'.format(ngram_name))
     csv_num = 1
     for i, row in df.iterrows():
         if i != 0 and i % shard_len == 0:
-            write_to_csv('{}_{}'.format('lower', csv_num), ngram_str)
+            write_to_csv('{}_{}'.format('lower', csv_num), ngram_name)
             csv_num += 1
-        lowered = get_lowered_ngram(str(row[ngram_str]))
+        lowered = get_lowered_ngram(str(row[ngram_name]))
         if lowered is not None:
-            NGRAM_DICTS[ngram_str][lowered]['total_count'] += row['total_count']
-            NGRAM_DICTS[ngram_str][lowered]['article_count'] += row['article_count']
-    write_to_csv('{}_{}'.format('lower', csv_num+1), ngram_str)
+            NGRAM_DICTS[ngram_name][lowered]['total_count'] += row['total_count']
+            NGRAM_DICTS[ngram_name][lowered]['article_count'] += row['article_count']
+    write_to_csv('{}_{}'.format('lower', csv_num+1), ngram_name)
