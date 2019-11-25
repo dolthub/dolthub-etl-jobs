@@ -134,7 +134,7 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
 
 # Wikipedia dump variables
 DUMP_DATE = datetime.now() - timedelta(days=4)
-FORMATTED_DATE = DUMP_DATE.strftime("%-m-%d-%y")
+FORMATTED_DATE = DUMP_DATE.strftime("%Y%m%d")
 # XML dumps released on the 1st and 20th of every month. These jobs should run 4 days after.
 CRON_FORMAT = '0 8 5,24 * *'
 
