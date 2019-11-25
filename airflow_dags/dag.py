@@ -4,7 +4,8 @@ from mta.dolt_load import get_loaders as get_mta_loaders
 from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_raw_loaders,
                                         get_transformed_table_loaders as get_fx_rates_transform_loaders)
 from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
-from wikipedia_word_frequency.dolt_load import get_wikipedia_loaders
+from wikipedia.word_frequency.dolt_load import get_wikipedia_loaders
+from wikipedia.ngrams.dolt_load import get_dolt_datasets as get_ngram_loaders
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
@@ -131,19 +132,37 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
                                            bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
                                            dag=neural_code_search_eval_dag)
 
-# Wikipedia word frequency
-WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
+# Wikipedia dump variables
 DUMP_DATE = datetime.now() - timedelta(days=4)
-FORMATTED_DATE = DUMP_DATE.strftime("%-m-%-d-%y")
+FORMATTED_DATE = DUMP_DATE.strftime("%Y%m%d")
+# XML dumps released on the 1st and 20th of every month. These jobs should run 4 days after.
+CRON_FORMAT = '0 8 5,24 * *'
 
-# XML dumps released on the 1st and 20th of every month. This job should run 4 days after.
+# Wikipedia word frequency
+WIKIPEDIA_WORDS_REPO = 'Liquidata/wikipedia-word-frequency'
 wikipedia_dag = DAG(
     'wikipedia-word-frequency',
     default_args=get_default_args_helper(datetime(2019, 10, 18)),
-    schedule_interval='0 8 5,24 * *')
+    schedule_interval=CRON_FORMAT)
 
 wikipedia_word_frequencies = PythonOperator(task_id='import-data',
                                             python_callable=dolthub_loader,
                                             op_kwargs=get_args_helper(partial(get_wikipedia_loaders, FORMATTED_DATE),
-                                                                      WIKIPEDIA_REPO),
+                                                                      WIKIPEDIA_WORDS_REPO),
                                             dag=wikipedia_dag)
+
+# Wikipedia ngrams
+WIKIPEDIA_NGRAMS_REPO = 'Liquidata/wikipedia-ngrams'
+DUMP_TARGET = 'latest'
+wikipedia_ngrams_dag = DAG(
+    'wikipedia-ngrams',
+    default_args=get_default_args_helper(datetime(2019, 11, 5)),
+    schedule_interval=CRON_FORMAT
+)
+
+wikipedia_ngrams = PythonOperator(task_id='import-data',
+                                  python_callable=dolthub_loader,
+                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE, DUMP_TARGET),
+                                                            WIKIPEDIA_NGRAMS_REPO),
+                                  dag=wikipedia_ngrams_dag)
+
