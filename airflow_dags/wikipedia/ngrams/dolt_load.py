@@ -23,7 +23,7 @@ CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
 UNI_SHARD_LEN = int(3e6)
 BI_SHARD_LEN = 250000
-TRI_SHARD_LEN = 30000
+TRI_SHARD_LEN = 20000
 
 NGRAM_DICTS = {
     'unigram': defaultdict(lambda: defaultdict(int)),
