@@ -166,3 +166,17 @@ wikipedia_ngrams = PythonOperator(task_id='import-data',
                                                             WIKIPEDIA_NGRAMS_REPO),
                                   dag=wikipedia_ngrams_dag)
 
+# Backfill Wikipedia ngrams
+wikipedia_ngrams_backfill_dag = DAG(
+    'wikipedia-ngrams-backfill',
+    default_args=get_default_args_helper(datetime(2019, 12, 2)),
+    schedule_interval='@once',
+)
+
+dump_dates = ['20190820', '20190901', '20190920', '20191001', '20191020', '20191101', '20191120']
+for dump_date in dump_dates:
+    wikipedia_ngrams_backfill = PythonOperator(task_id='backfill-data',
+                                               python_callable=dolthub_loader,
+                                               op_kwargs=get_args_helper(partial(get_ngram_loaders, dump_date, dump_date),
+                                                                         WIKIPEDIA_NGRAMS_REPO),
+                                               dag=wikipedia_ngrams_backfill_dag)
