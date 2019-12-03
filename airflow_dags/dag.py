@@ -186,7 +186,7 @@ for dump_date in dump_dates:
 FIVE_THIRTY_EIGHT_POLLS_PATH = 'five-thirty-eight/polls'
 five_thirty_eight_polls_dag = DAG('five_thirty_eight_polls',
                                   default_args=get_default_args_helper(datetime(2019, 12, 3)),
-                                  schedule_interval=timedelta(days=1))
+                                  schedule_interval=timedelta(hours=1))
 
 five_thirty_eight_polls = PythonOperator(task_id='five_thirty_eight_polls',
                                          python_callable=dolthub_loader,
