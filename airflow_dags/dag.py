@@ -175,7 +175,7 @@ wikipedia_ngrams_backfill_dag = DAG(
 
 dump_dates = ['20190820', '20190901', '20190920', '20191001', '20191020', '20191101', '20191120']
 for dump_date in dump_dates:
-    wikipedia_ngrams_backfill = PythonOperator(task_id='backfill-data',
+    wikipedia_ngrams_backfill = PythonOperator(task_id='backfill-data-{}'.format(dump_date),
                                                python_callable=dolthub_loader,
                                                op_kwargs=get_args_helper(partial(get_ngram_loaders, dump_date, dump_date),
                                                                          WIKIPEDIA_NGRAMS_REPO),
