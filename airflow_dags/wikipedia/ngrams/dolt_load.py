@@ -45,22 +45,21 @@ def fetch_data(dump_target: str):
     """
     bz2_file_name = 'enwiki-{}-pages-articles-multistream.xml.bz2'.format(dump_target)
     dump_url = 'https://dumps.wikimedia.your.org/enwiki/{}/{}'.format(dump_target, bz2_file_name)
-    dump_path = path.join(CURR_DIR, bz2_file_name)
 
     logging.info('Fetching Wikipedia XML dump from URL {}'.format(dump_url))
     r = requests.get(dump_url, stream=True)
-    with open(dump_path, 'wb') as f:
+    with open(bz2_file_name, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
     logging.info('Finished downloading XML dump')
-    return process_bz2(dump_path)
+    return process_bz2(bz2_file_name)
 
 
-def process_bz2(dump_path: str):
+def process_bz2(bz2_file_name: str):
     """
     Goes through dump and aggregates each article, passing it to add_ngrams
-    :param dump_path:
+    :param bz2_file_name:
     :return:
     """
     logging.info('Processing dump')
@@ -70,7 +69,7 @@ def process_bz2(dump_path: str):
     is_title = True
 
     with subprocess.Popen(
-        'bzcat {} | {} --no_templates -o - -'.format(dump_path, WIKIEXTRACTOR_PATH),
+        'bzcat {} | {} --no_templates -o - -'.format(bz2_file_name, WIKIEXTRACTOR_PATH),
         stdout=subprocess.PIPE,
         shell=True,
     ) as proc:
