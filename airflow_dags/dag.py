@@ -6,6 +6,7 @@ from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_ra
 from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
 from wikipedia.word_frequency.dolt_load import get_wikipedia_loaders
 from wikipedia.ngrams.dolt_load import get_dolt_datasets as get_ngram_loaders
+from five_thirty_eight.polls import get_loaders as get_five_thirty_eight_polls_loaders
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
@@ -180,3 +181,15 @@ for dump_date in dump_dates:
                                                op_kwargs=get_args_helper(partial(get_ngram_loaders, dump_date, dump_date),
                                                                          WIKIPEDIA_NGRAMS_REPO),
                                                dag=wikipedia_ngrams_backfill_dag)
+
+# FiveThirtyEight polls
+FIVE_THIRTY_EIGHT_POLLS_PATH = 'five-thirty-eight/polls'
+five_thirty_eight_polls_dag = DAG('five_thirty_eight_polls',
+                                  default_args=get_default_args_helper(datetime(2019, 12, 3)),
+                                  schedule_interval=timedelta(days=1))
+
+five_thirty_eight_polls = PythonOperator(task_id='five_thirty_eight_polls',
+                                         python_callable=dolthub_loader,
+                                         op_kwargs=get_args_helper(get_five_thirty_eight_polls_loaders,
+                                                                   FIVE_THIRTY_EIGHT_POLLS_PATH),
+                                         dag=five_thirty_eight_polls_dag)
