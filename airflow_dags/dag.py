@@ -193,7 +193,7 @@ def get_five_thirty_eight_loader(repo_name: str,
                                  interval: timedelta,
                                  start_date: datetime,
                                  loaders: DoltLoaderBuilder) -> Tuple[DAG, PythonOperator]:
-    path = 'five-thirty-eight/{}'.format(repo_name)
+    path = 'liquidata-demo-data/{}'.format(repo_name)
     task_id = 'five_thirty_eight_{}'.format(task_id)
     dag = DAG(task_id, default_args=get_default_args_helper(start_date), schedule_interval=interval)
 
