@@ -7,10 +7,14 @@ from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
 from wikipedia.word_frequency.dolt_load import get_wikipedia_loaders
 from wikipedia.ngrams.dolt_load import get_dolt_datasets as get_ngram_loaders
 from five_thirty_eight.polls import get_loaders as get_five_thirty_eight_polls_loaders
+from five_thirty_eight.soccer_spi import get_loaders as get_five_thirty_eight_soccer_spi_loaders
+from five_thirty_eight.nba_forecasts import get_loaders as get_five_thirty_eight_nba_forecasts_loaders
+from five_thirty_eight.nfl_forecasts import get_loaders as get_five_thirty_eight_nfl_forecasts_loaders
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from functools import partial
+from typing import Tuple
 
 
 def get_default_args_helper(start_date: datetime):
@@ -182,14 +186,55 @@ for dump_date in dump_dates:
                                                                          WIKIPEDIA_NGRAMS_REPO),
                                                dag=wikipedia_ngrams_backfill_dag)
 
-# FiveThirtyEight polls
-FIVE_THIRTY_EIGHT_POLLS_PATH = 'five-thirty-eight/polls'
-five_thirty_eight_polls_dag = DAG('five_thirty_eight_polls',
-                                  default_args=get_default_args_helper(datetime(2019, 12, 3)),
-                                  schedule_interval=timedelta(hours=1))
 
-five_thirty_eight_polls = PythonOperator(task_id='five_thirty_eight_polls',
-                                         python_callable=dolthub_loader,
-                                         op_kwargs=get_args_helper(get_five_thirty_eight_polls_loaders,
-                                                                   FIVE_THIRTY_EIGHT_POLLS_PATH),
-                                         dag=five_thirty_eight_polls_dag)
+# FiveThirtyEight data
+def get_five_thirty_eight_loader(repo_name: str,
+                                 task_id: str,
+                                 interval: timedelta,
+                                 start_date: datetime,
+                                 loaders: DoltLoaderBuilder) -> Tuple[DAG, PythonOperator]:
+    path = 'five-thirty-eight/{}'.format(repo_name)
+    task_id = 'five_thirty_eight_{}'.format(task_id)
+    dag = DAG(task_id, default_args=get_default_args_helper(start_date), schedule_interval=interval)
+
+    operator = PythonOperator(task_id=task_id,
+                              python_callable=dolthub_loader,
+                              op_kwargs=get_args_helper(loaders, path),
+                              dag=dag)
+
+    return dag, operator
+
+
+# Polls
+five_thirty_eight_polls_dag, five_thirty_eight_polls = get_five_thirty_eight_loader('polls',
+                                                                                    'polls',
+                                                                                    timedelta(hours=1),
+                                                                                    datetime(2019, 12, 3),
+                                                                                    get_five_thirty_eight_polls_loaders)
+
+# Soccer
+five_thirty_eight_soccer_spi_dag, five_thirty_eight_soccer_spi = get_five_thirty_eight_loader(
+    'soccer-spi',
+    'soccer_spi',
+    timedelta(hours=1),
+    datetime(2019, 12, 3),
+    get_five_thirty_eight_soccer_spi_loaders
+)
+
+# NBA
+five_thirty_eight_nba_forecasts_dag, five_thirty_eight_nba_forecasts = get_five_thirty_eight_loader(
+    'nba-forecasts',
+    'nba_forecasts',
+    timedelta(hours=1),
+    datetime(2019, 12, 3),
+    get_five_thirty_eight_nba_forecasts_loaders
+)
+
+# NFL
+five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_thirty_eight_loader(
+    'nfl-forecasts',
+    'nfl_forecasts',
+    timedelta(hours=1),
+    datetime(2019, 12, 3),
+    get_five_thirty_eight_nfl_forecasts_loaders
+)
