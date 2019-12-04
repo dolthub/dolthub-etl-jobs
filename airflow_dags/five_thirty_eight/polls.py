@@ -1,4 +1,4 @@
-from airflow_dags.five_thirty_eight.utilities import FiveThirtyEightDataset
+from five_thirty_eight.utilities import FiveThirtyEightDataset
 from doltpy.etl import get_df_table_writer, get_dolt_loader
 from datetime import datetime
 
