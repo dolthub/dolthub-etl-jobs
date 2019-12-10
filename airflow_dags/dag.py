@@ -178,13 +178,17 @@ wikipedia_ngrams_backfill_dag = DAG(
     schedule_interval='@once',
 )
 
-dump_dates = ['20190820', '20190901', '20190920', '20191001', '20191020', '20191101', '20191120']
-for dump_date in dump_dates:
-    wikipedia_ngrams_backfill = PythonOperator(task_id='backfill-data-{}'.format(dump_date),
+dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201']
+tasks_list = []
+for i, dump_date in enumerate(dump_dates):
+    tasks_list.append(PythonOperator(task_id='backfill-data-{}'.format(dump_date),
                                                python_callable=dolthub_loader,
                                                op_kwargs=get_args_helper(partial(get_ngram_loaders, dump_date, dump_date),
                                                                          WIKIPEDIA_NGRAMS_REPO),
-                                               dag=wikipedia_ngrams_backfill_dag)
+                                               dag=wikipedia_ngrams_backfill_dag))
+    if i != 0:
+        tasks_list[i-1] >> tasks_list[i]
+
 
 
 # FiveThirtyEight data
