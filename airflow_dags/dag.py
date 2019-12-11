@@ -137,6 +137,18 @@ raw_neural_code_search_eval = BashOperator(task_id='import-data',
                                            bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
                                            dag=neural_code_search_eval_dag)
 
+# PPDB - This just checks to make sure PPDB has not changed
+# I accidentally deleted the import code. If PPDB changes, I will rewrite :-(
+ppdb_dag = DAG('ppdb',
+               default_args=get_default_args_helper(datetime(2019, 12, 11)),
+               schedule_interval=timedelta(days=7))
+
+raw_ppdb = BashOperator(task_id='is-changed',
+                        bash_command='{{conf.get("core", "dags_folder")}}/ppdb/is-changed.pl ',
+                        dag=ppdb_dag)
+
+# Wikipedia word frequency
+WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
 DUMP_DATE = datetime.now() - timedelta(days=4)
 FORMATTED_DATE = DUMP_DATE.strftime("%Y%m%d")
