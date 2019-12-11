@@ -293,7 +293,7 @@ sub download_and_unpack {
     my $current_md5 = shift;
 
     chdir($tmpdir);
-    run_command("curl -O $url", "Could not download $url");
+    run_command("curl -L -O $url", "Could not download $url");
     
     my $file = `ls -1 .`;
     chomp($file);
