@@ -147,6 +147,15 @@ raw_ppdb = BashOperator(task_id='is-changed',
                         bash_command='{{conf.get("core", "dags_folder")}}/ppdb/is-changed.pl ',
                         dag=ppdb_dag)
 
+
+squad_dag = DAG('squad',
+                default_args=get_default_args_helper(datetime(2019, 12, 13)),
+                schedule_interval=timedelta(days=7))
+
+raw_squad = BashOperator(task_id='import-data',
+                         bash_command='{{conf.get("core", "dags_folder")}}/squad/import-data.pl ',
+                         dag=squad_dag)
+
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
