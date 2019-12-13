@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
-UNI_SHARD_LEN = int(3e6)
-BI_SHARD_LEN = 250000
+UNI_SHARD_LEN = int(1e6)
+BI_SHARD_LEN = 100000
 TRI_SHARD_LEN = 20000
 
 NGRAM_DICTS = {
@@ -63,6 +63,7 @@ def process_bz2(bz2_file_name: str):
     :return:
     """
     logging.info('Processing dump')
+    assert path.exists(bz2_file_name), 'Dump file does not exist {}'.format(bz2_file_name)
     start = time.time()
     article = ''
     article_count = 0
