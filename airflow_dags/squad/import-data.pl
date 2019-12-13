@@ -2,7 +2,6 @@
 
 use strict;
 
-use Data::Dumper;
 use JSON::Parse qw(json_file_to_perl);
 
 my $base_url = 'https://rajpurkar.github.io/SQuAD-explorer/dataset/';
