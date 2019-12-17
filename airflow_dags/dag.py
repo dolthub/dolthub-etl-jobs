@@ -178,7 +178,7 @@ wikipedia_ngrams_backfill_dag = DAG(
     schedule_interval='@once',
 )
 
-dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201']
+dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201', '20191220']
 tasks_list = []
 for i, dump_date in enumerate(dump_dates):
     tasks_list.append(PythonOperator(task_id='backfill-data-{}'.format(dump_date),
