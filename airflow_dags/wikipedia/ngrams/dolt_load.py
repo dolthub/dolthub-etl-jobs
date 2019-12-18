@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
-UNI_SHARD_LEN = 200000
-BI_SHARD_LEN = 50000
+UNI_SHARD_LEN = 100000
+BI_SHARD_LEN = 40000
 TRI_SHARD_LEN = 10000
 
 NGRAM_DICTS = {
@@ -69,6 +69,7 @@ def process_bz2(bz2_file_name: str):
     :return:
     """
     logging.info('Processing dump')
+
     assert path.exists(bz2_file_name), 'Dump file does not exist {}'.format(bz2_file_name)
     start = time.time()
     article = ''
@@ -154,7 +155,7 @@ def get_writers(date_string: str, article_count: int, lower=''):
     for ngram_name in NGRAM_DICTS.keys():
         logging.info('Starting merge for {}s'.format(ngram_name))
         merge_csvs(ngram_name, lower)
-        logging.info('Successfully merged all {} csvs'.format(ngram_name))
+        logging.info('Successfully merged all {} {} csvs'.format(lower, ngram_name))
         table_name = ngram_name + '_counts'
         writers.append(get_df_table_writer(table_name,
                                            get_ngram_df_builder(ngram_name, lower),
@@ -243,10 +244,9 @@ def add_article_ngram_counts(art_dicts: dict):
         ngram_dict = NGRAM_DICTS[key]
         lowered_dict = LOWERED_NGRAM_DICTS[key]
         for ngram, count in art_dict.items():
-            lowered_ngram = ngram.lower()
             if key != 'unigram':
                 ngram = ' '.join(ngram)
-                lowered_ngram = get_lowered_ngram(ngram)
+            lowered_ngram = get_lowered_ngram(ngram)
             if ngram is not None:
                 ngram_dict[ngram]['total_count'] += count
                 ngram_dict[ngram]['article_count'] += 1
