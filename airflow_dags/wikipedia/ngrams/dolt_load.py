@@ -8,7 +8,7 @@ import csv
 import nltk
 import string
 from collections import defaultdict
-from os import path
+from os import path, remove
 from pathlib import Path
 from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
 import pandas as pd
@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
-UNI_SHARD_LEN = 100000
-BI_SHARD_LEN = 40000
-TRI_SHARD_LEN = 10000
+UNI_SHARD_LEN = 150000
+BI_SHARD_LEN = 50000
+TRI_SHARD_LEN = 15000
 
 NGRAM_DICTS = {
     'unigram': defaultdict(lambda: defaultdict(int)),
@@ -317,6 +317,9 @@ def merge_csvs(ngram_name: str, lower: str):
             line_to_write[2] += line[2]
     # Write last row
     csv_writer.writerow(line_to_write)
+    # Remove csv chunks to free up storage
+    for f in paths:
+        remove(f)
 
 
 def decorated_file(file):
