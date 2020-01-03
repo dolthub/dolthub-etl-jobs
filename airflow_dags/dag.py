@@ -147,7 +147,7 @@ raw_ppdb = BashOperator(task_id='is-changed',
                         bash_command='{{conf.get("core", "dags_folder")}}/ppdb/is-changed.pl ',
                         dag=ppdb_dag)
 
-# Stanford Questions and Answers Database
+# Stanford Questions and Answers Database (SQuAD)
 squad_dag = DAG('squad',
                 default_args=get_default_args_helper(datetime(2019, 12, 13)),
                 schedule_interval=timedelta(days=7))
@@ -155,6 +155,15 @@ squad_dag = DAG('squad',
 raw_squad = BashOperator(task_id='import-data',
                          bash_command='{{conf.get("core", "dags_folder")}}/squad/import-data.pl ',
                          dag=squad_dag)
+
+# Stanford Natural Language Inference (SNLI)
+snli_dag = DAG('snli',
+               default_args=get_default_args_helper(datetime(2020, 1, 3)),
+               schedule_interval=timedelta(days=7))
+
+raw_snli = BashOperator(task_id='import-data',
+                        bash_command='{{conf.get("core", "dags_folder")}}/snli/import-data.pl ',
+                        dag=snli_dag)
 
 # Google Landmarks
 google_landmarks_dag = DAG('google_landmarks',
