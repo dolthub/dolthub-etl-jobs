@@ -165,6 +165,15 @@ raw_snli = BashOperator(task_id='import-data',
                         bash_command='{{conf.get("core", "dags_folder")}}/snli/import-data.pl ',
                         dag=snli_dag)
 
+# Multi Natural Language Inference (Multi NLI)
+multinli_dag = DAG('multinli',
+                   default_args=get_default_args_helper(datetime(2020, 1, 3)),
+                   schedule_interval=timedelta(days=7))
+
+raw_multinli = BashOperator(task_id='import-data',
+                            bash_command='{{conf.get("core", "dags_folder")}}/multi-nli/import-data.pl ',
+                            dag=multinli_dag)
+
 # Google Landmarks
 google_landmarks_dag = DAG('google_landmarks',
                            default_args=get_default_args_helper(datetime(2019, 12, 18)),
