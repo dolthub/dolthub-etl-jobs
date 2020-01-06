@@ -183,6 +183,15 @@ raw_google_lanadmarks = BashOperator(task_id='import-data',
                                      bash_command='{{conf.get("core", "dags_folder")}}/google-landmarks/import-data.pl ',
                                      dag=google_landmarks_dag)
 
+# Baseball Databank
+baseball_databank_dag = DAG('baseball_databank',
+                            default_args=get_default_args_helper(datetime(2020,1, 6)),
+                            schedule_interval=timedelta(days=7))
+
+raw_baseball_databank = BashOperator(task_id='import-data',
+                                     bash_command='{{conf.get("core", "dags_folder")}}/baseball-databank/import-data.pl ',
+                                     dag=baseball_databank_dag)
+
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
