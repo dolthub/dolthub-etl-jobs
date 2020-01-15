@@ -23,6 +23,26 @@ my $corrections = {
              'match' => '[\n\r]+',
              'sub'   => '',
  	},
+	611348 => {
+	    'match' => '[\n\r]+',
+	    'sub'   => '',
+	},
+	606994 => {
+            'match' => '[\n\r]+',
+	    'sub'   => '',
+        },
+	607218 => {
+            'match' => '[\n\r]+',
+            'sub'   => '',
+        },
+	607260 => {
+            'match' => '[\n\r]+',
+            'sub'   => '',
+	},
+	607840 => {
+            'match' => '[\n\r]+',
+	    'sub'   => '',
+        },
     },
     'downloaded_data/food.csv' => {
  	321829 => {
@@ -43,7 +63,7 @@ my $url_base = 'https://fdc.nal.usda.gov';
 my $info_url = "$url_base/download-datasets.html";
 my $csv_search = '/fdc-datasets/FoodData_Central_csv';
 
-my $current_url = '/fdc-datasets/FoodData_Central_csv_2019-10-11.zip';
+my $current_url = '/fdc-datasets/FoodData_Central_csv_2019-12-17.zip';
 
 my $zip_dir  = 'downloaded_data';
 my $zip_file = "$zip_dir.zip";
