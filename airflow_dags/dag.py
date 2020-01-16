@@ -192,6 +192,15 @@ raw_baseball_databank = BashOperator(task_id='import-data',
                                      bash_command='{{conf.get("core", "dags_folder")}}/baseball-databank/import-data.pl ',
                                      dag=baseball_databank_dag)
 
+# US Baby Names
+us_baby_names_dag = DAG('us_baby_names',
+                        default_args=get_default_args_helper(datetime(2020,1,15)),
+                        schedule_interval=timedelta(days=7))
+
+raw_us_baby_names = BashOperator(task_id='import-data',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/us_baby_names/import-data.pl ',
+                                 dag=us_baby_names_dag)
+
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
