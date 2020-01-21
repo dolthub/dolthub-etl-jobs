@@ -3,10 +3,30 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bcicen/jstream"
 	"io/ioutil"
 	"os"
 )
+
+type inputJson struct {
+	Repo    string `json:"repo"`
+	Commit  string `json:"commit"`
+	Message string `json:"message"`
+	Edits   []inputEditJson `json:"edits"`
+}
+
+type inputEditJson struct {
+	Source          inputEditDetailsJson `json:"src"`
+	Target          inputEditDetailsJson `json:"tgt"`
+	ProbabilityTypo float64              `json:"prob_typo"`
+	IsTypo          bool                 `json:"is_typo"`
+}
+
+type inputEditDetailsJson struct {
+	Text       string  `json:"text"`
+	Path       string  `json:"path"`
+	Lang       string  `json:"lang"`
+	Perplexity float64 `json:"ppl"`
+}
 
 type commitKey struct {
 	Repo    string
@@ -51,16 +71,18 @@ func main() {
 
 	jsonFile := os.Args[1]
 
-	tblData, err := os.Open(jsonFile)
+	jsonData, err := os.Open(jsonFile)
 	if err != nil {
 		panic(err)
 	}
 
-	decoder := jstream.NewDecoder(tblData, 0) // extract JSON values at a depth level of 1
-	objs := decoder.Stream()
-
-	for obj := range objs {
-		emitObj(obj)
+	decoder := json.NewDecoder(jsonData)
+	for decoder.More() {
+		line := inputJson{}
+		if err := decoder.Decode(&line); err != nil {
+			panic(err)
+		}
+		emitObj(line)
 	}
 
 	writeResults()
@@ -90,68 +112,37 @@ var seenCommits = make(map[commitKey]bool)
 var commits = make([]*outputJsonCommit, 0)
 var edits = make([]*outputJsonEdit, 0)
 
-func emitObj(obj *jstream.MetaValue) {
-	m := obj.Value.(map[string]interface{})
-	repo := m["repo"].(string)
-	commit := m["commit"].(string)
-	message := m["message"].(string)
-
+func emitObj(line inputJson) {
 	key := commitKey{
-		Repo:   repo,
-		Commit: commit,
+		Repo:   line.Repo,
+		Commit: line.Commit,
 	}
 
 	if !seenCommits[key] {
 		commits = append(commits, &outputJsonCommit{
-			Repo:    repo,
-			Commit:  commit,
-			Message: message,
+			Repo:    line.Repo,
+			Commit:  line.Commit,
+			Message: line.Message,
 		})
 	}
 
-	editList := m["edits"].([]interface{})
-
 	seenCommits[key] = true
 
-	for i, edit := range editList {
-		editMap := edit.(map[string]interface{})
-		src := editMap["src"].(map[string]interface{})
-		tgt := editMap["tgt"].(map[string]interface{})
-
-		srcPpl := 0.0
-		if mapVal, ok := src["ppl"].(float64); ok {
-			srcPpl = mapVal
-		}
-
-		tgtPpl := 0.0
-		if mapVal, ok := tgt["ppl"].(float64); ok {
-			tgtPpl = mapVal
-		}
-
-		probTypo := 0.0
-		if mapVal, ok := editMap["prob_typo"].(float64); ok {
-			probTypo = mapVal
-		}
-
-		isTypo := false
-		if mapVal, ok := editMap["is_typo"].(bool); ok {
-			isTypo = mapVal
-		}
-
+	for i, edit := range line.Edits {
 		edits = append(edits, &outputJsonEdit{
-			Repo:             repo,
-			Commit:           commit,
+			Repo:             line.Repo,
+			Commit:           line.Commit,
 			EditNumber:       i+1,
-			SourceText:       src["text"].(string),
-			SourcePath:       src["path"].(string),
-			SourceLang:       src["lang"].(string),
-			SourcePerplexity: srcPpl,
-			TargetText:       tgt["text"].(string),
-			TargetPath:       tgt["path"].(string),
-			TargetLang:       tgt["lang"].(string),
-			TargetPerplexity: tgtPpl,
-			ProbTypo:         probTypo,
-			IsTypo:           isTypo,
+			SourceText:       edit.Source.Text,
+			SourcePath:       edit.Source.Path,
+			SourceLang:       edit.Source.Lang,
+			SourcePerplexity: edit.Source.Perplexity,
+			TargetText:       edit.Target.Text,
+			TargetPath:       edit.Target.Path,
+			TargetLang:       edit.Target.Lang,
+			TargetPerplexity: edit.Target.Perplexity,
+			ProbTypo:         edit.ProbabilityTypo,
+			IsTypo:           edit.IsTypo,
 		})
 	}
 }
