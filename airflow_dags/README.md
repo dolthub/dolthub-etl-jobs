@@ -9,9 +9,8 @@ path.
 
 ## Point Airflow at this package
 
-To run DAGs configured in this package, your local airflow needs to know about this code. There is a configuration file 
-called `~/airflow/airflow.cfg`. Change the first value, `dags_folder`, in that file to point to where you have this Git 
-repository checked out like so:
+To run DAGs configured in this package, your local airflow needs to know about this code. First run `airflow initdb` to create the default configuration. Then look for the a configuration file called `~/airflow/airflow.cfg`. Change the first value, `dags_folder`,
+in that file to point to where you have this Git repository checked out like so:
 
     [core]
     # The folder where your airflow pipelines live, most likely a
@@ -19,8 +18,20 @@ repository checked out like so:
     # This path must be absolute
     dags_folder = /Users/timsehn/liquidata/git/liquidata-etl-jobs/airflow_dags
 
+Set your PYTHONPATH environment variable to the airflow_dags directory as well:
+
+    export PYTHONPATH=/Users/timsehn/liquidata/git/liquidata-etl-jobs/airflow_dags
+
 Now, run `airflow initdb` to have airflow load your configuration. If everything worked, you should be able to run 
-`airflow list_dags` and see the DAGs in this package like `ip_to_country` or `word_net`.
+`airflow list_dags` and see the DAGs in this package like `ip_to_country` or `word_net`. You may need to install some of 
+the dependencies of `dag.py`, such as `doltpy`, to make the `initdb` step succeed:
+    
+    pip install doltpy
+    pip install mta
+    pip install arrow
+    pip install sklearn
+    pip install unidecode
+    pip install nltk
 
 ## Write the import job
 
