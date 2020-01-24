@@ -155,6 +155,11 @@ sub quote_string {
     return "'$s'";
 }
 
+sub execute_inserts {
+    run_command('dolt sql < updates.sql', 
+                "Failed to update dolt repository");
+}
+
 sub commit {
     my $datestring = shift;
     
@@ -168,6 +173,7 @@ sub commit {
     my $commit_message = 
         "Automated import of repos with pull request events on $datestring GMT";
 
+    $datestring .= "T23:59:59Z";
     run_command("dolt commit -m '$commit_message' --date $datestring", 
                 "dolt commit failed");
 }
