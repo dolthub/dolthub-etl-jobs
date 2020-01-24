@@ -3,59 +3,50 @@
 use strict;
 
 use JSON::Parse qw(parse_json);
+use Getopt::Long;
 use Data::Dumper;
 
 $| = 1;
 
 my $base_url = 'https://data.gharchive.org';
 
-# Clone the repository
+my $date_str;
+my $push;
+my $cleanup; 
+GetOptions(
+    "date|d=s" => \$date_str,
+    "push|p" => \$push,
+    "cleanup|c" => \$cleanup,
+) or die("Error in command line arguments. Supported flags are --date, --push, and --cleanup.");
+
+die "Must specify a date string YYYY-MM-DD with --date or -d" unless $date_str;
+
 my $organization = 'Liquidata';
 my $repo         = 'github-repos';
 my $clone_path   = "$organization/$repo"; 
-#run_command("dolt clone $clone_path", 
-#            "Could not clone repo $clone_path");
+
+if ( ! -e $repo ) {
+    clone_repo();
+}
 
 chdir($repo);
-
-my $date_str = '2019-09-01';
 
 download_files($base_url, $date_str);
 
 my $events = get_pull_request_events();
+
 generate_inserts($events);
+execute_inserts();
+commit($date_str);
+push_origin() if $push;
+cleanup() if $cleanup;
 
-# my $train_data = json_file_to_perl($train_file);
-# my $dev_data   = json_file_to_perl($dev_file);
+exit 0;
 
-# my $paragraphs_sql = 'paragraphs.sql';
-# open PARAGRAPHS, ">$paragraphs_sql" or 
-#     die "Could not open $paragraphs_sql\n";
-# binmode(PARAGRAPHS, ":utf8");
-# print PARAGRAPHS "delete from paragraphs;\n";
-
-
-# my $questions_sql = 'questions.sql';
-# open QUESTIONS, ">$questions_sql" or
-#     die "Could not open $questions_sql\n";
-# binmode(QUESTIONS, ":utf8");
-# print QUESTIONS "delete from questions;\n";
-
-# my $answers_sql = 'answers.sql';
-# open ANSWERS, ">$answers_sql" or
-#     die "Could not open $answers_sql\n";
-# binmode(ANSWERS, ":utf8");
-# print ANSWERS "delete from answers;\n";
-
-# generate_sql($train_data, $dev_data);
-
-# close PARAGRAPHS;
-# close QUESTIONS;
-# close ANSWERS;
-
-# execute_sql($paragraphs_sql, $questions_sql, $answers_sql);
-
-# publish($base_url);
+sub clone_repo {
+    run_command("dolt clone $clone_path", 
+                "Could not clone repo $clone_path");
+}
 
 sub download_files {
     my $base     = shift;
@@ -85,8 +76,8 @@ sub get_pull_request_events {
             }
         }
         close(F);
-#        last;
     }
+
     return \@entries;
 }
 
@@ -108,8 +99,13 @@ sub generate_inserts {
     foreach my $entry ( @$entries ) {
         my $base = $entry->{'payload'}{'pull_request'}{'base'}{'repo'};
         die "No base repo found" unless $base;
-        die "no full name found for repo" unless $base->{'full_name'};
-        my $name = quote_string($base->{'full_name'});
+        die "no url name found for repo" unless $base->{'url'};
+
+        # Some fields changed their format name in 2015, so we look
+        # for multiple matches. The full_name property for repos isn't
+        # availble until 2015 data, so we extract if from the URL in
+        # all cases.
+        my $name = quote_string(get_repo_name_from_url($base->{'url'}));
         my $id = $base->{'id'};
         my $description = quote_string($base->{'description'});
         my $owner = quote_string($base->{'owner'}{'login'});
@@ -117,10 +113,10 @@ sub generate_inserts {
         my $created_at = quote_string($base->{'created_at'});
         my $updated_at = quote_string($base->{'updated_at'});
         my $fork = $base->{'fork'} ? 'TRUE' : 'FALSE';
-        my $size = $base->{'size'} or 'NULL';
-        my $star_count = $base->{'stargazers_count'} or 'NULL';
-        my $fork_count = $base->{'forks_count'} or 'NULL';;
-        my $open_issues_count = $base->{'open_issues_count'} or 'NULL';
+        my $size = $base->{'size'} // 'NULL';
+        my $star_count = $base-> {'watchers'} // $base->{'stargazers_count'} // 'NULL';
+        my $fork_count = $base->{'forks'} // $base->{'forks_count'} // 'NULL';;
+        my $open_issues_count = $base->{'open_issues'} // $base->{'open_issues_count'} // 'NULL';
         my $repo_language = quote_string($base->{'language'});
         my $has_issues = $base->{'has_issues'} ? 'TRUE' : 'FALSE';
         my $has_downloads = $base->{'has_downloads'} ? 'TRUE' : 'FALSE';
@@ -144,6 +140,14 @@ END
     close(SQL)
 }
 
+sub get_repo_name_from_url {
+    my $url = shift;
+    if ( $url =~ m|.*?/(.*?)/(.*)| ) {
+        return "$1/$2";
+    }
+    return undef
+}
+
 sub quote_string {
     my $s = shift;
     return 'NULL' unless defined $s;
@@ -151,25 +155,29 @@ sub quote_string {
     return "'$s'";
 }
 
-
-sub publish {
-    my $url = shift;
-
+sub commit {
+    my $datestring = shift;
+    
     unless ( `dolt diff` ) {
         print "Nothing changed in import. Not generating a commit\n";
-        exit 0;
+        return;
     }
     
     run_command('dolt add .', 'dolt add command failed');
 
-    my $datestring = gmtime();
     my $commit_message = 
-        "Automated import of new data downloaded from $url at $datestring GMT";
+        "Automated import of repos with pull request events on $datestring GMT";
 
-    run_command('dolt commit -m "' . $commit_message . '"', 
+    run_command("dolt commit -m '$commit_message' --date $datestring", 
                 "dolt commit failed");
+}
 
+sub push_origin {
     run_command('dolt push origin master', 'dolt push failed');
+}
+
+sub cleanup {
+    run_command('rm *.json *.sql')
 }
 
 sub run_command {
