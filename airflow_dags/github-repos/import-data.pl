@@ -4,7 +4,6 @@ use strict;
 
 use JSON::Parse qw(parse_json);
 use Getopt::Long;
-use Data::Dumper;
 
 $| = 1;
 
@@ -55,7 +54,7 @@ sub download_files {
     # https://data.gharchive.org/2020-01-10-{0..23}.json.gz
     foreach my $hour ( 0..23 ) { 
         my $url = "$base/$date_str-$hour.json.gz";
-        run_command("wget $url", "Could not download $url");
+        run_command("wget -q $url", "Could not download $url");
     }
     run_command("gunzip *.gz", "Could not unzip files");
 }
@@ -98,12 +97,16 @@ sub generate_inserts {
     
     foreach my $entry ( @$entries ) {
         my $base = $entry->{'payload'}{'pull_request'}{'base'}{'repo'};
-        die "No base repo found" unless $base;
+        unless ( $base ) {
+            warn "No base repo found, skipping";
+            next;
+        }
+        
         die "no url name found for repo" unless $base->{'url'};
 
         # Some fields changed their format name in 2015, so we look
         # for multiple matches. The full_name property for repos isn't
-        # availble until 2015 data, so we extract if from the URL in
+        # available until 2015 data, so we extract if from the URL in
         # all cases.
         my $name = quote_string(get_repo_name_from_url($base->{'url'}));
         my $id = $base->{'id'};
@@ -142,7 +145,7 @@ END
 
 sub get_repo_name_from_url {
     my $url = shift;
-    if ( $url =~ m|.*?/(.*?)/(.*)| ) {
+    if ( $url =~ m|/([^/]+)/([^/]+)$| ) {
         return "$1/$2";
     }
     return undef
@@ -152,6 +155,7 @@ sub quote_string {
     my $s = shift;
     return 'NULL' unless defined $s;
     $s =~ s/'/''/g;
+    $s =~ s/\\/\\\\/g;
     return "'$s'";
 }
 
