@@ -167,7 +167,7 @@ sub execute_inserts {
 sub commit {
     my $datestring = shift;
     
-    unless ( `dolt diff` ) {
+    unless ( `dolt diff --limit 1` ) {
         print "Nothing changed in import. Not generating a commit\n";
         return;
     }
