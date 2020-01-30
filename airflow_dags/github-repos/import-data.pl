@@ -54,7 +54,7 @@ sub download_files {
     # https://data.gharchive.org/2020-01-10-{0..23}.json.gz
     foreach my $hour ( 0..23 ) { 
         my $url = "$base/$date_str-$hour.json.gz";
-        run_command("wget -q $url", "Could not download $url");
+        download($url, 3);
     }
     run_command("gunzip *.gz", "Could not unzip files");
 }
@@ -167,7 +167,7 @@ sub execute_inserts {
 sub commit {
     my $datestring = shift;
     
-    unless ( `dolt diff` ) {
+    unless ( `dolt diff --limit 1` ) {
         print "Nothing changed in import. Not generating a commit\n";
         return;
     }
@@ -193,12 +193,37 @@ sub cleanup {
 sub run_command {
     my $command = shift;
     my $error   = shift;
+    my $retries = shift;
 
-    print "Running: $command\n";
+    $retries = 1 unless $retries;
 
-    my $exitcode = system($command);
+    do {
+        print "Running: $command\n";
+        my $exitcode = system($command);
+        return if ( $exitcode == 0 );
+        die "$error\n" if ( $retries <= 1 );
+    } while ( --$retries > 0 );
+}
 
-    print "\n";
+sub download {
+    my $url = shift;
+    my $retries = shift;
 
-    die "$error\n" if ( $exitcode != 0 );
+    my $cmd = 'curl --silent -L -O --write-out \'%{http_code}\' ' . $url;
+
+    do {
+        print "Running: $cmd\n";
+        my $http_code = `$cmd`;
+        return if ( $http_code == 200 );
+        if ( $http_code == 404 ) {
+            print "404 response, skipping $url\n";
+            # The response won't be a proper GZIP file, so remove it
+            $url =~ m|.*/(.*)|;
+            if ( -e $1 ) {
+                run_command("rm $1", "Couldn't remove bad gzip file");
+            }
+            return;
+        }
+        die "could not download $url\n" if ( $retries <= 1 );
+    } while ( --$retries > 0 );
 }
