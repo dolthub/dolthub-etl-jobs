@@ -308,3 +308,14 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     datetime(2019, 12, 3),
     get_five_thirty_eight_nfl_forecasts_loaders
 )
+
+# Example Go Program
+go_example_dag = DAG('go_example',
+                     default_args=get_default_args_helper(datetime(2019, 10, 23)),
+                     schedule_interval=timedelta(days=1))
+
+go_example = BashOperator(
+    task_id='hello-world',
+    bash_command='{{conf.get("core", "dags_folder")}}/go_example/run.sh ',
+    dag=go_example_dag
+)
