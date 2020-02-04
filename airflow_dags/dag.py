@@ -311,7 +311,7 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
 
 # Example Go Program
 go_example_dag = DAG('go_example',
-                     default_args=get_default_args_helper(datetime(2019, 10, 23)),
+                     default_args=get_default_args_helper(datetime(2020, 2, 2)),
                      schedule_interval=timedelta(days=1))
 
 go_example = BashOperator(
