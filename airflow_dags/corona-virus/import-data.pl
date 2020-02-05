@@ -195,8 +195,8 @@ sub extract_data {
 	    my $place_id = calculate_place_id($row->[1], $row->[0]);
 	    $places->{$place_id}{'country'} = $row->[1];
 	    $places->{$place_id}{'state'}   = $row->[0];
-	    $places->{$place_id}{'lat'}     = $row->[2];
-	    $places->{$place_id}{'long'}    = $row->[3];
+	    $places->{$place_id}{'lat'}     = $row->[3];
+	    $places->{$place_id}{'long'}    = $row->[4];
 
 	    my $current = '';
 	    my $i = 0; # Use this to look up the timestamp
