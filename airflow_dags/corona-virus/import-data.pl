@@ -290,8 +290,6 @@ sub import_observations {
 sub convert_timestamp {
     my $timestamp = shift;
 
-    print "Timestamp: $timestamp\n"; ;
-    
     $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)\s+(\w+)$/;
     my $month  = $1;
     my $day    = $2;
@@ -312,8 +310,6 @@ sub convert_timestamp {
 
     my $date_time = "$year-$month-$day $hour:$minute:00";
 
-    print "DATETIME: $date_time\n";
-    
     return $date_time;
 }
 
