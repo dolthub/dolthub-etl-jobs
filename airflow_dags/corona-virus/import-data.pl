@@ -4,7 +4,6 @@ use strict;
 
 use Data::Dumper;
 use Text::CSV qw( csv );
-use Time::Local;
 
 my $google_sheet_id = '1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo';
 
