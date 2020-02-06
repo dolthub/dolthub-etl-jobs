@@ -2,12 +2,11 @@
 
 use strict;
 
-use Data::Dumper;
 use Text::CSV qw( csv );
 
 my $google_sheet_id = '1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo';
 
-my $url = 'https://docs.google.com/spreadsheets/d/1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo/htmlview?sle=true#';
+my $url = 'https://docs.google.com/spreadsheets/d/1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo/';
 
 my @sheets = ('Confirmed', 'Recovered', 'Death');
 
@@ -200,11 +199,13 @@ sub extract_data {
 	    my $current = '';
 	    my $i = 0; # Use this to look up the timestamp
 	    foreach my $observation ( splice @{$row}, 5 ) {
-		next if ( $observation eq '' );
-		next unless ( $observation ne $current );
+		if ( $observation eq '' or $observation eq $current) {
+		    $i++;
+		    next;
+		}
 		$current = $observation;
 		die "Empty string in $current for $sheet, $place_id, $timestamps[$i]"
-		    if ( $current eq '' ); 
+		    if ( $current eq '' );
 		$observations->{$place_id}{$timestamps[$i]}{lc($sheet)} =
 		    $observation;
 		$i++;
@@ -297,9 +298,8 @@ sub convert_timestamp {
     my $minute = $5;
     my $am_pm  = $6;
 
-    if ( $month < 10 ) {
-	$month = "0$month";
-    }
+    $day   = "0$day" if ( $day < 10 );
+    $month = "0$month" if ( $month < 10 );
     
     if ( $am_pm eq 'PM' and $hour < 12 ) {
 	$hour += 12 if ( $am_pm eq 'PM' );
