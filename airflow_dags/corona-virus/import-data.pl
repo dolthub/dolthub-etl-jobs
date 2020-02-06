@@ -265,7 +265,6 @@ sub import_observations {
     open OBS_SQL, '>obs.sql' or die "Could not open obs.sql\n";
     print OBS_SQL "delete from cases;\n";
 
-    print Dumper $observations;
     foreach my $place_id ( keys %{$observations} ) {
 	foreach my $timestamp ( keys %{$observations->{$place_id}} ) {
 	    my $date = convert_timestamp($timestamp);
