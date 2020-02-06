@@ -2,6 +2,7 @@
 
 use strict;
 
+use Data::Dumper;
 use Text::CSV qw( csv );
 
 my $google_sheet_id = '1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo';
@@ -105,11 +106,12 @@ my $place_id_map = {
 	'' => 50,
     },
     'US' => {
-	'Illinois'   => 51,
-	'California' => 52,
-	'Boston, MA' => 63,
-	'Washington' => 66,
-	'Arizona'    => 67,	
+	'Illinois'    => 51,
+	'California'  => 52,
+	'Boston, MA'  => 63,
+	'Washington'  => 66,
+	'Arizona'     => 67,
+	'Madison, WI' => 69,     
     },
     'Belgium' => {
 	'' => 54,
@@ -273,6 +275,7 @@ sub import_observations {
 	    print OBS_SQL $sql;
 	    
 	    my $cases = $observations->{$place_id}{$timestamp};
+	    die "No cases found for $place_id, $timestamp" if ( !%{$cases} );
 	    foreach my $type ( keys %{$cases} ) {
 		my $count = $cases->{$type};
 		my $column_name = $type . "_count";
@@ -304,6 +307,8 @@ sub convert_timestamp {
 	$hour += 12;
     } elsif ( $hour == 12 and $am_pm eq 'AM' ) {
 	$hour = '00';
+    } elsif ( $hour < 10 ) {
+	$hour = "0$hour";
     }
 
     my $date_time = "$year-$month-$day $hour:$minute:00";
