@@ -332,15 +332,6 @@ sub publish {
     run_command('dolt push origin master', 'dolt push failed');
 }
 
-sub clean_input {
-    my $string = shift;
-
-    $string =~ s/\\/\\\\/g;
-    $string =~ s/'/\\'/g;
-
-    return $string;
-}
-
 sub run_command {
     my $command = shift;
     my $error   = shift;
