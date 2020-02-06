@@ -318,13 +318,13 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     get_five_thirty_eight_nfl_forecasts_loaders
 )
 
-# Example Go Program
-go_example_dag = DAG('go_example',
-                     default_args=get_default_args_helper(datetime(2020, 2, 2)),
-                     schedule_interval=timedelta(days=1))
+# Common Crawl Index Summary
+ccis_dag = DAG('common_crawl_index_summary',
+               default_args=get_default_args_helper(datetime(2020, 2, 6)),
+               schedule_interval=timedelta(days=1))
 
-go_example = BashOperator(
-    task_id='hello-world',
-    bash_command='{{conf.get("core", "dags_folder")}}/go_example/run.sh ',
-    dag=go_example_dag
+ccis = BashOperator(
+    task_id='common_crawl_index_summary',
+    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh /dev/null ',
+    dag=ccis_dag
 )
