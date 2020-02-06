@@ -321,7 +321,7 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
 # Common Crawl Index Summary
 ccis_dag = DAG('common_crawl_index_summary',
                default_args=get_default_args_helper(datetime(2020, 2, 6)),
-               schedule_interval=timedelta(days=1))
+               schedule_interval=timedelta(days=28))
 
 ccis = BashOperator(
     task_id='common_crawl_index_summary',
