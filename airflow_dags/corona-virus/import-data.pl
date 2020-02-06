@@ -301,7 +301,7 @@ sub convert_timestamp {
     $month = "0$month" if ( $month < 10 );
     
     if ( $am_pm eq 'PM' and $hour < 12 ) {
-	$hour += 12 if ( $am_pm eq 'PM' );
+	$hour += 12;
     } elsif ( $hour == 12 and $am_pm eq 'AM' ) {
 	$hour = '00';
     }
