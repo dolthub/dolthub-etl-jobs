@@ -89,7 +89,8 @@ my $place_id_map = {
 	'' => 44,
     },
     'Canada' => {
-	'Ontario' => 46,
+	'Toronto, ON' => 46,
+	'Ontario' => 46, # Toronto equals Ontario on different sheets
 	'British Columbia' => 56,
 	'London, ON' => 57,
     },
@@ -111,7 +112,10 @@ my $place_id_map = {
 	'Boston, MA'  => 63,
 	'Washington'  => 66,
 	'Arizona'     => 67,
-	'Madison, WI' => 69,     
+	'Madison, WI' => 69,
+	'Seattle, WA' => 70,
+	'Chicago, IL' => 71,
+	'Tempe, AZ'   => 72,
     },
     'Belgium' => {
 	'' => 54,
@@ -136,6 +140,9 @@ my $place_id_map = {
     },
     'United Arab Emirates' => {
 	'' => 64,
+    },
+    'Others' => {
+	'' => 73,
     }
 };
     
