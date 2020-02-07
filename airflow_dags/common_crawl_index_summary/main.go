@@ -223,7 +223,6 @@ func Run(ctx context.Context, client *s3.S3, i index.Index, website Website) (St
 			cur.Size += entry.LengthI
 			stats[key] = cur
 		}
-		break
 	}
 	if entries.Err() != nil {
 		return StatResults{}, entries.Err()
