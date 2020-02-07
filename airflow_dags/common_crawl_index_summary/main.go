@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
@@ -235,7 +236,8 @@ func main() {
 	ctx := context.Background()
 
 	client := s3.New(session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"),
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.AnonymousCredentials,
 	})))
 
 	indexes := make([]index.Index, len(IndexFetchers))
@@ -307,7 +309,7 @@ func main() {
 	for r := range results {
 		r.Print(outfile)
 		done++
-		if done % 25 == 0 || time.Now().After(lastprint.Add(60 * time.Second)) {
+		if done%25 == 0 || time.Now().After(lastprint.Add(60*time.Second)) {
 			log.Printf("%4d / %4d done.", done, workcount)
 			lastprint = time.Now()
 		}

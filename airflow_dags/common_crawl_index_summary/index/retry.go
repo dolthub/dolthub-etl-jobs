@@ -26,9 +26,9 @@ func Retry(ctx context.Context, f func() error) error {
 		log.Printf("retrying call: %v", err)
 		timeout := time.Tick(BackoffIntervals[i])
 		select {
-		case <- ctx.Done():
+		case <-ctx.Done():
 			return err
-		case <- timeout:
+		case <-timeout:
 		}
 	}
 	return err

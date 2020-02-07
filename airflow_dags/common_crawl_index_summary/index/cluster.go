@@ -15,10 +15,10 @@ import (
 const chunkSize = 1 * 1024 * 1024
 
 type clusterReader struct {
-	Fetcher  fetcher
-	Length   int64
-	Mu       *sync.Mutex
-	Chunks   [][]byte
+	Fetcher fetcher
+	Length  int64
+	Mu      *sync.Mutex
+	Chunks  [][]byte
 }
 
 func newClusterReader(ctx context.Context, f fetcher) (clusterReader, error) {
@@ -78,7 +78,7 @@ func segmentRefAt(ctx context.Context, c clusterReader, offset int) (segmentRef,
 	bs := make([]byte, lineLength)
 	j := 0
 	for j < lineLength {
-		bs[j], err = c.ByteAt(ctx, j + lineStart)
+		bs[j], err = c.ByteAt(ctx, j+lineStart)
 		if err != nil {
 			return segmentRef{}, -1, err
 		}
@@ -88,9 +88,8 @@ func segmentRefAt(ctx context.Context, c clusterReader, offset int) (segmentRef,
 	if err != nil {
 		return segmentRef{}, -1, err
 	}
-	return ref, lineEnd+1, nil
+	return ref, lineEnd + 1, nil
 }
-
 
 func parseSegmentRef(line string, offset int) (segmentRef, error) {
 	ls := bufio.NewScanner(strings.NewReader(line))

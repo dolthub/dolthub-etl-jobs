@@ -33,7 +33,7 @@ func (e IndexEntry) Host() string {
 }
 
 type IndexEntries interface {
-	Next(ctx context.Context)  bool
+	Next(ctx context.Context) bool
 	Err() error
 	Entry() IndexEntry
 }
@@ -74,7 +74,7 @@ func NewIndex(ctx context.Context, f fetcher) (Index, error) {
 type scanner interface {
 	Scan() bool
 	Text() string
-	Err()  error
+	Err() error
 }
 
 func (i index) EntriesForPrefix(ctx context.Context, key string) IndexEntries {
@@ -138,20 +138,20 @@ func (e *entries) Entry() IndexEntry {
 }
 
 func fetchSegment(ctx context.Context, r segmentRef, f fetcher) (io.ReadCloser, error) {
-        var res io.ReadCloser
-        err := Retry(ctx, func() error {
+	var res io.ReadCloser
+	err := Retry(ctx, func() error {
 		zr, err := f.Fetch(ctx, r.File, r.Offset, r.Offset+r.Length-1)
-                if err != nil {
-                        return err
-                }
-                res, err = gzip.NewReader(zr)
-                if err != nil {
-                        zr.Close()
-                        return err
-                }
-                return nil
-        })
-        return res, err
+		if err != nil {
+			return err
+		}
+		res, err = gzip.NewReader(zr)
+		if err != nil {
+			zr.Close()
+			return err
+		}
+		return nil
+	})
+	return res, err
 }
 
 func parseEntry(line string) (IndexEntry, error) {
