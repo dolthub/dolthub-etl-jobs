@@ -146,6 +146,7 @@ my $place_id_map = {
 	'' => 64,
     },
     'Others' => {
+    	'Cruise Ship' => 73,
 	'' => 73,
     }
 };
