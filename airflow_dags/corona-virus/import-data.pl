@@ -110,6 +110,7 @@ my $place_id_map = {
 	'Illinois'    => 51,
 	'California'  => 52,
 	'Orange, CA'  => 52,
+	'Los Angeles, CA' => 52,
 	'Boston, MA'  => 63,
 	'Washington'  => 66,
 	'Arizona'     => 67,
