@@ -192,35 +192,33 @@ sub extract_data {
     foreach my $sheet ( @sheets ) {
 	my $csv = "$sheet.csv";
 
-	# For some reason column 3, 4, and 5 are missing their header name:
-	# "First Confirmed", "Lat" and "Long" so I'll read the CSV in as an
-	# array and parse myself
 	my $data = csv(in => $csv);
 
 	my @header = @{shift @{$data}};
-	# Everything after column 5 is observations, so we'll grap those
-	# as timestamps
-	my @timestamps = splice(@header, 5);
+	# Everything after column 4 is observations, so we'll grap those
+	# as timestamps. This used to be column 5 but they removed first
+	# confirmed date.
+	my @timestamps = splice(@header, 4);
 
 	# Build the places and $observations hashes from the data
 	foreach my $row ( @{$data} ) {
 	    my $place_id = calculate_place_id($row->[1], $row->[0]);
 	    $places->{$place_id}{'country'} = $row->[1];
 	    $places->{$place_id}{'state'}   = $row->[0];
-	    $places->{$place_id}{'lat'}     = $row->[3];
-	    $places->{$place_id}{'long'}    = $row->[4];
+	    $places->{$place_id}{'lat'}     = $row->[2];
+	    $places->{$place_id}{'long'}    = $row->[3];
 
 	    my $current = '';
 	    my $i = 0; # Use this to look up the timestamp
-	    foreach my $observation ( splice @{$row}, 5 ) {
+	    foreach my $observation ( splice @{$row}, 4 ) {
 		if ( $observation eq '' or $observation eq $current) {
 		    $i++;
 		    next;
 		}
 		$current = $observation;
-		die "Empty string in $current for $sheet, $place_id, $timestamps[$i]"
-		    if ( $current eq '' );
-		$observations->{$place_id}{$timestamps[$i]}{lc($sheet)} =
+		die "Empty string in $current for $sheet, $place_id, $timestamps[$i]" if ( $current eq '' );
+		my $date_time = convert_timestamp($timestamps[$i]);
+		$observations->{$place_id}{$date_time}{lc($sheet)} =
 		    $observation;
 		$i++;
 	    }
@@ -280,14 +278,13 @@ sub import_observations {
     print OBS_SQL "delete from cases;\n";
 
     foreach my $place_id ( keys %{$observations} ) {
-	foreach my $timestamp ( keys %{$observations->{$place_id}} ) {
-	    my $date = convert_timestamp($timestamp);
+	foreach my $date ( keys %{$observations->{$place_id}} ) {
 	    my $sql =
 		"insert into cases (place_id, observation_time) values ($place_id, '$date');\n";
 	    print OBS_SQL $sql;
 	    
-	    my $cases = $observations->{$place_id}{$timestamp};
-	    die "No cases found for $place_id, $timestamp" if ( !%{$cases} );
+	    my $cases = $observations->{$place_id}{$date};
+	    die "No cases found for $place_id, $date" if ( !%{$cases} );
 	    foreach my $type ( keys %{$cases} ) {
 		my $count = $cases->{$type};
 		my $column_name = $type . "_count";
@@ -304,22 +301,40 @@ sub import_observations {
 sub convert_timestamp {
     my $timestamp = shift;
 
-    $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)\s+(\w+)$/;
-    my $month  = $1;
-    my $day    = $2;
-    my $year   = $3;
-    my $hour   = $4;
-    my $minute = $5;
-    my $am_pm  = $6;
+    my $month;
+    my $day;
+    my $year;
+    my $hour;
+    my $minute;
+    my $am_pm;
+    if ( $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)\s+(\w+)$/ ) {
+	$month  = $1;
+	$day    = $2;
+	$year   = $3;
+        $hour   = $4;
+	$minute = $5;
+	$am_pm  = $6;
+    } elsif ( $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)$/ ) {
+        $month  = $1;
+        $day    = $2;
+        $year   = $3;
+        $hour   = $4;
+        $minute = $5;
+    }
 
-    $day   = "0$day" if ( $day < 10 );
-    $month = "0$month" if ( $month < 10 );
-    
-    if ( $am_pm eq 'PM' and $hour < 12 ) {
-	$hour += 12;
-    } elsif ( $hour == 12 and $am_pm eq 'AM' ) {
-	$hour = '00';
-    } elsif ( $hour < 10 ) {
+	
+    $day   = "0$day" if ( $day < 10 and $day =~ /^\d$/);
+    $month = "0$month" if ( $month < 10 and $month =~ /^\d$/);
+    $year  = 2020 if ( $year != 2020);
+
+    if ( defined($am_pm) ) {
+	if ( $am_pm eq 'PM' and $hour < 12 ) {
+	    $hour += 12;
+	} elsif ( $hour == 12 and $am_pm eq 'AM' ) {
+	    $hour = '00';
+	}
+    }
+    if ( $hour < 10 and $hour =~ /^\d$/ ) {
 	$hour = "0$hour";
     }
 
