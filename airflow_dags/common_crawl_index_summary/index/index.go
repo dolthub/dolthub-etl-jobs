@@ -164,15 +164,10 @@ func parseEntry(line string) (IndexEntry, error) {
 	if err != nil {
 		return res, err
 	}
-	if res.URL == "http://www.%66acebook.com/robots.txt" {
-		res.URL = "http://www.facebook.com/robots.txt"
-	} else if res.URL == "https://%74witter.com/robots.txt" {
-		res.URL = "https://twitter.com/robots.txt"
-	}
-	res.URLParsed, err = url.Parse(res.URL)
+	res.LengthI, err = strconv.Atoi(res.Length)
 	if err != nil {
 		return res, err
 	}
-	res.LengthI, err = strconv.Atoi(res.Length)
-	return res, err
+	res.URLParsed, _ = url.Parse(res.URL)
+	return res, nil
 }

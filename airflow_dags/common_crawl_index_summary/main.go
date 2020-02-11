@@ -211,6 +211,10 @@ func Run(ctx context.Context, client *s3.S3, i index.Index, website Website) (St
 	entries := i.EntriesForPrefix(ctx, website.Key)
 	for entries.Next(ctx) {
 		entry := entries.Entry()
+		if entry.URLParsed == nil {
+			log.Printf("Skipping entry; unparsed URL: %s.", entry.URL)
+			continue
+		}
 		host := entry.Host()
 		if host == website.Domain || strings.HasSuffix(host, "."+website.Domain) {
 			hostkey := host
