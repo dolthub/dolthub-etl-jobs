@@ -325,6 +325,6 @@ ccis_dag = DAG('common_crawl_index_summary',
 
 ccis = BashOperator(
     task_id='common_crawl_index_summary',
-    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh /dev/null ',
+    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
     dag=ccis_dag
 )

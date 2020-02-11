@@ -309,6 +309,17 @@ func main() {
 
 	done := 0
 	lastprint := time.Now()
+	fmt.Fprintf(
+		outfile,
+		"%s|%s|%s|%s|%s|%s|%s\n",
+		"host",
+		"prefix",
+		"status",
+		"mime_detected",
+		"languages",
+		"count",
+		"size",
+	)
 	for r := range results {
 		r.Print(outfile)
 		done++
