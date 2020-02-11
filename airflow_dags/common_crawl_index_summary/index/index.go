@@ -166,6 +166,8 @@ func parseEntry(line string) (IndexEntry, error) {
 	}
 	if res.URL == "http://www.%66acebook.com/robots.txt" {
 		res.URL = "http://www.facebook.com/robots.txt"
+	} else if res.URL == "https://%74witter.com/robots.txt" {
+		res.URL = "https://twitter.com/robots.txt"
 	}
 	res.URLParsed, err = url.Parse(res.URL)
 	if err != nil {
