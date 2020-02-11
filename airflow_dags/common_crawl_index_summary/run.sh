@@ -1,9 +1,11 @@
 #!/bin/bash
 set -eo pipefail
+workdir=$(pwd)
 root=$(dirname "$0")
 cd $root
 ulimit -n 16384
-go run . index_summary.psv
+go run . "$workdir"/index_summary.psv
+cd "$workdir"
 dolt init
 dolt sql -q 'CREATE TABLE `entry_stats` (
   `host` LONGTEXT NOT NULL COMMENT '\''tag:0'\'',
