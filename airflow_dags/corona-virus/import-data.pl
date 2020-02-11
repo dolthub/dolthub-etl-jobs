@@ -2,12 +2,11 @@
 
 use strict;
 
-use Data::Dumper;
 use Text::CSV qw( csv );
 
-my $google_sheet_id = '1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo';
+my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/time_series/';
 
-my $url = 'https://docs.google.com/spreadsheets/d/1UF2pSkFTURko2OvfHWWlFpDFAr1UxCBA4JLwlSP6KFo/';
+my $csv_prefix = 'time_series_2019-ncov-';
 
 my @sheets = ('Confirmed', 'Recovered', 'Death');
 
@@ -120,6 +119,7 @@ my $place_id_map = {
 	'Seattle, WA' => 70,
 	'Chicago, IL' => 71,
 	'Tempe, AZ'   => 72,
+	'San Diego County, CA' => 75,    
     },
     'Belgium' => {
 	'' => 54,
@@ -146,8 +146,8 @@ my $place_id_map = {
 	'' => 64,
     },
     'Others' => {
-    	'Cruise Ship' => 73,
-	'' => 73,
+    	'Diamond Princess cruise ship' => 73,
+	'' => 74,
     }
 };
     
@@ -160,7 +160,7 @@ run_command("dolt clone $clone_path",
 
 chdir($repo);
 
-download_files($google_sheet_id, @sheets);
+download_files($url, $csv_prefix, @sheets);
 
 my ($places, $observations) = extract_data(@sheets);
 
@@ -169,16 +169,13 @@ import_data($places, $observations);
 publish($url);
 
 sub download_files {
-    my $sheet_id = shift;
-    my @sheets    = @_;
+    my $url_base   = shift;
+    my $csv_prefix = shift;
+    my @sheets     = @_;
 
-    # To download a CSV of a sheet, you take the base, add in the sheet id,
-    # then put the postfix, and finally add the sheet name
-    my $google_base      = 'https://docs.google.com/spreadsheets/d/';
-    my $download_postfix = '/gviz/tq?tqx=out:csv&sheet=';
 
     foreach my $sheet ( @sheets ) {
-	my $url = $google_base . $sheet_id . $download_postfix . $sheet;
+	my $url = $url_base . $csv_prefix . $sheet . '.csv';
 	run_command("curl -L -o $sheet.csv '$url'", "Could not download $url");
     }
 }
