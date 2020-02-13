@@ -8,7 +8,11 @@ my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/time
 
 my $csv_prefix = 'time_series_2019-ncov-';
 
-my @sheets = ('Confirmed', 'Recovered', 'Death');
+my %sheets = (
+    'Confirmed' => 'confirmed',
+    'Recovered' => 'recovered',
+    'Deaths'    => 'death'
+    );
 
 my $place_id_map = {
     'Mainland China' => {
@@ -160,9 +164,9 @@ run_command("dolt clone $clone_path",
 
 chdir($repo);
 
-download_files($url, $csv_prefix, @sheets);
+download_files($url, $csv_prefix, %sheets);
 
-my ($places, $observations) = extract_data(@sheets);
+my ($places, $observations) = extract_data(%sheets);
 
 import_data($places, $observations);
 
@@ -171,28 +175,28 @@ publish($url);
 sub download_files {
     my $url_base   = shift;
     my $csv_prefix = shift;
-    my @sheets     = @_;
+    my %sheets     = @_;
 
 
-    foreach my $sheet ( @sheets ) {
+    foreach my $sheet ( keys %sheets ) {
 	my $url = $url_base . $csv_prefix . $sheet . '.csv';
 	run_command("curl -L -o $sheet.csv '$url'", "Could not download $url");
     }
 }
 
 sub extract_data {
-    my @sheets = @_;
+    my %sheets = @_;
 
     my $places = {};
     my $observations = {};
     
-    foreach my $sheet ( @sheets ) {
+    foreach my $sheet ( keys %sheets ) {
 	my $csv = "$sheet.csv";
 
 	my $data = csv(in => $csv);
 
 	my @header = @{shift @{$data}};
-	# Everything after column 4 is observations, so we'll grap those
+	# Everything after column 4 is observations, so we'll grab those
 	# as timestamps. This used to be column 5 but they removed first
 	# confirmed date.
 	my @timestamps = splice(@header, 4);
@@ -215,7 +219,7 @@ sub extract_data {
 		$current = $observation;
 		die "Empty string in $current for $sheet, $place_id, $timestamps[$i]" if ( $current eq '' );
 		my $date_time = convert_timestamp($timestamps[$i]);
-		$observations->{$place_id}{$date_time}{lc($sheet)} =
+		$observations->{$place_id}{$date_time}{lc($sheets{$sheet})} =
 		    $observation;
 		$i++;
 	    }
