@@ -204,7 +204,7 @@ raw_us_baby_names = BashOperator(task_id='import-data',
 # Corona Virus
 corona_virus_dag = DAG('corona_virus',
                         default_args=get_default_args_helper(datetime(2020,2,5)),
-                        schedule_interval=timedelta(hours=1))
+                        schedule_interval=timedelta(hours=12))
 
 raw_corona_virus = BashOperator(task_id='import-data',
                                 bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-data.pl ',
