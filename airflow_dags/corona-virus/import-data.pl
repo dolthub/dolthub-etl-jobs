@@ -4,7 +4,7 @@ use strict;
 
 use Text::CSV qw( csv );
 
-my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/time_series/';
+my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/archived_data/time_series/';
 
 my $csv_prefix = 'time_series_2019-ncov-';
 
@@ -123,7 +123,8 @@ my $place_id_map = {
 	'Seattle, WA' => 70,
 	'Chicago, IL' => 71,
 	'Tempe, AZ'   => 72,
-	'San Diego County, CA' => 75,    
+	'San Diego County, CA' => 75,
+	'San Antonio, TX' => 76,    
     },
     'Belgium' => {
 	'' => 54,
@@ -180,7 +181,8 @@ sub download_files {
 
     foreach my $sheet ( keys %sheets ) {
 	my $url = $url_base . $csv_prefix . $sheet . '.csv';
-	run_command("curl -L -o $sheet.csv '$url'", "Could not download $url");
+	run_command("curl -f -L -o $sheet.csv '$url'",
+		    "Could not download $url");
     }
 }
 
@@ -194,6 +196,8 @@ sub extract_data {
 	my $csv = "$sheet.csv";
 
 	my $data = csv(in => $csv);
+
+	die "No data in $csv" unless @{$data};
 
 	my @header = @{shift @{$data}};
 	# Everything after column 4 is observations, so we'll grab those
