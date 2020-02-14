@@ -4,9 +4,9 @@ use strict;
 
 use Text::CSV qw( csv );
 
-my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/archived_data/time_series/';
+my $url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
 
-my $csv_prefix = 'time_series_2019-ncov-';
+my $csv_prefix = 'time_series_19-covid-';
 
 my %sheets = (
     'Confirmed' => 'confirmed',
@@ -309,41 +309,19 @@ sub convert_timestamp {
     my $month;
     my $day;
     my $year;
-    my $hour;
-    my $minute;
-    my $am_pm;
-    if ( $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)\s+(\w+)$/ ) {
+    if ( $timestamp =~ /^(\d+)\/(\d+)\/(\d+)$/ ) {
 	$month  = $1;
 	$day    = $2;
 	$year   = $3;
-        $hour   = $4;
-	$minute = $5;
-	$am_pm  = $6;
-    } elsif ( $timestamp =~ /(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)$/ ) {
-        $month  = $1;
-        $day    = $2;
-        $year   = $3;
-        $hour   = $4;
-        $minute = $5;
+    } else {
+	die "Timestamp does not match expected format";
     }
-
 	
     $day   = "0$day" if ( $day < 10 and $day =~ /^\d$/);
     $month = "0$month" if ( $month < 10 and $month =~ /^\d$/);
-    $year  = 2020 if ( $year != 2020);
-
-    if ( defined($am_pm) ) {
-	if ( $am_pm eq 'PM' and $hour < 12 ) {
-	    $hour += 12;
-	} elsif ( $hour == 12 and $am_pm eq 'AM' ) {
-	    $hour = '00';
-	}
-    }
-    if ( $hour < 10 and $hour =~ /^\d$/ ) {
-	$hour = "0$hour";
-    }
-
-    my $date_time = "$year-$month-$day $hour:$minute:00";
+    $year  = "20$year" if ( $year == 20 );
+    
+    my $date_time = "$year-$month-$day 00:00:00";
 
     return $date_time;
 }
