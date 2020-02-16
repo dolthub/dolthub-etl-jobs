@@ -153,7 +153,10 @@ my $place_id_map = {
     'Others' => {
     	'Diamond Princess cruise ship' => 73,
 	'' => 74,
-    }
+    },
+    'Egypt' => {
+	'' => 77,
+    },
 };
     
 # Clone the repository
