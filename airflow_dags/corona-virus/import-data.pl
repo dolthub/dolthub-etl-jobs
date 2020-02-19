@@ -124,7 +124,8 @@ my $place_id_map = {
 	'Chicago, IL' => 71,
 	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
-	'San Antonio, TX' => 76,    
+	'San Antonio, TX' => 76,
+	'Omaha, NE' => 78    
     },
     'Belgium' => {
 	'' => 54,
