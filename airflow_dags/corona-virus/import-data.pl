@@ -158,6 +158,9 @@ my $place_id_map = {
     'Egypt' => {
 	'' => 77,
     },
+    'Iran' => {
+	'' => 79,
+    }
 };
     
 # Clone the repository
