@@ -87,6 +87,7 @@ my $place_id_map = {
 	'Victoria' => 42,
 	'Queensland' => 43,
 	'South Australia' => 45,
+	'From Diamond Princess' => 81,    
     },
     'India' => {
 	'' => 44,
@@ -125,7 +126,11 @@ my $place_id_map = {
 	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
 	'San Antonio, TX' => 76,
-	'Omaha, NE' => 78    
+	'Ashland, NE' => 78,
+	'Travis, CA' => 80,
+	'Lackland, TX' => 82,
+	'Humboldt County, CA' => 85,
+	'Sacramento County, CA' => 86,    
     },
     'Belgium' => {
 	'' => 54,
@@ -159,7 +164,13 @@ my $place_id_map = {
 	'' => 77,
     },
     'Iran' => {
-	'' => 79,
+        '' => 79,
+    },
+    'Israel' => {
+	'From Diamond Princess' => 83,
+    },
+    'Lebanon' => {
+	'None' => 84,
     }
 };
     
