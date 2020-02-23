@@ -126,11 +126,11 @@ my $place_id_map = {
 	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
 	'San Antonio, TX' => 76,
-	'Ashland, NE' => 78,
-	'Travis, CA' => 80,
-	'Lackland, TX' => 82,
+	'Omaha, NE (From Diamond Princess)' => 78,
+	'Travis, CA (From Diamond Princess)' => 80,
+	'Lackland, TX (From Diamond Princess)' => 82,
 	'Humboldt County, CA' => 85,
-	'Sacramento County, CA' => 86,    
+	'Sacramento County, CA' => 86,
     },
     'Belgium' => {
 	'' => 54,
@@ -170,7 +170,7 @@ my $place_id_map = {
 	'From Diamond Princess' => 83,
     },
     'Lebanon' => {
-	'None' => 84,
+	'' => 84,
     }
 };
     
