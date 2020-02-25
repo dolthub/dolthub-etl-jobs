@@ -131,6 +131,7 @@ my $place_id_map = {
 	'Lackland, TX (From Diamond Princess)' => 82,
 	'Humboldt County, CA' => 85,
 	'Sacramento County, CA' => 86,
+	'Unassigned Location (From Diamond Princess)' => 88,    
     },
     'Belgium' => {
 	'' => 54,
@@ -173,8 +174,20 @@ my $place_id_map = {
 	'' => 84,
     },
     'Iraq' => {
-	'None' => 87,
+	'' => 87,
     },
+    'Oman' => {
+	'' => 89, 
+    },
+    'Afghanistan' => {
+	'' => 90,
+    },
+    'Bahrain' => {
+	'' => 91,
+    },
+    'Kuwait' => {
+	'' => 92,
+    }
 };
     
 # Clone the repository
