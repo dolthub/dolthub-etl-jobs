@@ -187,7 +187,19 @@ my $place_id_map = {
     },
     'Kuwait' => {
 	'' => 92,
-    }
+    },
+    'Austria' => {
+	'None' => 93,
+    },
+    'Algeria' => {
+	'' => 94,
+    },
+    'Croatia' => {
+	'' => 95,
+    },
+    'Switzerland' => {
+	'' => 96,
+    },	
 };
     
 # Clone the repository
