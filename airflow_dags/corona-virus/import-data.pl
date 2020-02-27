@@ -168,7 +168,7 @@ my $place_id_map = {
         '' => 79,
     },
     'Israel' => {
-	'From Diamond Princess' => 83,
+	'' => 83,
     },
     'Lebanon' => {
 	'' => 84,
@@ -189,7 +189,7 @@ my $place_id_map = {
 	'' => 92,
     },
     'Austria' => {
-	'None' => 93,
+	'' => 93,
     },
     'Algeria' => {
 	'' => 94,
@@ -199,7 +199,28 @@ my $place_id_map = {
     },
     'Switzerland' => {
 	'' => 96,
-    },	
+    },
+    'Pakistan' => {
+        '' => 97,
+    },
+    'Brazil' => {
+        '' => 98,
+    },
+    'Georgia' => {
+        '' => 99,
+    },
+    'Greece' => {
+        '' => 100,
+    },
+    'North Macedonia' => {
+        '' => 101,
+    },
+    'Norway' => {
+        '' => 102,
+    },
+    'Romania' => {
+        '' => 103,
+    },
 };
     
 # Clone the repository
