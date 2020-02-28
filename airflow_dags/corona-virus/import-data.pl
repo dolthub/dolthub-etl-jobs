@@ -221,6 +221,18 @@ my $place_id_map = {
     'Romania' => {
         '' => 103,
     },
+    'Denmark' => {
+	'' => 104,
+    },
+    'Estonia' => {
+        '' => 105,
+    },
+    'Netherlands' => {
+        '' => 106,
+    },
+    'San Marino' => {
+        '' => 107,
+    },  
 };
     
 # Clone the repository
