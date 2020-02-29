@@ -94,9 +94,9 @@ my $place_id_map = {
     },
     'Canada' => {
 	'Toronto, ON' => 46,
-	'Ontario' => 46, # Toronto equals Ontario on different sheets
 	'British Columbia' => 56,
 	'London, ON' => 57,
+	'Montreal, QC' => 109,    
     },
     'Italy' => {
 	'' => 47,
@@ -233,6 +233,32 @@ my $place_id_map = {
     'San Marino' => {
         '' => 107,
     },  
+    'Azerbaijan' => {
+        '' => 108,
+    },
+    'Belarus' => {
+	'' => 109,
+    },
+    'Iceland' => {
+        '' => 111,
+    },
+    'Lithuania' => {
+        '' => 112,
+    },
+    'Mexico' => {
+        '' => 113,
+    },
+    'New Zealand' => {
+        '' => 114,
+    },
+    'Nigeria' => {
+        '' => 115,
+    },
+    'North Ireland' => {
+        '' => 116,
+    },
+
+
 };
     
 # Clone the repository
@@ -286,6 +312,10 @@ sub extract_data {
 
 	# Build the places and $observations hashes from the data
 	foreach my $row ( @{$data} ) {
+	    # Remove leading spaces
+	    $row->[0] =~ s/^\s+//g;
+	    $row->[1] =~ s/^\s+//g;
+	    
 	    my $place_id = calculate_place_id($row->[1], $row->[0]);
 	    $places->{$place_id}{'country'} = $row->[1];
 	    $places->{$place_id}{'state'}   = $row->[0];
