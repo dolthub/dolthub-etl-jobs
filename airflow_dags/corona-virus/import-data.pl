@@ -87,7 +87,8 @@ my $place_id_map = {
 	'Victoria' => 42,
 	'Queensland' => 43,
 	'South Australia' => 45,
-	'From Diamond Princess' => 81,    
+	'From Diamond Princess' => 81,
+	'Western Australia' => 117,    
     },
     'India' => {
 	'' => 44,
@@ -131,7 +132,9 @@ my $place_id_map = {
 	'Lackland, TX (From Diamond Princess)' => 82,
 	'Humboldt County, CA' => 85,
 	'Sacramento County, CA' => 86,
-	'Unassigned Location (From Diamond Princess)' => 88,    
+	'Unassigned Location (From Diamond Princess)' => 88,
+	'Portland, OR' => 122,
+	'Snohomish County, WA' => 123,    
     },
     'Belgium' => {
 	'' => 54,
@@ -257,8 +260,19 @@ my $place_id_map = {
     'North Ireland' => {
         '' => 116,
     },
-
-
+    'Ireland' => {
+	'' => 118,
+    },
+    'Luxembourg' => {
+	'' => 119,
+    },
+    'Monaco' => {
+	'' => 120,
+    },
+    'Qatar' =>	{
+	'' => 121,
+    },
+	
 };
     
 # Clone the repository
