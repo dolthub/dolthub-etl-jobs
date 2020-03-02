@@ -122,7 +122,7 @@ my $place_id_map = {
 	'Washington'  => 66,
 	'Arizona'     => 67,
 	'Madison, WI' => 69,
-	'Seattle, WA' => 70,
+	'King County, WA' => 70,
 	'Chicago, IL' => 71,
 	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
@@ -134,7 +134,8 @@ my $place_id_map = {
 	'Sacramento County, CA' => 86,
 	'Unassigned Location (From Diamond Princess)' => 88,
 	'Portland, OR' => 122,
-	'Snohomish County, WA' => 123,    
+	'Snohomish County, WA' => 123,
+	'Providence, RI' => 129,   
     },
     'Belgium' => {
 	'' => 54,
@@ -272,7 +273,18 @@ my $place_id_map = {
     'Qatar' =>	{
 	'' => 121,
     },
-	
+    'Ecuador' =>  {
+        '' => 125,
+    },
+    'Czech Republic' =>  {
+        '' => 126,
+    },
+    'Armenia' =>  {
+        '' => 127,
+    },
+    'Dominican Republic' =>  {
+        '' => 128,
+    },
 };
     
 # Clone the repository
