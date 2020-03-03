@@ -88,7 +88,8 @@ my $place_id_map = {
 	'Queensland' => 43,
 	'South Australia' => 45,
 	'From Diamond Princess' => 81,
-	'Western Australia' => 117,    
+	'Western Australia' => 117,
+	'Tasmania' => 134,    
     },
     'India' => {
 	'' => 44,
@@ -123,7 +124,7 @@ my $place_id_map = {
 	'Arizona'     => 67,
 	'Madison, WI' => 69,
 	'King County, WA' => 70,
-	'Chicago, IL' => 71,
+	'Cook County, IL' => 71,
 	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
 	'San Antonio, TX' => 76,
@@ -136,6 +137,14 @@ my $place_id_map = {
 	'Portland, OR' => 122,
 	'Snohomish County, WA' => 123,
 	'Providence, RI' => 129,   
+	'Grafton County, NH' => 139,
+	'Hillsborough, FL' => 140,
+	'New York City, NY' => 141,
+	'Placer County, CA' => 142,
+	'San Mateo, CA' => 143,
+	'Sarasota, FL' => 144,
+	'Sonoma County, CA' => 145,
+	'Umatilla, OR' => 146,    
     },
     'Belgium' => {
 	'' => 54,
@@ -285,6 +294,27 @@ my $place_id_map = {
     'Dominican Republic' =>  {
         '' => 128,
     },
+    'Indonesia' => {
+	'' => 131,
+    },
+    'Portugal' => {
+	'' => 132,
+    },
+    'Andorra' => {
+	'' => 133,
+    },
+    'Latvia' => {
+	'' => 135,
+    },
+    'Morocco' =>	{
+        '' => 136,
+    },
+    'Saudi Arabia' =>	{
+        '' => 137,
+    },
+    'Senegal' => {
+	'' => 138,
+    }
 };
     
 # Clone the repository
