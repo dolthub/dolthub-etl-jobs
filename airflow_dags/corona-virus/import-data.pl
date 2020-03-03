@@ -503,7 +503,7 @@ sub publish {
 
     my $datestring = gmtime();
     my $commit_message = 
-        "Automated import of new data downloaded from $url at $datestring GMT";
+        "Automated import of cases and places tables downloaded from $url at $datestring GMT";
 
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
