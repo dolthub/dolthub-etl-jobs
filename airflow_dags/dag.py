@@ -210,6 +210,16 @@ raw_corona_virus = BashOperator(task_id='import-data',
                                 bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-data.pl ',
                                 dag=corona_virus_dag)
 
+corona_virus_details_dag = DAG('corona_virus_details',
+                        default_args=get_default_args_helper(datetime(2020,3,3)\
+),
+	                schedule_interval=timedelta(hours=1))
+
+details_corona_virus = BashOperator(task_id='import-details',
+                                bash_command='{{conf.get("core", "dags_folder")\
+}}/corona-virus/import-case-details.pl ',
+                                dag=corona_virus_details_dag)
+
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
