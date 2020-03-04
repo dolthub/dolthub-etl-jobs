@@ -144,7 +144,14 @@ my $place_id_map = {
 	'San Mateo, CA' => 143,
 	'Sarasota, FL' => 144,
 	'Sonoma County, CA' => 145,
-	'Umatilla, OR' => 146,    
+	'Umatilla, OR' => 146,
+	'Fulton County, GA' => 147,
+	'Washington County, OR' => 148,
+	'Norfolk County, MA' => 152,
+	'Berkeley, CA' => 153,
+	'Maricopa County, AZ' => 154,
+	'Wake County, NC' => 155,
+	'Westchester County, NY' => 156,    
     },
     'Belgium' => {
 	'' => 54,
@@ -314,7 +321,19 @@ my $place_id_map = {
     },
     'Senegal' => {
 	'' => 138,
-    }
+    },
+    'Argentina' => {
+        '' => 149,
+    },
+    'Chile' => {
+        '' => 150,
+    },
+    'Jordan' => {
+        '' => 151,
+    },
+    'Ukraine' => {
+	'' => 157,
+    },
 };
     
 # Clone the repository
@@ -502,8 +521,8 @@ sub publish {
     run_command('dolt add .', 'dolt add command failed');
 
     my $datestring = gmtime();
-    my $commit_message = 
-        "Automated import of cases and places tables downloaded from $url at $datestring GMT";
+    my $commit_message =
+ 	"Automated import of cases and places tables downloaded from $url at $datestring GMT";
 
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
