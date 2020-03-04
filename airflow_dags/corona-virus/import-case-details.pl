@@ -151,7 +151,7 @@ sub import_data {
     my $sql_file = 'case-details.sql';
     open SQL, ">$sql_file" or die "Could not open $sql_file";
 
-    print SQL "delete from case_details;\n";
+    print SQL "delete from case_details where source='$url';\n";
 
     foreach my $case_id ( keys %{$data} ) {
 	my $sql = "insert into case_details (source, place_id, case_id";
