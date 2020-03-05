@@ -90,6 +90,7 @@ my $place_id_map = {
 	'From Diamond Princess' => 81,
 	'Western Australia' => 117,
 	'Tasmania' => 134,    
+	'Northern Territory' => 160,
     },
     'India' => {
 	'' => 44,
@@ -114,11 +115,10 @@ my $place_id_map = {
     },
     'US' => {
 	'Illinois'    => 51,
-	'California'  => 52,
-	'Orange, CA'  => 52,
-	'Los Angeles, CA' => 52,
-	'Santa Clara, CA' => 52,
 	'San Benito, CA' => 52,
+	'Orange County, CA'  => 53,
+	'Los Angeles, CA' => 54,
+	'Santa Clara, CA' => 56,    
 	'Boston, MA'  => 63,
 	'Washington'  => 66,
 	'Arizona'     => 67,
@@ -150,7 +150,8 @@ my $place_id_map = {
 	'Berkeley, CA' => 153,
 	'Maricopa County, AZ' => 154,
 	'Wake County, NC' => 155,
-	'Westchester County, NY' => 156,    
+	'Westchester County, NY' => 156,
+	'Contra Costa County, CA' => 166,    
     },
     'Belgium' => {
 	'' => 54,
@@ -332,6 +333,27 @@ my $place_id_map = {
     },
     'Ukraine' => {
 	'' => 157,
+    },
+    'Saint Barthelemy' => {
+	'' => 158,
+    },
+    'Hungary' => {
+        '' => 159,
+    },
+    'Faroe Islands' => {
+	'' => 161,
+    },
+    'Gibraltar' => {
+	'' => 162,
+    },
+    'Liechtenstein' => {
+	'' => 163,
+    },
+    'Poland' => {
+	'' => 164,
+    },
+    'Tunisia' => {
+	'' => 165,
     },
 };
     
