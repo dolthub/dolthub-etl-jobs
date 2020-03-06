@@ -12,7 +12,6 @@ if ( !url || !file ) {
 (async () => {
     // Set up browser and page.
     const browser = await puppeteer.launch({
-	headless: false,
 	args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
