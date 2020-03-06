@@ -3,6 +3,7 @@
 use strict;
 
 use Data::Dumper;
+use File::Basename;
 
 my $url       = 'https://wars.vote4.hk/en/cases';
 my $html_file = 'hk-cases.html';
@@ -15,10 +16,10 @@ my $debug = 0;
 my $organization = 'Liquidata';
 my $repo         = 'corona-virus';
 my $clone_path   = "$organization/$repo"; 
-# run_command("dolt clone $clone_path", 
-#             "Could not clone repo $clone_path");
+run_command("dolt clone $clone_path", 
+            "Could not clone repo $clone_path");
 
-# chdir($repo);
+chdir($repo);
 
 download_cases_html($url, $html_file);
 
@@ -26,15 +27,23 @@ extract_data($html_file, $data);
 
 import_data($url, $data);
 
-# publish($url);
+publish($url);
 
 sub download_cases_html {
     my $url  = shift;
     my $file = shift;
 
-    my $script = 'scroll-to-bottom-scraper/scroll-to-bottom-scrape.js';
+    my $dirname = dirname(__FILE__);
+
+    run_command('npm install puppeteer',
+		'Cannot install puppeteer');
+
+    run_command("cp $dirname/scroll-to-bottom-scraper/scroll-to-bottom-scrape.js .",
+		"Could not copy node script");
     
-    run_command("node $script $url $file",
+    my $script = "$dirname/scroll-to-bottom-scraper/scroll-to-bottom-scrape.js";
+    
+    run_command("node scroll-to-bottom-scrape.js $url $file",
 		"Could not execute node infinite scroll scraper");
 }
 
@@ -51,7 +60,7 @@ sub extract_data {
     # Remove comments
     $html_string =~ s/<!--.*?-->//sg;
 
-    die "Something fucked up" if ( $html_string =~ /<!--.*?-->/sg );
+    die "Could not remove all comments" if ( $html_string =~ /<!--.*?-->/sg );
     
     my $found = 1;
     my $i = 1;

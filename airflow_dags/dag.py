@@ -219,8 +219,8 @@ singapore_details = BashOperator(task_id='singapore-details',
                                  dag=corona_virus_details_dag)
 
 hongkong_details = BashOperator(task_id='hongkong-details',
-                                 bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-hongkong.pl ',
-                                 dag=corona_virus_details_dag)
+                                bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-hongkong.pl ',
+                                dag=corona_virus_details_dag)
 
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
