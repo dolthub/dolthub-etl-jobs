@@ -151,7 +151,16 @@ my $place_id_map = {
 	'Maricopa County, AZ' => 154,
 	'Wake County, NC' => 155,
 	'Westchester County, NY' => 156,
-	'Contra Costa County, CA' => 166,    
+	'Contra Costa County, CA' => 166,
+	'Bergen County, NJ' => 170,
+	'Harris County, TX' => 171,
+	'San Francisco County, CA' => 172,
+	'Clark County, NV' => 174,
+	'Fort Bend County, TX' => 175,
+	'Grant County, WA' => 176,
+	'Queens County, NY' => 177,
+	'Santa Rosa County, FL' => 178,
+	'Williamson County, TN' => 179,    
     },
     'Belgium' => {
 	'' => 54,
@@ -355,6 +364,18 @@ my $place_id_map = {
     'Tunisia' => {
 	'' => 165,
     },
+    'Palestine' => {
+        '' => 167,
+    },
+    'Bosnia and Herzegovina' => {
+        '' => 168,
+    },
+    'Slovenia' => {
+        '' => 169,
+    },
+    'South Africa' => {
+        '' => 173,
+    },
 };
     
 # Clone the repository
@@ -362,7 +383,7 @@ my $organization = 'Liquidata';
 my $repo         = 'corona-virus';
 my $clone_path   = "$organization/$repo"; 
 run_command("dolt clone $clone_path", 
-            "Could not clone repo $clone_path");
+           "Could not clone repo $clone_path");
 
 chdir($repo);
 
