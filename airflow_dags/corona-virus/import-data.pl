@@ -65,7 +65,6 @@ my $place_id_map = {
     },
     'Germany' => {
 	'' => 35,
-	'Bavaria' => 65,
     },
     'Malaysia' => {
 	'' => 36,
@@ -114,14 +113,11 @@ my $place_id_map = {
 	'' => 50,
     },
     'US' => {
-	'Illinois'    => 51,
 	'San Benito, CA' => 52,
 	'Orange County, CA'  => 53,
-	'Los Angeles, CA' => 0,
-	'Santa Clara, CA' => 65,
+	'Los Angeles, CA' => 74,
+	'Santa Clara, CA' => 51,
 	'Boston, MA'  => 63,
-	'Washington'  => 66,
-	'Arizona'     => 67,
 	'Madison, WI' => 69,
 	'King County, WA' => 70,
 	'Cook County, IL' => 71,
@@ -172,7 +168,7 @@ my $place_id_map = {
 	'' => 58,
     },
     'Nepal' => {
-	'' => 59,
+	'' => 181,
     },
     'Spain' => {
 	'' => 60,
@@ -188,7 +184,6 @@ my $place_id_map = {
     },
     'Others' => {
     	'Diamond Princess cruise ship' => 73,
-	'' => 74,
     },
     'Egypt' => {
 	'' => 77,
@@ -266,7 +261,7 @@ my $place_id_map = {
         '' => 108,
     },
     'Belarus' => {
-	'' => 109,
+	'' => 182,
     },
     'Iceland' => {
         '' => 111,
@@ -282,9 +277,6 @@ my $place_id_map = {
     },
     'Nigeria' => {
         '' => 115,
-    },
-    'North Ireland' => {
-        '' => 116,
     },
     'Ireland' => {
 	'' => 118,
@@ -383,13 +375,15 @@ my $organization = 'Liquidata';
 my $repo         = 'corona-virus';
 my $clone_path   = "$organization/$repo"; 
 run_command("dolt clone $clone_path", 
-           "Could not clone repo $clone_path");
+            "Could not clone repo $clone_path");
 
 chdir($repo);
 
 download_files($url, $csv_prefix, %sheets);
 
 my ($places, $observations) = extract_data(%sheets);
+
+verify_places_map($place_id_map, $observations);
 
 import_data($places, $observations);
 
@@ -457,6 +451,24 @@ sub extract_data {
     }
 
     return ($places, $observations);
+}
+
+sub verify_places_map {
+    my $places_map  = shift;
+    my $places_used = shift;
+
+    # No dupes
+    my %dedupe= ();
+    foreach my $country ( keys %{$places_map} ) {
+	foreach my $state ( keys %{$places_map->{$country}} ) {
+	    my $id = $places_map->{$country}{$state};
+	    die "Duplicate found for $id" if $dedupe{$id};
+	    $dedupe{$id} = 1;
+
+	    die "Unused place id: $id, $country, $state"
+		unless $places_used->{$id};
+	}
+    }
 }
 
 sub calculate_place_id {
