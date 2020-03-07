@@ -78,15 +78,20 @@ sub extract_data {
 	    my $confirmed_date;
 	    my $status;
 
-	    if ( $snippet =~ />Age\s+(\d+)\s+(\w+)?</ ) {
+	    if ( $snippet =~ />Age\s+(\d+)\s+(\w+|dashboard\.gender_)?</ ) {
 		$age = $1;
 		$sex = $2;
 
+		if ( $sex eq 'dashboard.gender_' ) {
+		    print "Error detected on website. Ignore sex for $case_id\n";
+		    $sex = undef;
+		}
+
 		print "Age: $age Sex: $sex\n" if $debug;
-		$data->{$case_id}{'age'} = $age;
-		$data->{$case_id}{'sex'} = substr($sex,0,1);
+		$data->{$case_id}{'age'} = $age if $age;
+		$data->{$case_id}{'sex'} = substr($sex,0,1) if $sex;
 	    } else {
-		die "Could not find age or sex";
+		die "Could not find age or sex for case $case_id";
 	    }
 
 	    if ( $snippet =~ /Onset\sdate<\/p><b>(\d{4}-\d{2}-\d{2})<\/b>/ ) {
