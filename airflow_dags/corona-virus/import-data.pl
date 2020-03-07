@@ -98,7 +98,8 @@ my $place_id_map = {
 	'Toronto, ON' => 46,
 	'British Columbia' => 56,
 	'London, ON' => 57,
-	'Montreal, QC' => 109,    
+	'Montreal, QC' => 109,
+	'Calgary, Alberta' => 186,    
     },
     'Italy' => {
 	'' => 47,
@@ -117,7 +118,7 @@ my $place_id_map = {
 	'Orange County, CA'  => 53,
 	'Los Angeles, CA' => 74,
 	'Santa Clara, CA' => 51,
-	'Boston, MA'  => 63,
+	'Suffolk County, MA'  => 63,
 	'Madison, WI' => 69,
 	'King County, WA' => 70,
 	'Cook County, IL' => 71,
@@ -134,7 +135,7 @@ my $place_id_map = {
 	'Providence, RI' => 129,   
 	'Grafton County, NH' => 139,
 	'Hillsborough, FL' => 140,
-	'New York City, NY' => 141,
+	'New York County, NY' => 141,
 	'Placer County, CA' => 142,
 	'San Mateo, CA' => 143,
 	'Sarasota, FL' => 144,
@@ -154,9 +155,25 @@ my $place_id_map = {
 	'Clark County, NV' => 174,
 	'Fort Bend County, TX' => 175,
 	'Grant County, WA' => 176,
-	'Queens County, NY' => 177,
 	'Santa Rosa County, FL' => 178,
-	'Williamson County, TN' => 179,    
+	'Williamson County, TN' => 179,
+	'Unassigned Location, WA' => 208,
+	'Montgomery County, MD' => 209,
+	'Denver County, CO' => 184,
+	'Summit County, CO' => 185,
+	'Chatham County, NC' => 194,
+	'Delaware County, PA' => 195,
+	'Douglas County, NE' => 196,
+	'Fayette County, KY' => 197,
+	'Floyd County, GA' => 198,
+	'Marion County, IN' => 199,
+	'Middlesex County, MA' => 200,
+	'Nassau County, NY' => 201,
+	'Norwell County, MA' => 202,
+	'Ramsey County, MN' => 203,
+	'Washoe County, NV' => 204,
+	'Wayne County, PA' => 205,
+	'Yolo County, CA' => 206,    
     },
     'Belgium' => {
 	'' => 54,
@@ -367,6 +384,33 @@ my $place_id_map = {
     },
     'South Africa' => {
         '' => 173,
+    },
+    'Bhutan' => {
+	'' => 207,
+    },
+    'Cameroon' => {
+	'' => 187,
+    },
+    'Colombia' => {
+	'' => 188,
+    },
+    'Costa Rica' => {
+        '' => 189,
+    },
+    'Peru' => {
+	'' => 190,
+    },
+    'Serbia' => {
+	'' => 191,
+    },
+    'Slovakia' => {
+        '' => 192,
+    },
+    'Togo' => {
+        '' => 193,
+    },
+    'Vatican City' => {
+	'' => 210,
     },
 };
     
