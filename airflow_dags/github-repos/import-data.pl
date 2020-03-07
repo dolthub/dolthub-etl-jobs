@@ -33,7 +33,8 @@ if ( $backfill ) {
     my $date = get_latest_commit_date();
     $date++;
     print "Processing starting at $date\n";
-    # Conservatively, stop processing two days before today to account for late data
+    # Conservatively, stop processing two days before today to
+    # account for late data and time zone shenanigans
     while ( $date < today() - 1 ) {
 	process_date($date);
 	$date++;
