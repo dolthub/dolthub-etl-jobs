@@ -90,6 +90,18 @@ raw_word_net = BashOperator(task_id='import-data',
                             bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
                             dag=word_net_dag)
 
+# GitHub repos
+# Wikipedia dump variables
+GITHUB_DUMP_DATE = datetime.now() - timedelta(days=1)
+GITHUB_DATE = GITHUB_DUMP_DATE.strftime("%Y-%m-%d")
+
+github_repos_dag = DAG('github_repos',
+                   default_args=get_default_args_helper(datetime(2020, 2, 25)),
+                   schedule_interval=timedelta(days=1))
+
+raw_github_repos = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -d ' + GITHUB_DATE + ' ',
+                                dag=github_repos_dag)
 
 # Code Search Net database
 code_search_net_dag = DAG('code_search_net',
