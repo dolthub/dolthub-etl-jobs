@@ -91,16 +91,12 @@ raw_word_net = BashOperator(task_id='import-data',
                             dag=word_net_dag)
 
 # GitHub repos
-# Wikipedia dump variables
-GITHUB_DUMP_DATE = datetime.now() - timedelta(days=1)
-GITHUB_DATE = GITHUB_DUMP_DATE.strftime("%Y-%m-%d")
-
 github_repos_dag = DAG('github_repos',
-                   default_args=get_default_args_helper(datetime(2020, 2, 25)),
+                   default_args=get_default_args_helper(datetime(2020, 3, 5)),
                    schedule_interval=timedelta(days=1))
 
 raw_github_repos = BashOperator(task_id='import-data',
-                                bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -d ' + GITHUB_DATE + ' ',
+                                bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -b -p ',
                                 dag=github_repos_dag)
 
 # Code Search Net database

@@ -4,25 +4,24 @@ use strict;
 
 use JSON::Parse qw(parse_json);
 use Getopt::Long;
+use Date::Parse;
+use Date::Simple ('date', 'today');
 
 $| = 1;
 
 my $base_url = 'https://data.gharchive.org';
-
-my $date_str;
-my $push;
-my $cleanup; 
-GetOptions(
-    "date|d=s" => \$date_str,
-    "push|p" => \$push,
-    "cleanup|c" => \$cleanup,
-) or die("Error in command line arguments. Supported flags are --date, --push, and --cleanup.");
-
-die "Must specify a date string YYYY-MM-DD with --date or -d" unless $date_str;
-
 my $organization = 'Liquidata';
 my $repo         = 'github-repos';
 my $clone_path   = "$organization/$repo"; 
+
+my $date_str;
+my $push;
+my $backfill;
+GetOptions(
+    "backfill|b" => \$backfill,
+    "date|d=s" => \$date_str,
+    "push|p" => \$push,
+) or die("Error in command line arguments. Supported flags are --backfill, --date, --push.");
 
 if ( ! -e $repo ) {
     clone_repo();
@@ -30,21 +29,53 @@ if ( ! -e $repo ) {
 
 chdir($repo);
 
-download_files($base_url, $date_str);
+if ( $backfill ) {
+    my $date = get_latest_commit_date();
+    $date++;
+    print "Processing starting at $date\n";
+    # Conservatively, stop processing two days before today to
+    # account for late data and time zone shenanigans
+    while ( $date < today() - 1 ) {
+	process_date($date);
+	$date++;
+    }
+} elsif ( $date_str ) {
+    process_date(Date::Simple->new($date_str));
+} else {
+    die "Must specify either --backfill or a date string YYYY-MM-DD with --date or -d";
+}
 
-my $events = get_pull_request_events();
-
-generate_inserts($events);
-execute_inserts();
-commit($date_str);
 push_origin() if $push;
-cleanup() if $cleanup;
 
 exit 0;
+
+sub process_date {
+    my $date = shift;
+    
+    download_files($base_url, "$date");
+    
+    my $events = get_pull_request_events();
+    
+    generate_inserts($events);
+    execute_inserts();
+    commit("$date");
+    cleanup();
+}
 
 sub clone_repo {
     run_command("dolt clone $clone_path", 
                 "Could not clone repo $clone_path");
+}
+
+sub get_latest_commit_date {
+    my $dolt_commit = `dolt log -n 1`;
+    my @lines = split(/\n/, $dolt_commit);
+    foreach my $line ( @lines ) {
+	next unless ( $line =~ m/Date:\s+(.*)/ );
+	my ($ss,$mm,$hh,$day,$month,$year,$zone) = strptime($1);
+	return Date::Simple->new($year+1900,$month+1,$day);
+    }
+    die "No commit date found";
 }
 
 sub download_files {
