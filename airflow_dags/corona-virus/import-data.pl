@@ -99,7 +99,8 @@ my $place_id_map = {
 	'British Columbia' => 56,
 	'London, ON' => 57,
 	'Montreal, QC' => 109,
-	'Calgary, Alberta' => 186,    
+	'Calgary, Alberta' => 186,
+	'Edmonton, Alberta' => 224,    
     },
     'Italy' => {
 	'' => 47,
@@ -117,12 +118,11 @@ my $place_id_map = {
 	'San Benito, CA' => 52,
 	'Orange County, CA'  => 53,
 	'Los Angeles, CA' => 74,
-	'Santa Clara, CA' => 51,
+	'Santa Clara County, CA' => 51,
 	'Suffolk County, MA'  => 63,
 	'Madison, WI' => 69,
 	'King County, WA' => 70,
 	'Cook County, IL' => 71,
-	'Tempe, AZ'   => 72,
 	'San Diego County, CA' => 75,
 	'San Antonio, TX' => 76,
 	'Omaha, NE (From Diamond Princess)' => 78,
@@ -132,7 +132,7 @@ my $place_id_map = {
 	'Sacramento County, CA' => 86,
 	'Unassigned Location (From Diamond Princess)' => 88,
 	'Snohomish County, WA' => 123,
-	'Providence, RI' => 129,   
+	'Providence County, RI' => 129,   
 	'Grafton County, NH' => 139,
 	'Hillsborough, FL' => 140,
 	'New York County, NY' => 141,
@@ -144,7 +144,7 @@ my $place_id_map = {
 	'Fulton County, GA' => 147,
 	'Washington County, OR' => 122,
 	'Norfolk County, MA' => 152,
-	'Berkeley, CA' => 153,
+	'Alameda County, CA' => 153,
 	'Maricopa County, AZ' => 154,
 	'Wake County, NC' => 155,
 	'Westchester County, NY' => 156,
@@ -169,11 +169,34 @@ my $place_id_map = {
 	'Marion County, IN' => 199,
 	'Middlesex County, MA' => 200,
 	'Nassau County, NY' => 201,
-	'Norwell County, MA' => 202,
 	'Ramsey County, MN' => 203,
 	'Washoe County, NV' => 204,
 	'Wayne County, PA' => 205,
-	'Yolo County, CA' => 206,    
+	'Yolo County, CA' => 206,
+	'Grand Princess Cruise Ship' => 211,
+	'Douglas County, CO' => 214,
+	'Broward County, FL' => 218,
+	'Fairfield County, CT' => 219,
+	'Lee County, FL' => 220,
+	'Pinal County, AZ' => 221,
+	'Rockland County, NY' => 222,
+	'Saratoga County, NY' => 223,
+	'Charleston County, SC' => 225,
+	'Clark County, WA' => 226,
+	'Cobb County, GA' => 227,
+	'Davis County, UT' => 228,
+	'El Paso County, CO' => 229,
+	'Honolulu County, HI' => 230,
+	'Jackson County, OR' => 231,
+	'Jefferson County, WA' => 232,
+	'Kershaw County, SC' => 233,
+	'Klamath County, OR' => 234,
+	'Madera County, CA' => 235,
+	'Pierce County, WA' => 236,
+	'Plymouth County, MA' => 237,
+	'Santa Cruz County, CA' => 238,
+	'Tulsa County, OK' => 239,
+	'Montgomery County, TX' => 240,    
     },
     'Belgium' => {
 	'' => 54,
@@ -412,6 +435,15 @@ my $place_id_map = {
     'Vatican City' => {
 	'' => 210,
     },
+    'French Guiana' => {
+	'' => 212,
+    },
+    'Malta' => {
+	'' => 213,
+    },
+    'Martinique' => {
+        '' => 216,
+    },
 };
     
 # Clone the repository
@@ -470,6 +502,10 @@ sub extract_data {
 	    # Remove leading spaces
 	    $row->[0] =~ s/^\s+//g;
 	    $row->[1] =~ s/^\s+//g;
+
+	    # Remove trailing spaces
+	    $row->[0] =~ s/\s+$//g;
+            $row->[1] =~ s/\s+$//g;
 	    
 	    my $place_id = calculate_place_id($row->[1], $row->[0]);
 	    $places->{$place_id}{'country'} = $row->[1];
