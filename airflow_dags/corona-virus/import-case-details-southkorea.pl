@@ -55,19 +55,19 @@ sub extract_data {
 
     my @header = @{shift @{$csv_array}};
 
-    my $col_map;
+    my %col_map;
     my $i = 0;
     foreach my $field ( @header ) {
 	if ( $col_interest->{$field} ) {
-	    $col_map->{$i} = $col_interest->{$field};
+	    $col_map{$i} = $col_interest->{$field};
 	}
 	$i++;
     }
 
     foreach my $row ( @{$csv_array} ) {
 	my $row_data = {};
-	foreach my $col_num ( sort keys $col_map ) {
-	    my $col_name = $col_map->{$col_num};
+	foreach my $col_num ( sort keys %col_map ) {
+	    my $col_name = $col_map{$col_num};
 
 	    my $datapoint = $row->[$col_num];
 
