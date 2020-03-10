@@ -95,12 +95,10 @@ my $place_id_map = {
 	'' => 44,
     },
     'Canada' => {
-	'Toronto, ON' => 46,
+	'Ontario' => 46,
 	'British Columbia' => 56,
-	'London, ON' => 57,
-	'Montreal, QC' => 109,
-	'Calgary, Alberta' => 186,
-	'Edmonton, Alberta' => 224,    
+	'Quebec' => 109,
+	'Alberta' => 224,
     },
     'Italy' => {
 	'' => 47,
@@ -218,9 +216,19 @@ my $place_id_map = {
 	'St. Louis County, MO' => 267,
 	'Suffolk County, NY' => 268,
 	'Ulster County, NY' => 269,
-	'Unassigned Location, VT' => 270,
+	'Bennington County, VT' => 270,
 	'Unknown Location, MA' => 271,
-	'Volusia County, FL' => 272,    
+	'Volusia County, FL' => 272,
+	'Johnson County, IA' => 273,
+	'Harrison County, KY' => 277,
+	'Carver County, MN' => 280,
+	'Charlotte County, FL' => 281,
+	'Cherokee County, GA' => 282,
+	'Collin County, TX' => 283,
+        'Jefferson County, KY' => 284,
+	'Jefferson Parish, LA' => 285,
+	'Shasta County, CA' => 286,
+	'Spartanburg County, SC' => 287,    
     },
     'Belgium' => {
 	'' => 54,
@@ -351,19 +359,19 @@ my $place_id_map = {
     'Monaco' => {
 	'' => 120,
     },
-    'Qatar' =>	{
+    'Qatar' => {
 	'' => 121,
     },
-    'Ecuador' =>  {
+    'Ecuador' => {
         '' => 125,
     },
-    'Czech Republic' =>  {
+    'Czech Republic' => {
         '' => 126,
     },
     'Armenia' =>  {
         '' => 127,
     },
-    'Dominican Republic' =>  {
+    'Dominican Republic' => {
         '' => 128,
     },
     'Indonesia' => {
@@ -378,10 +386,10 @@ my $place_id_map = {
     'Latvia' => {
 	'' => 135,
     },
-    'Morocco' =>	{
+    'Morocco' => {
         '' => 136,
     },
-    'Saudi Arabia' =>	{
+    'Saudi Arabia' => {
         '' => 137,
     },
     'Senegal' => {
@@ -468,9 +476,10 @@ my $place_id_map = {
     'Martinique' => {
         '' => 216,
     },
-    'Republic of Ireland' => {
-        '' => 241,
-    },
+    # I think this was removed in error
+    # 'Republic of Ireland' => {
+    #     '' => 241,
+    # },	
     'Bulgaria' => {
         '' => 242,
     },
@@ -485,6 +494,18 @@ my $place_id_map = {
     },
     'Paraguay' => {
 	'' => 250,
+    },
+    'Albania' => {
+        '' => 274,
+    },
+    'Cyprus' => {
+        '' => 275,
+    },
+    'St. Martin' => {
+        '' => 276,
+    },
+    'Brunei' => {
+        '' => 278,
     },
 };
     
