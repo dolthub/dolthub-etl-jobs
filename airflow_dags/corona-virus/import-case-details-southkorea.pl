@@ -8,7 +8,7 @@ my $url_base = 'https://raw.githubusercontent.com/jihoo-kim/Coronavirus-Dataset/
 my $csv = 'patient.csv';
 
 my %interesting_cols = (
-    'id' => 'case_id',
+    'patient_id' => 'case_id',
     'sex' => 'sex',
     'birth_year' => 'age',
     'country' => 'nationality',
@@ -83,7 +83,7 @@ sub extract_data {
 	    }
 	}
 
-	my $case_id = $row_data->{'case_id'};
+	my $case_id = $row_data->{'case_id'} or die "Could not find case id";
 	delete $row_data->{'case_id'};
 	$data->{$case_id} = $row_data;
     }
