@@ -57,10 +57,10 @@ my $place_id_map = {
     'Japan' => {
 	'' => 31,
     },
-    'Hong Kong' => {
+    'Hong Kong SAR' => {
 	'Hong Kong' => 32,
     },
-    'South Korea' => {
+    'Republic of Korea' => {
 	'' => 33,
     },
     'Germany' => {
@@ -69,13 +69,13 @@ my $place_id_map = {
     'Malaysia' => {
 	'' => 36,
     },
-    'Taiwan' => {
+    'Taipei and environs' => {
 	'Taiwan' => 37,
     },
-    'Macau' => {
+    'Macao SAR' => {
 	'Macau' => 38,
     },
-    'Vietnam' => {
+    'Viet Nam' => {
 	'' => 39,
     },
     'France' => {
@@ -106,7 +106,7 @@ my $place_id_map = {
     'Philippines' => {
 	'' => 48,
     },
-    'Russia' => {
+    'Russian Federation' => {
 	'' => 49,
     },
     'UK' => {
@@ -118,17 +118,11 @@ my $place_id_map = {
 	'Los Angeles, CA' => 74,
 	'Santa Clara County, CA' => 51,
 	'Suffolk County, MA'  => 63,
-	'Madison, WI' => 69,
 	'King County, WA' => 70,
 	'Cook County, IL' => 71,
 	'San Diego County, CA' => 75,
-	'San Antonio, TX' => 76,
-	'Omaha, NE (From Diamond Princess)' => 78,
-	'Travis, CA (From Diamond Princess)' => 80,
-	'Lackland, TX (From Diamond Princess)' => 82,
 	'Humboldt County, CA' => 85,
 	'Sacramento County, CA' => 86,
-	'Unassigned Location (From Diamond Princess)' => 88,
 	'Snohomish County, WA' => 123,
 	'Providence County, RI' => 129,   
 	'Grafton County, NH' => 139,
@@ -136,7 +130,6 @@ my $place_id_map = {
 	'New York County, NY' => 141,
 	'Placer County, CA' => 142,
 	'San Mateo, CA' => 143,
-	'Sarasota, FL' => 144,
 	'Sonoma County, CA' => 145,
 	'Umatilla, OR' => 146,
 	'Fulton County, GA' => 147,
@@ -145,7 +138,7 @@ my $place_id_map = {
 	'Alameda County, CA' => 153,
 	'Maricopa County, AZ' => 154,
 	'Wake County, NC' => 155,
-	'Westchester County, NY' => 156,
+	'Wetchester County, NY' => 156,
 	'Contra Costa County, CA' => 166,
 	'Bergen County, NJ' => 170,
 	'Harris County, TX' => 171,
@@ -155,7 +148,6 @@ my $place_id_map = {
 	'Grant County, WA' => 176,
 	'Santa Rosa County, FL' => 178,
 	'Williamson County, TN' => 179,
-	'Unassigned Location, WA' => 208,
 	'Montgomery County, MD' => 209,
 	'Denver County, CO' => 184,
 	'Summit County, CO' => 185,
@@ -170,10 +162,9 @@ my $place_id_map = {
 	'Washoe County, NV' => 204,
 	'Wayne County, PA' => 205,
 	'Yolo County, CA' => 206,
-	'Grand Princess Cruise Ship' => 211,
+	'Grand Princess' => 211,
 	'Douglas County, CO' => 214,
 	'Broward County, FL' => 218,
-	'Fairfield County, CT' => 219,
 	'Lee County, FL' => 220,
 	'Pinal County, AZ' => 221,
 	'Rockland County, NY' => 222,
@@ -190,9 +181,7 @@ my $place_id_map = {
 	'Klamath County, OR' => 234,
 	'Madera County, CA' => 235,
 	'Pierce County, WA' => 236,
-	'Plymouth County, MA' => 237,
 	'Tulsa County, OK' => 239,
-	'Montgomery County, TX' => 240,
 	'Montgomery County, PA' => 244,
 	'Fairfax County, VA' => 246,
 	'Rockingham County, NH' => 247,
@@ -212,12 +201,10 @@ my $place_id_map = {
 	'Polk County, GA' => 198,
 	'Riverside County, CA' => 264,
 	'Shelby County, TN' => 265,
-	'Spokane County, WA' => 266,
 	'St. Louis County, MO' => 267,
 	'Suffolk County, NY' => 268,
 	'Ulster County, NY' => 269,
 	'Bennington County, VT' => 270,
-	'Unknown Location, MA' => 271,
 	'Volusia County, FL' => 272,
 	'Johnson County, IA' => 273,
 	'Harrison County, KY' => 277,
@@ -228,7 +215,97 @@ my $place_id_map = {
         'Jefferson County, KY' => 284,
 	'Jefferson Parish, LA' => 285,
 	'Shasta County, CA' => 286,
-	'Spartanburg County, SC' => 287,    
+	'Spartanburg County, SC' => 287,
+	'Washington' => 290,
+	'New York' => 291,
+	'California' => 292,
+	'Massachusetts' => 293,
+	'Diamond Princess' => 294,
+	'Georgia' => 297,
+	'Colorado' => 298,
+	'Florida' => 299,
+	'New Jersey' => 300,
+	'Oregon' => 301,
+	'Texas' => 302,
+	'Illinois' => 303,
+	'Pennsylvania' => 304,
+	'Iowa' => 305,
+	'Maryland' => 306,
+	'North Carolina' => 307,
+	'South Carolina' => 308,
+	'Tennessee' => 309,
+	'Virginia' => 310,
+	'Arizona' => 311,
+	'Indiana' => 312,
+	'Kentucky' => 313,
+	'District of Columbia' => 314,
+        'Nevada' => 315,
+	'New Hampshire' => 316,
+	'Minnesota' => 318,
+	'Nebraska' => 319,
+	'Ohio' => 320,
+	'Rhode Island' => 321,
+	'Wisconsin' => 322,
+	'Connecticut' => 324,
+	'Hawaii' => 325,
+	'Oklahoma' => 326,
+	'Utah' => 327,
+	'Kansas' => 333,
+	'Louisiana' => 334,
+	'Missouri' => 335,
+	'Vermont' => 336,
+	'Alaska' => 337,
+	'Arkansas' => 338,
+	'Delaware' => 339,
+	'Idaho' => 340,
+	'Maine' => 341,
+	'Michigan' => 342,
+	'Mississippi' => 343,
+	'Montana' => 344,
+	'New Mexico' => 345,
+	'North Dakota' => 346,
+	'South Dakota' => 347,
+	'West Virginia' => 348,
+	'Wyoming' => 349,
+	'Kitsap, WA' => 350,
+	'Solano, CA' => 351,
+	'Santa Cruz, CA' => 352,
+	'Napa, CA' => 353,
+	'Ventura, CA' => 354,
+	'Worcester, MA' => 355,
+	'Gwinnett, GA' => 356,
+	'DeKalb, GA' => 357,
+	'Floyd, GA' => 358,
+	'Fayette, GA' => 359,
+	'Gregg, TX' => 360,
+	'Monmouth, NJ' => 361,
+	'Burlington, NJ' => 362,
+	'Camden, NJ' => 363,
+	'Passaic, NJ' => 364,
+	'Union, NJ' => 365,
+	'Eagle, CO' => 366,
+	'Larimer, CO' => 367,
+	'Arapahoe, CO' => 368,
+	'Gunnison, CO' => 369,
+	'Kane, IL' => 370,
+	'Monroe, PA' => 371,
+	'Philadelphia, PA' => 372,
+	'Norfolk, VA' => 373,
+	'Arlington, VA' => 374,
+	'Spotsylvania, VA' => 375,
+        'Loudoun, VA' => 376,
+	'Prince George, MD' => 377,
+	'Pottawattamie, IA' => 378,
+	'Camden, SC' => 379,
+	'Pima, AZ' => 380,
+	'Noble, IN' => 381,
+	'Adams, IN' => 382,
+	'Boone, IN' => 383,
+	'Dane, WI' => 384,
+	'Pierce, WI' => 385,
+	'Cuyahoga, OH' => 386,
+	'Weber, UT' => 387,
+	'Wilton, CT' => 388,     
     },
     'Belgium' => {
 	'' => 54,
@@ -260,7 +337,7 @@ my $place_id_map = {
     'Egypt' => {
 	'' => 77,
     },
-    'Iran' => {
+    'Iran (Islamic Republic of)' => {
         '' => 79,
     },
     'Israel' => {
@@ -428,7 +505,7 @@ my $place_id_map = {
     'Tunisia' => {
 	'' => 165,
     },
-    'Palestine' => {
+    'occupied Palestinian territory' => {
         '' => 167,
     },
     'Bosnia and Herzegovina' => {
@@ -464,9 +541,6 @@ my $place_id_map = {
     'Togo' => {
         '' => 193,
     },
-    'Vatican City' => {
-	'' => 210,
-    },
     'French Guiana' => {
 	'' => 212,
     },
@@ -489,7 +563,7 @@ my $place_id_map = {
     'Bangladesh' => {
         '' => 245,
     },
-    'Moldova' => {
+    'Republic of Moldova' => {
         '' => 249,
     },
     'Paraguay' => {
@@ -501,11 +575,26 @@ my $place_id_map = {
     'Cyprus' => {
         '' => 275,
     },
-    'St. Martin' => {
+    'Saint Martin' => {
         '' => 276,
     },
     'Brunei' => {
         '' => 278,
+    },
+    'Burkina Faso' => {
+	'' => 328,
+    },
+    'Channel Islands' => {
+	'' => 329,
+    },
+    'Holy See' => {
+	'' => 330,
+    },
+    'Mongolia' => {
+	'' => 331,
+    },
+    'Panama' => {
+	'' => 332,
     },
 };
     
