@@ -15,7 +15,7 @@ my %sheets = (
     );
 
 my $place_id_map = {
-    'Mainland China' => {
+    'China' => {
 	'Hubei'          => 1,
 	'Guangdong'      => 2,
 	'Henan'          => 3,
@@ -46,7 +46,9 @@ my $place_id_map = {
 	'Xinjiang'       => 28,
 	'Qinghai'        => 34,
 	'Tibet'          => 59,
-	'Zhejiang'       => 68,   
+	'Zhejiang'       => 68,
+	'Hong Kong'      => 32,
+        'Macau'          => 38,    
     },
     'Singapore' => {
 	'' => 29,
@@ -57,10 +59,7 @@ my $place_id_map = {
     'Japan' => {
 	'' => 31,
     },
-    'Hong Kong SAR' => {
-	'Hong Kong' => 32,
-    },
-    'Republic of Korea' => {
+    'Korea, South' => {
 	'' => 33,
     },
     'Germany' => {
@@ -69,17 +68,16 @@ my $place_id_map = {
     'Malaysia' => {
 	'' => 36,
     },
-    'Taipei and environs' => {
-	'Taiwan' => 37,
+    'Taiwan*' => {
+	'' => 37,
     },
-    'Macao SAR' => {
-	'Macau' => 38,
-    },
-    'Viet Nam' => {
+    'Vietnam' => {
 	'' => 39,
     },
     'France' => {
-	'' => 40,
+	'France' => 40,
+        'St Martin' => 276,
+        'Saint Barthelemy' => 158,
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -99,6 +97,7 @@ my $place_id_map = {
 	'British Columbia' => 56,
 	'Quebec' => 109,
 	'Alberta' => 224,
+	'New Brunswick' => 395,    
     },
     'Italy' => {
 	'' => 47,
@@ -106,11 +105,13 @@ my $place_id_map = {
     'Philippines' => {
 	'' => 48,
     },
-    'Russian Federation' => {
+    'Russia' => {
 	'' => 49,
     },
-    'UK' => {
-	'' => 50,
+    'United Kingdom' => {
+	'UK' => 50,
+	'Channel Islands' => 329,
+	'Gibraltar' => 162,    
     },
     'US' => {
 	'San Benito, CA' => 52,
@@ -138,7 +139,7 @@ my $place_id_map = {
 	'Alameda County, CA' => 153,
 	'Maricopa County, AZ' => 154,
 	'Wake County, NC' => 155,
-	'Wetchester County, NY' => 156,
+	'Westchester County, NY' => 156,
 	'Contra Costa County, CA' => 166,
 	'Bergen County, NJ' => 170,
 	'Harris County, TX' => 171,
@@ -294,9 +295,7 @@ my $place_id_map = {
 	'Arlington, VA' => 374,
 	'Spotsylvania, VA' => 375,
         'Loudoun, VA' => 376,
-	'Prince George, MD' => 377,
 	'Pottawattamie, IA' => 378,
-	'Camden, SC' => 379,
 	'Pima, AZ' => 380,
 	'Noble, IN' => 381,
 	'Adams, IN' => 382,
@@ -305,7 +304,59 @@ my $place_id_map = {
 	'Pierce, WI' => 385,
 	'Cuyahoga, OH' => 386,
 	'Weber, UT' => 387,
-	'Wilton, CT' => 388,     
+	'Prince George\'s, MD' => 401,
+	'Camden, NC' => 402,
+	'Skagit, WA' => 403,
+	'Thurston, WA' => 404,
+	'Island, WA' => 405,
+	'Whatcom, WA' => 406,
+	'Marin, CA' => 407,
+	'Calaveras, CA' => 408,
+	'Stanislaus, CA' => 409,
+	'San Joaquin, CA' => 410,
+	'Essex, MA' => 411,
+	'Charlton, GA' => 412,
+	'Collier, FL' => 413,
+	'Pinellas, FL' => 414,
+	'Alachua, FL' => 415,
+	'Nassau, FL' => 416,
+	'Pasco, FL' => 417,
+	'Dallas, TX' => 418,
+	'Tarrant, TX' => 419,
+	'Montgomery, TX' => 420,
+	'Middlesex, NJ' => 421,
+	'Jefferson, CO' => 422,
+	'Multnomah, OR' => 423,
+	'Polk, OR' => 424,
+	'Deschutes, OR' => 425,
+	'McHenry, IL' => 426,
+	'Lake, IL' => 427,
+	'Bucks, PA' => 428,
+	'Hanover, VA' => 429,
+	'Lancaster, SC' => 430,
+	'Sullivan, TN' => 431,
+	'Johnson, IN' => 432,
+	'Howard, IN' => 433,
+	'St. Joseph, IN' => 434,
+	'Knox, NE' => 435,
+	'Stark, OH' => 436,
+	'Anoka, MN' => 437,
+	'Olmsted, MN' => 438,
+	'Summit, UT' => 439,
+	'Fairfield, CT' => 440,
+	'Litchfield, CT' => 441,
+	'Orleans, LA' => 442,
+	'Pennington, SD' => 443,
+	'Beadle, SD' => 444,
+	'Charles Mix, SD' => 445,
+	'Davison, SD' => 446,
+	'Minnehaha, SD' => 447,
+	'Bon Homme, SD' => 448,
+	'Socorro, NM' => 449,
+	'Bernalillo, NM' => 450,
+	'Oakland, MI' => 451,
+	'Wayne, MI' => 452,
+	'New Castle, DE' => 453,    
     },
     'Belgium' => {
 	'' => 54,
@@ -331,13 +382,10 @@ my $place_id_map = {
     'United Arab Emirates' => {
 	'' => 64,
     },
-    'Others' => {
-    	'Diamond Princess cruise ship' => 73,
-    },
     'Egypt' => {
 	'' => 77,
     },
-    'Iran (Islamic Republic of)' => {
+    'Iran' => {
         '' => 79,
     },
     'Israel' => {
@@ -442,7 +490,7 @@ my $place_id_map = {
     'Ecuador' => {
         '' => 125,
     },
-    'Czech Republic' => {
+    'Czechia' => {
         '' => 126,
     },
     'Armenia' =>  {
@@ -484,17 +532,8 @@ my $place_id_map = {
     'Ukraine' => {
 	'' => 157,
     },
-    'Saint Barthelemy' => {
-	'' => 158,
-    },
     'Hungary' => {
         '' => 159,
-    },
-    'Faroe Islands' => {
-	'' => 161,
-    },
-    'Gibraltar' => {
-	'' => 162,
     },
     'Liechtenstein' => {
 	'' => 163,
@@ -504,9 +543,6 @@ my $place_id_map = {
     },
     'Tunisia' => {
 	'' => 165,
-    },
-    'occupied Palestinian territory' => {
-        '' => 167,
     },
     'Bosnia and Herzegovina' => {
         '' => 168,
@@ -563,7 +599,7 @@ my $place_id_map = {
     'Bangladesh' => {
         '' => 245,
     },
-    'Republic of Moldova' => {
+    'Moldova' => {
         '' => 249,
     },
     'Paraguay' => {
@@ -575,17 +611,11 @@ my $place_id_map = {
     'Cyprus' => {
         '' => 275,
     },
-    'Saint Martin' => {
-        '' => 276,
-    },
     'Brunei' => {
         '' => 278,
     },
     'Burkina Faso' => {
 	'' => 328,
-    },
-    'Channel Islands' => {
-	'' => 329,
     },
     'Holy See' => {
 	'' => 330,
@@ -595,6 +625,34 @@ my $place_id_map = {
     },
     'Panama' => {
 	'' => 332,
+    },
+    'Cruise Ship' => {
+	'Diamond Princess' => 73,
+    },
+    'Denmark' => {
+	'Denmark' => 104,
+	'Faroe Islands' => 161,
+    },
+    'Bolivia' => {
+	'' => 392,
+    },
+    'Honduras' => {
+        '' => 394,
+    },
+    'Congo (Kinshasa)' => {
+        '' => 396,
+    },
+    'Cote d\'Ivoire' => {
+	'' => 397,
+    },
+    'Jamaica' => {
+        '' => 398,
+    },
+    'Reunion' => {
+        '' => 399,
+    },
+    'Turkey' => {
+        '' => 400,
     },
 };
     
@@ -732,8 +790,8 @@ sub import_places {
     print PLACES_SQL "delete from places;\n";
     
     foreach my $place_id ( keys %{$places} ) {
-	my $country = $places->{$place_id}{'country'};
-	my $state   = $places->{$place_id}{'state'};
+	my $country = escape_sql($places->{$place_id}{'country'});
+	my $state   = escape_sql($places->{$place_id}{'state'});
 	my $lat     = $places->{$place_id}{'lat'};
 	my $long    = $places->{$place_id}{'long'};
 
@@ -814,6 +872,15 @@ sub publish {
                 "dolt commit failed");
 
     run_command('dolt push origin master', 'dolt push failed');
+}
+
+sub escape_sql {
+    my $string = shift;
+
+    $string =~ s/\\/\\\\/g;
+    $string =~ s/'/\\'/g;
+    
+    return $string;
 }
 
 sub run_command {
