@@ -41,8 +41,6 @@ sub download_cases_html {
     run_command("cp $dirname/scroll-to-bottom-scraper/scroll-to-bottom-scrape.js .",
 		"Could not copy node script");
     
-    my $script = "$dirname/scroll-to-bottom-scraper/scroll-to-bottom-scrape.js";
-    
     run_command("node scroll-to-bottom-scrape.js $url $file",
 		"Could not execute node infinite scroll scraper");
 }
@@ -78,10 +76,10 @@ sub extract_data {
 	    my $confirmed_date;
 	    my $status;
 
-	    if ( $snippet =~ />Age\s+(\d+)\s+(\w+|dashboard\.gender_)?</ ) {
-		$age = $1;
+	    if ( $snippet =~ />Age\s+([\d\.]+)\s+(\w+|dashboard\.gender_)?</ ) {
+		$age = sprintf('%d', $1);
 		$sex = $2;
-
+		
 		if ( $sex eq 'dashboard.gender_' ) {
 		    print "Error detected on website. Ignore sex for $case_id\n";
 		    $sex = undef;
