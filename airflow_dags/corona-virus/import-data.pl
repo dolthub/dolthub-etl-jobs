@@ -586,10 +586,6 @@ my $place_id_map = {
     'Martinique' => {
         '' => 216,
     },
-    # I think this was removed in error
-    # 'Republic of Ireland' => {
-    #     '' => 241,
-    # },	
     'Bulgaria' => {
         '' => 242,
     },
@@ -653,6 +649,12 @@ my $place_id_map = {
     },
     'Turkey' => {
         '' => 400,
+    },
+    'Cuba' => {
+        '' => 454,
+    },
+    'Guyana' => {
+        '' => 455,
     },
 };
     
