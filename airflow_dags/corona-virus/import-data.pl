@@ -77,7 +77,8 @@ my $place_id_map = {
     'France' => {
 	'France' => 40,
         'St Martin' => 276,
-        'Saint Barthelemy' => 158,
+	'Saint Barthelemy' => 158,
+	'French Polynesia' => 458,    
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -88,6 +89,7 @@ my $place_id_map = {
 	'Western Australia' => 117,
 	'Tasmania' => 134,    
 	'Northern Territory' => 160,
+	'Australian Capital Territory' => 456,    
     },
     'India' => {
 	'' => 44,
@@ -97,7 +99,10 @@ my $place_id_map = {
 	'British Columbia' => 56,
 	'Quebec' => 109,
 	'Alberta' => 224,
-	'New Brunswick' => 395,    
+	'New Brunswick' => 395,
+	'Manitoba' => 461,
+	'Saskatchewan' => 462,
+	'Grand Princess' => 468,    
     },
     'Italy' => {
 	'' => 47,
@@ -109,7 +114,7 @@ my $place_id_map = {
 	'' => 49,
     },
     'United Kingdom' => {
-	'UK' => 50,
+	'United Kingdom' => 50,
 	'Channel Islands' => 329,
 	'Gibraltar' => 162,    
     },
@@ -356,7 +361,8 @@ my $place_id_map = {
 	'Bernalillo, NM' => 450,
 	'Oakland, MI' => 451,
 	'Wayne, MI' => 452,
-	'New Castle, DE' => 453,    
+	'New Castle, DE' => 453,
+	'Alabama' => 470,    
     },
     'Belgium' => {
 	'' => 54,
@@ -655,6 +661,33 @@ my $place_id_map = {
     },
     'Guyana' => {
         '' => 455,
+    },
+    'Kazakhstan' => {
+        '' => 457,
+    },
+    'Cayman Islands' => {
+        '' => 459,
+    },
+    'Guadeloupe' => {
+        '' => 460,
+    },
+    'Ethiopia' => {
+        '' => 463,
+    },
+    'Sudan' => {
+        '' => 464,
+    },
+    'Guinea' => {
+	'' => 465,
+    },
+    'Aruba' => {
+        '' => 466,
+    },
+    'Kenya' => {
+        '' => 467,
+    },
+    'Antigua and Barbuda' => {
+        ''=> 469,
     },
 };
     
