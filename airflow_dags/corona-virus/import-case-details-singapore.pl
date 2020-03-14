@@ -15,11 +15,13 @@ my @columns = (
     'sex',
     'nationality',
     'current_status',
+    'case_type',
     'symptomatic_to_confirmed_days',
     'confirmed_to_recover_days',
     'symptomatic_date',
     'confirmed_date',
     'recovered_date',
+    'displayed_symptoms',
     );
 
 my @import_columns = (
@@ -82,7 +84,7 @@ sub extract_data {
     $table_extract->parse($cases_table);
 
     my $table = $table_extract->table(0, 0);
-
+    
     my $header = 1;
     foreach my $row ( $table->rows() ) {
 	if ( $header ) {
@@ -132,12 +134,12 @@ sub parse_date {
     my ($day, $month, $year);
     if ( $date =~ /^(\d+)\w+\,\s+(\w+)\s+(\d{4})/ ) {
 	$day   = $1;
-	$month = $months{$2} or die "Could not match month $2";
+	$month = $months{$2} or die "Could not match month: $2";
 	$year  = $3;
 
 	$day = "0$day" if $day < 10;
     } else {
-	die "Date does not match assumed format";
+	die "Date does not match assumed format: $date";
     }
 
     return "$year-$month-$day 00:00:00";
