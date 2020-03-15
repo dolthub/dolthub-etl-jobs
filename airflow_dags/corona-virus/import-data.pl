@@ -78,7 +78,8 @@ my $place_id_map = {
 	'France' => 40,
         'St Martin' => 276,
 	'Saint Barthelemy' => 158,
-	'French Polynesia' => 458,    
+        'French Polynesia' => 458,
+	'Fench Guiana' => 471,    
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -362,7 +363,9 @@ my $place_id_map = {
 	'Oakland, MI' => 451,
 	'Wayne, MI' => 452,
 	'New Castle, DE' => 453,
-	'Alabama' => 470,    
+	'Alabama' => 470,
+	'Puerto Rico' => 474,
+	'Virgin Islands, U.S.' => 490,    
     },
     'Belgium' => {
 	'' => 54,
@@ -550,6 +553,9 @@ my $place_id_map = {
     'Tunisia' => {
 	'' => 165,
     },
+    'occupied Palestinian territory' => {
+        '' => 167,
+    },
     'Bosnia and Herzegovina' => {
         '' => 168,
     },
@@ -584,7 +590,7 @@ my $place_id_map = {
         '' => 193,
     },
     'French Guiana' => {
-	'' => 212,
+        '' => 212,
     },
     'Malta' => {
 	'' => 213,
@@ -688,6 +694,57 @@ my $place_id_map = {
     },
     'Antigua and Barbuda' => {
         ''=> 469,
+    },
+    'Uruguay' => {
+        '' => 472,
+    },
+    'Ghana' => {
+        '' => 473,
+    },
+    'Jersey' => {
+        '' => 475,
+    },
+    'Namibia' => {
+        '' => 476,
+    },
+    'Seychelles' => {
+        '' => 477,
+    },
+    'Trinidad and Tobago' => {
+        '' => 478,
+    },
+    'Venezuela' => {
+        '' => 479,
+    },
+    'Curacao' => {
+        '' => 480,
+    },
+    'Eswatini' => {
+        '' => 481,
+    },
+    'Gabon' => {
+        '' => 482,
+    },
+    'Guatemala' => {
+        '' => 483,
+    },
+    'Guernsey' => {
+        '' => 484,
+    },
+    'Mauritania' => {
+        '' => 485,
+    },
+    'Rwanda' => {
+        '' => 486,
+    },
+    'Saint Lucia' => {
+        '' => 487,
+    },
+    'Saint Vincent and the Grenadines' => {
+        '' => 488,
+    },
+    'Suriname' => {
+        '' => 489,
     },
 };
     
