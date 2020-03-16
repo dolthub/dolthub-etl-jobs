@@ -79,7 +79,8 @@ my $place_id_map = {
         'St Martin' => 276,
 	'Saint Barthelemy' => 158,
         'French Polynesia' => 458,
-	'Fench Guiana' => 471,    
+	'French Guiana' => 212,
+	'Mayotte' => 498,    
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -103,7 +104,9 @@ my $place_id_map = {
 	'New Brunswick' => 395,
 	'Manitoba' => 461,
 	'Saskatchewan' => 462,
-	'Grand Princess' => 468,    
+	'Grand Princess' => 468,
+	'Newfoundland and Labrador' => 493,
+	'Prince Edward Island' => 494,    
     },
     'Italy' => {
 	'' => 47,
@@ -365,7 +368,8 @@ my $place_id_map = {
 	'New Castle, DE' => 453,
 	'Alabama' => 470,
 	'Puerto Rico' => 474,
-	'Virgin Islands, U.S.' => 490,    
+	'Virgin Islands, U.S.' => 490,
+	'Guam' => 491,    
     },
     'Belgium' => {
 	'' => 54,
@@ -589,9 +593,6 @@ my $place_id_map = {
     'Togo' => {
         '' => 193,
     },
-    'French Guiana' => {
-        '' => 212,
-    },
     'Malta' => {
 	'' => 213,
     },
@@ -745,6 +746,21 @@ my $place_id_map = {
     },
     'Suriname' => {
         '' => 489,
+    },
+    'Kosovo' => {
+        '' => 492,
+    },
+    'Central African Republic' => {
+        '' => 495,
+    },
+    'Congo (Brazzaville)' => {
+        '' => 496,
+    },
+    'Equatorial Guinea' => {
+        '' => 497,
+    },
+    'Uzbekistan' => {
+        '' => 499,
     },
 };
     
