@@ -79,7 +79,8 @@ my $place_id_map = {
         'St Martin' => 276,
 	'Saint Barthelemy' => 158,
         'French Polynesia' => 458,
-	'French Guiana' => 212,
+	'French Guiana' => 471,
+	'Guadeloupe' => 502,
 	'Mayotte' => 498,    
     },
     'Australia' => {
@@ -106,7 +107,8 @@ my $place_id_map = {
 	'Saskatchewan' => 462,
 	'Grand Princess' => 468,
 	'Newfoundland and Labrador' => 493,
-	'Prince Edward Island' => 494,    
+	'Prince Edward Island' => 494,
+	'Nova Scotia' => 501,    
     },
     'Italy' => {
 	'' => 47,
@@ -120,7 +122,8 @@ my $place_id_map = {
     'United Kingdom' => {
 	'United Kingdom' => 50,
 	'Channel Islands' => 329,
-	'Gibraltar' => 162,    
+	'Gibraltar' => 162,
+	'Cayman Islands' => 459,    
     },
     'US' => {
 	'San Benito, CA' => 52,
@@ -368,8 +371,8 @@ my $place_id_map = {
 	'New Castle, DE' => 453,
 	'Alabama' => 470,
 	'Puerto Rico' => 474,
-	'Virgin Islands, U.S.' => 490,
-	'Guam' => 491,    
+	'Virgin Islands' => 490,
+	'Guam' => 513,
     },
     'Belgium' => {
 	'' => 54,
@@ -462,7 +465,8 @@ my $place_id_map = {
         '' => 105,
     },
     'Netherlands' => {
-        '' => 106,
+        'Netherlands' => 106,
+	'Curacao' => 480,
     },
     'San Marino' => {
         '' => 107,
@@ -593,6 +597,9 @@ my $place_id_map = {
     'Togo' => {
         '' => 193,
     },
+    'French Guiana' => {
+        '' => 212,
+    },
     'Malta' => {
 	'' => 213,
     },
@@ -672,9 +679,6 @@ my $place_id_map = {
     'Kazakhstan' => {
         '' => 457,
     },
-    'Cayman Islands' => {
-        '' => 459,
-    },
     'Guadeloupe' => {
         '' => 460,
     },
@@ -702,6 +706,9 @@ my $place_id_map = {
     'Ghana' => {
         '' => 473,
     },
+    'Puerto Rico' => {
+        '' => 514,
+    },
     'Jersey' => {
         '' => 475,
     },
@@ -716,9 +723,6 @@ my $place_id_map = {
     },
     'Venezuela' => {
         '' => 479,
-    },
-    'Curacao' => {
-        '' => 480,
     },
     'Eswatini' => {
         '' => 481,
@@ -747,6 +751,9 @@ my $place_id_map = {
     'Suriname' => {
         '' => 489,
     },
+    'Guam' => {
+        '' => 491,
+    },
     'Kosovo' => {
         '' => 492,
     },
@@ -759,8 +766,32 @@ my $place_id_map = {
     'Equatorial Guinea' => {
         '' => 497,
     },
+    'Mayotte' => {
+        ''=> 507,
+    },
     'Uzbekistan' => {
         '' => 499,
+    },
+    'Benin' => {
+        '' => 503,
+    },
+    'Greenland' => {
+        '' => 504,
+    },
+    'Liberia' => {
+        '' => 505,
+    },
+    'Republic of the Congo' => {
+        '' => 508,
+    },
+    'Somalia' => {
+        '' => 509,
+    },
+    'Tanzania' => {
+        '' => 510,
+    },
+    'The Bahamas' => {
+        '' => 511,
     },
 };
     
