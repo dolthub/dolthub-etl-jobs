@@ -81,7 +81,8 @@ my $place_id_map = {
         'French Polynesia' => 458,
 	'French Guiana' => 471,
 	'Guadeloupe' => 502,
-	'Mayotte' => 498,    
+	'Mayotte' => 498,
+	'Reunion' => 399,    
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -561,9 +562,9 @@ my $place_id_map = {
     'Tunisia' => {
 	'' => 165,
     },
-    'occupied Palestinian territory' => {
-        '' => 167,
-    },
+    # 'occupied Palestinian territory' => {
+    #    '' => 167,
+    # },
     'Bosnia and Herzegovina' => {
         '' => 168,
     },
@@ -597,9 +598,9 @@ my $place_id_map = {
     'Togo' => {
         '' => 193,
     },
-    'French Guiana' => {
-        '' => 212,
-    },
+    # 'French Guiana' => {
+    #    '' => 212,
+    # },
     'Malta' => {
 	'' => 213,
     },
@@ -664,9 +665,6 @@ my $place_id_map = {
     'Jamaica' => {
         '' => 398,
     },
-    'Reunion' => {
-        '' => 399,
-    },
     'Turkey' => {
         '' => 400,
     },
@@ -679,9 +677,9 @@ my $place_id_map = {
     'Kazakhstan' => {
         '' => 457,
     },
-    'Guadeloupe' => {
-        '' => 460,
-    },
+    # 'Guadeloupe' => {
+    #    '' => 460,
+    # },
     'Ethiopia' => {
         '' => 463,
     },
@@ -705,9 +703,6 @@ my $place_id_map = {
     },
     'Ghana' => {
         '' => 473,
-    },
-    'Puerto Rico' => {
-        '' => 514,
     },
     'Jersey' => {
         '' => 475,
@@ -751,9 +746,6 @@ my $place_id_map = {
     'Suriname' => {
         '' => 489,
     },
-    'Guam' => {
-        '' => 491,
-    },
     'Kosovo' => {
         '' => 492,
     },
@@ -765,9 +757,6 @@ my $place_id_map = {
     },
     'Equatorial Guinea' => {
         '' => 497,
-    },
-    'Mayotte' => {
-        ''=> 507,
     },
     'Uzbekistan' => {
         '' => 499,
@@ -792,6 +781,15 @@ my $place_id_map = {
     },
     'The Bahamas' => {
         '' => 511,
+    },
+    'Barbados' => {
+	'' => 515,
+    },
+    'Montenegro' => {
+        '' => 516,
+    },
+    'The Gambia' => {
+        '' => 517,
     },
 };
     
