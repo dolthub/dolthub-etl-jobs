@@ -192,6 +192,7 @@ sub extract_data {
 	    next if ( $row_data->{'place_id'} && 
 		      ($row_data->{'place_id'} == 33 ||
 		       $row_data->{'place_id'} == 32 ||
+		       $row_data->{'place_id'} == 48 ||
 		       $row_data->{'place_id'} == 29) );
 
 	    next unless $row_data->{'case_id'};
