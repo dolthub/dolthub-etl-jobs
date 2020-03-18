@@ -7,8 +7,6 @@ use Text::CSV qw( csv );
 
 my $sheet_id = '1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008';
 
-my $copy_sheet_id = '1-86mWyQzD2NsvNfP8Mp7U4zBuP9-qUUKS13w48uydKI';
-
 my $url = "https://docs.google.com/spreadsheets/d/$sheet_id/";
 
 my @sheets = (
@@ -101,7 +99,8 @@ sub download_files {
 
     foreach my $sheet ( @sheets ) {
 	my $url = $google_base . $sheet_id . $download_postfix . $sheet;
-	run_command("curl -L -o $sheet.csv '$url'", "Could not download $url");
+	run_command("curl -m 30 -L -o $sheet.csv '$url'",
+		    "Could not download $url");
     }
 }
 
