@@ -4,8 +4,8 @@ use strict;
 
 use Text::CSV qw( csv );
 
-my $url_base = 'https://raw.githubusercontent.com/jihoo-kim/Coronavirus-Dataset/master/';
-my $csv = 'patient.csv';
+my $url_base = 'https://raw.githubusercontent.com/jihoo-kim/Data-Science-for-COVID-19/master/dataset/Patient/';
+my $csv = 'PatientInfo.csv';
 
 my %interesting_cols = (
     'patient_id' => 'case_id',
