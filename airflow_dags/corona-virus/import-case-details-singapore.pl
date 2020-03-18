@@ -97,6 +97,10 @@ sub extract_data {
 	    # Prepare data
 	    $col =~ s/^-$//g;
 
+	    #Remove leading and traling space
+	    $col =~ s/^\s+//g;
+	    $col =~ s/\s+$//g;
+
 	    if ( $columns->[$i] eq 'sex' ) {
 		$col = substr($col, 0, 1);
 	    }
