@@ -234,8 +234,8 @@ southkorea_details = BashOperator(task_id='southkorea-details',
                                   bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-southkorea.pl ',
                                   dag=corona_virus_details_dag)
 
-phillipines_details = BashOperator(task_id='phillipines-details',
-                                   bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-phillipines.pl ',
+philippines_details = BashOperator(task_id='philippines-details',
+                                   bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-philippines.pl ',
                                    dag=corona_virus_details_dag)
 
 viro_dot_org_details = BashOperator(task_id='viro-dot-org-details',
