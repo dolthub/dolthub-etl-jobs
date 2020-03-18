@@ -71,7 +71,7 @@ sub extract_data {
 
 	    my $datapoint = $row->[$col_num];
 
-	    if ( $datapoint && $datapoint !~ /\s+/) {
+	    if ( $datapoint && $datapoint !~ /^\s+$/) {
 		if ( $col_name eq 'age' ) {
 		    $datapoint = 2020 - $datapoint;
 		} elsif ( $col_name =~ /_date$/ ) {
