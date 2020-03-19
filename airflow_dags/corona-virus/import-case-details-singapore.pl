@@ -16,6 +16,7 @@ my @columns = (
     'nationality',
     'current_status',
     'case_type',
+    'country_of_origin',
     'symptomatic_to_confirmed_days',
     'confirmed_to_recover_days',
     'symptomatic_date',
@@ -94,18 +95,20 @@ sub extract_data {
 	my $i = 0;
 	my $case_id = shift @{$row};
 	foreach my $col ( @{$row} ) {
-	    # Prepare data
-	    $col =~ s/^-$//g;
-
 	    #Remove leading and traling space
 	    $col =~ s/^\s+//g;
 	    $col =~ s/\s+$//g;
 
+	    $col = '' if ( $col eq '-' );
+
+	    die "Number of columns does not match website"
+		unless $columns->[$i];
+	    
 	    if ( $columns->[$i] eq 'sex' ) {
 		$col = substr($col, 0, 1);
 	    }
 
-	    if ( $columns->[$i] =~ /_date/ and $col ) {
+	    if ( $col && $columns->[$i] =~ /_date/ ) {
 		$col = parse_date($col);
 	    }
 	    
