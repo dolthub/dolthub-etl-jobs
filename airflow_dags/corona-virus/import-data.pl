@@ -124,7 +124,8 @@ my $place_id_map = {
 	'United Kingdom' => 50,
 	'Channel Islands' => 329,
 	'Gibraltar' => 162,
-	'Cayman Islands' => 459,    
+	'Cayman Islands' => 459,
+	'Montserrat' => 523,    
     },
     'US' => {
 	'San Benito, CA' => 52,
@@ -467,7 +468,8 @@ my $place_id_map = {
     },
     'Netherlands' => {
         'Netherlands' => 106,
-	'Curacao' => 480,
+        'Curacao' => 480,
+	'Aruba' => 466,    
     },
     'San Marino' => {
         '' => 107,
@@ -689,9 +691,6 @@ my $place_id_map = {
     'Guinea' => {
 	'' => 465,
     },
-    'Aruba' => {
-        '' => 466,
-    },
     'Kenya' => {
         '' => 467,
     },
@@ -703,9 +702,6 @@ my $place_id_map = {
     },
     'Ghana' => {
         '' => 473,
-    },
-    'Jersey' => {
-        '' => 475,
     },
     'Namibia' => {
         '' => 476,
@@ -727,9 +723,6 @@ my $place_id_map = {
     },
     'Guatemala' => {
         '' => 483,
-    },
-    'Guernsey' => {
-        '' => 484,
     },
     'Mauritania' => {
         '' => 485,
@@ -770,9 +763,6 @@ my $place_id_map = {
     'Liberia' => {
         '' => 505,
     },
-    'Republic of the Congo' => {
-        '' => 508,
-    },
     'Somalia' => {
         '' => 509,
     },
@@ -788,8 +778,20 @@ my $place_id_map = {
     'Montenegro' => {
         '' => 516,
     },
-    'The Gambia' => {
+    'Gambia, The' => {
         '' => 517,
+    },
+    'Kyrgyzstan' => {
+        '' => 518,
+    },
+    'Mauritius' => {
+        '' => 519,
+    },
+    'Zambia' => {
+        '' => 521,
+    },
+    'Djibouti' => {
+        '' => 522,
     },
 };
     
