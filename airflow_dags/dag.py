@@ -360,3 +360,12 @@ ccis = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
     dag=ccis_dag
 )
+
+# US Baby Names 
+open_flights_dag = DAG('open_flights',
+                       default_args=get_default_args_helper(datetime(2020,3,19)),
+                       schedule_interval=timedelta(days=1))
+
+raw_open_flights = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
+                                dag=open_flights_dag)
