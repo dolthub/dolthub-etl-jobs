@@ -64,7 +64,7 @@ sub import_csvs {
 	run_command("dolt sql -r csv -q 'select * from $table limit 0' > $header_csv",
 		    "Could not build header for $table");
 	
-	run_command("cat $header_csv $csv | dolt table import -r -pk $pk_string $table";,
+	run_command("cat $header_csv $csv | dolt table import -r -pk $pk_string $table",
 		    "Could not import $table from  $csv");
     }
 }
