@@ -58,7 +58,10 @@ sub import_csvs {
 
 	my $header_csv = $table . '_header.csv';
 
-	run_command("sed -i '' -E -e 's/\\\\N//g' $csv",
+	# Uncomment this and comment the next for Mac
+	# run_command("sed -i '' -E -e 's/\\\\N//g' $csv",
+        #             "Could not replace NULL value string in $csv");
+	run_command("sed -i -e 's/\\\\N//g' $csv",
 		    "Could not replace NULL value string in $csv");
 
 	run_command("dolt sql -r csv -q 'select * from $table limit 0' > $header_csv",
