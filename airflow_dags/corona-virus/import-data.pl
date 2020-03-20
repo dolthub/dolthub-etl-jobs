@@ -82,7 +82,8 @@ my $place_id_map = {
 	'French Guiana' => 471,
 	'Guadeloupe' => 502,
 	'Mayotte' => 498,
-	'Reunion' => 399,    
+	'Reunion' => 399,
+	'New Caledonia' => 524,    
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -125,7 +126,8 @@ my $place_id_map = {
 	'Channel Islands' => 329,
 	'Gibraltar' => 162,
 	'Cayman Islands' => 459,
-	'Montserrat' => 523,    
+	'Montserrat' => 523,
+	'Bermuda' => 525,    
     },
     'US' => {
 	'San Benito, CA' => 52,
@@ -651,6 +653,7 @@ my $place_id_map = {
     'Denmark' => {
 	'Denmark' => 104,
 	'Faroe Islands' => 161,
+	'Greenland' => 504,    
     },
     'Bolivia' => {
 	'' => 392,
@@ -757,9 +760,6 @@ my $place_id_map = {
     'Benin' => {
         '' => 503,
     },
-    'Greenland' => {
-        '' => 504,
-    },
     'Liberia' => {
         '' => 505,
     },
@@ -769,7 +769,7 @@ my $place_id_map = {
     'Tanzania' => {
         '' => 510,
     },
-    'The Bahamas' => {
+    'Bahamas, The' => {
         '' => 511,
     },
     'Barbados' => {
@@ -792,6 +792,18 @@ my $place_id_map = {
     },
     'Djibouti' => {
         '' => 522,
+    },
+    'Chad' => {
+        '' => 526,
+    },
+    'El Salvador' => {
+        '' => 527,
+    },
+    'Fiji' => {
+        '' => 528,
+    },
+    'Nicaragua' => {
+        '' => 529,
     },
 };
     
