@@ -127,7 +127,8 @@ my $place_id_map = {
 	'Gibraltar' => 162,
 	'Cayman Islands' => 459,
 	'Montserrat' => 523,
-	'Bermuda' => 525,    
+	'Bermuda' => 525,
+	'Isle of Man' => 537,    
     },
     'US' => {
 	'San Benito, CA' => 52,
@@ -471,7 +472,8 @@ my $place_id_map = {
     'Netherlands' => {
         'Netherlands' => 106,
         'Curacao' => 480,
-	'Aruba' => 466,    
+	'Aruba' => 466,
+	'Sint Maarten' => 534,    
     },
     'San Marino' => {
         '' => 107,
@@ -804,6 +806,27 @@ my $place_id_map = {
     },
     'Nicaragua' => {
         '' => 529,
+    },
+    'Madagascar' => {
+        '' => 530,
+    },
+    'Haiti' => {
+        '' => 531,
+    },
+    'Angola' => {
+        '' => 532,
+    },
+    'Cabo Verde' => {
+        '' => 533,
+    },
+    'Niger' => {
+        '' => 535,
+    },
+    'Papua New Guinea' => {
+        '' => 536,
+    },
+    'Zimbabwe' => {
+        '' => 538,
     },
 };
     
