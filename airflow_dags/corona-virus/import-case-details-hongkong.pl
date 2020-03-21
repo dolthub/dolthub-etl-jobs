@@ -112,7 +112,7 @@ sub extract_data {
 		if ( $snippet =~ /(Hospitalised|Critical|Serious)/ );
 	    $status = 'Recovered' if ( $snippet =~ /Discharged/ );
 	    $status = 'Deceased' if ( $snippet =~ /Deceased/ );
-	    die "No status found" unless $status;
+	    print "No status found for $case_id" unless ( $status && $debug );
 	    print "Status: $status\n" if $debug;
 	    
 	    $data->{$case_id}{'current_status'} = $status;
