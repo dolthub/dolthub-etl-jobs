@@ -89,7 +89,9 @@ sub extract_data {
 		$data->{$case_id}{'age'} = $age if $age;
 		$data->{$case_id}{'sex'} = substr($sex,0,1) if $sex;
 	    } else {
-		die "Could not find age or sex for case $case_id";
+		$age = '';
+		$sex = '';
+	        print "Could not find age or sex for case $case_id";
 	    }
 
 	    if ( $snippet =~ /Onset\sdate<\/p><b>(\d{4}-\d{2}-\d{2})<\/b>/ ) {
@@ -112,7 +114,6 @@ sub extract_data {
 		if ( $snippet =~ /(Hospitalised|Critical|Serious)/ );
 	    $status = 'Recovered' if ( $snippet =~ /Discharged/ );
 	    $status = 'Deceased' if ( $snippet =~ /Deceased/ );
-	    print "No status found for $case_id" unless ( $status && $debug );
 	    print "Status: $status\n" if $debug;
 	    
 	    $data->{$case_id}{'current_status'} = $status;
