@@ -110,7 +110,8 @@ my $place_id_map = {
 	'Grand Princess' => 468,
 	'Newfoundland and Labrador' => 493,
 	'Prince Edward Island' => 494,
-	'Nova Scotia' => 501,    
+	'Nova Scotia' => 501,
+	'Northwest Territories' => 539,    
     },
     'Italy' => {
 	'' => 47,
@@ -827,6 +828,18 @@ my $place_id_map = {
     },
     'Zimbabwe' => {
         '' => 538,
+    },
+    'Cape Verde' => {
+        '' => 540,
+    },
+    'East Timor' => {
+        '' => 541,
+    },
+    'Eritrea' => {
+        '' => 542,
+    },
+    'Uganda' => {
+        '' => 543,
     },
 };
     
