@@ -841,6 +841,21 @@ my $place_id_map = {
     'Uganda' => {
         '' => 543,
     },
+    'Dominica' => {
+        '' => 544,
+    },
+    'Grenada' => {
+        '' => 545,
+    },
+    'Mozambique' => {
+        '' => 546,
+    },
+    'Syria' => {
+        '' => 547,
+    },
+    'Timor-Leste' => {
+        '' => 548,
+    },
 };
     
 # Clone the repository
