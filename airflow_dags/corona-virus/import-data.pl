@@ -379,6 +379,8 @@ my $place_id_map = {
 	'Puerto Rico' => 474,
 	'Virgin Islands' => 490,
 	'Guam' => 513,
+	'United States Virgin Islands' => 552,
+	'US' => 553,    
     },
     'Belgium' => {
 	'' => 54,
@@ -605,9 +607,9 @@ my $place_id_map = {
     'Togo' => {
         '' => 193,
     },
-    # 'French Guiana' => {
-    #    '' => 212,
-    # },
+    'French Guiana' => {
+       '' => 212,
+    },
     'Malta' => {
 	'' => 213,
     },
@@ -685,9 +687,9 @@ my $place_id_map = {
     'Kazakhstan' => {
         '' => 457,
     },
-    # 'Guadeloupe' => {
-    #    '' => 460,
-    # },
+    'Guadeloupe' => {
+        '' => 460,
+    },
     'Ethiopia' => {
         '' => 463,
     },
@@ -855,6 +857,36 @@ my $place_id_map = {
     },
     'Timor-Leste' => {
         '' => 548,
+    },
+    'Reunion' => {
+        '' => 556,
+    },
+    'Mayotte' => {
+        '' => 507,
+    },
+    'Greenland' => {
+        '' => 554,
+    },
+    'Guam' => {
+        '' => 491,
+    },
+    'Guernsey' => {
+        '' => 484,
+    },
+    'Jersey' => {
+        '' => 475,
+    },
+    'Puerto Rico' => {
+        '' => 514,
+    },
+    'Republic of the Congo' => {
+        '' => 508,
+    },
+    'The Bahamas' => {
+        '' => 555,
+    },
+    'The Gambia' => {
+        '' => 557,
     },
 };
     
