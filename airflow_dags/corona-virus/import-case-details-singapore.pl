@@ -205,8 +205,6 @@ sub publish {
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
 
-    run_command('dolt pull', 'dolt pull failed');
-    
     run_command('dolt push origin master', 'dolt push failed');
 }
 
