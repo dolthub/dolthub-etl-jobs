@@ -118,9 +118,6 @@ sub publish {
         exit 0;
     }
 
-    # Grab the latest just in case something changed while we were running
-    run_command('dolt pull', 'dolt pull failed');
-    
     run_command('dolt add .', 'dolt add command failed');
 
     my $datestring = gmtime();
