@@ -196,6 +196,9 @@ sub publish {
         exit 0;
     }
 
+    # Grab the latest just in case something changed while we were running
+    run_command('dolt pull', 'dolt pull failed');
+    
     run_command('dolt add .', 'dolt add command failed');
 
     my $datestring = gmtime();
@@ -204,8 +207,6 @@ sub publish {
 
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
-
-    run_command('dolt pull', 'dolt pull failed');
     
     run_command('dolt push origin master', 'dolt push failed');
 }
