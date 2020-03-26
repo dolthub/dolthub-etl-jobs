@@ -4,7 +4,6 @@ use warnings;
 use strict;
 
 use Parse::CSV;
-use Data::Dumper::Simple;
 use Getopt::Long;
 
 my $spread = 0.5;
@@ -16,43 +15,39 @@ my $num_sims = 10000;
 
 my $csv = Parse::CSV->new(
     handle => $fh,
-    names      => 1,
+    names  => 1,
     );
 
 my @reps;
 while ( my $line = $csv->fetch ) {
-    $line->{deaths} = 0;
+    $line->{losses} = 0;
     push @reps, $line;
 }
 
-my %deaths = (
+my %losses = (
     'Republican' => [],
     'Democratic' => [],
     'Independent' => [],
     );
 
 foreach my $i ( 1..$num_sims ) {
-    my @deaths;
+    my @losses;
     foreach my $rep ( @reps ) {
-        # Roll the dice twice: once to see if they contract the disease, and again to see if they die
+        # Roll the dice twice: once to see if they contract COVID-19, and again to determine their outcome
         if ( rand() < $spread && rand() < $rep->{mortality_rate} ) {
-            $rep->{deaths} += 1;
-            push @deaths, $rep;
+            $rep->{losses} += 1;
+            push @losses, $rep;
         }
     }
 
-    while ( my ($party, $death_count) = each %deaths ) {
-        my @party_deaths = grep { $_->{party} eq $party } @deaths;
-        push @$death_count, scalar(@party_deaths);
+    while ( my ($party, $loss_count) = each %losses ) {
+        my @party_losses = grep { $_->{party} eq $party } @losses;
+        push @$loss_count, scalar(@party_losses);
     }
 }
 
-foreach my $rep ( @reps ) {
-    print "$rep->{last_name} died $rep->{deaths} times\n";
-}
-
-while ( my ($party, $death_count) = each %deaths ) {
-    my @sorted_deaths = sort @$death_count;
-    my $median_deaths = $sorted_deaths[$num_sims / 2];
-    print "$party party lost a median $median_deaths representatives\n";
+while ( my ($party, $loss_count) = each %losses ) {
+    my @sorted_losses = sort @$loss_count;
+    my $median_losses = $sorted_losses[$num_sims / 2];
+    print "$party party lost a median $median_losses representatives\n";
 }
