@@ -361,7 +361,7 @@ ccis = BashOperator(
     dag=ccis_dag
 )
 
-# US Baby Names 
+# Open Flights 
 open_flights_dag = DAG('open_flights',
                        default_args=get_default_args_helper(datetime(2020,3,19)),
                        schedule_interval=timedelta(days=1))
@@ -369,3 +369,12 @@ open_flights_dag = DAG('open_flights',
 raw_open_flights = BashOperator(task_id='import-data',
                                 bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
                                 dag=open_flights_dag)
+
+# Stock Tickers
+stock_tickers_dag = DAG('stock_tickers',
+                        default_args=get_default_args_helper(datetime(2020,3,26)),
+                        schedule_interval=timedelta(days=1))
+
+raw_stock_tickers = BashOperator(task_id='import-data',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
+                                 dag=stock_tickers_dag)
