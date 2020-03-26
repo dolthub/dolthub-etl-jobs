@@ -66,6 +66,14 @@ sub prepare_import {
 
     run_command("dolt merge master",
                 "Could not merge master branch into $branch");
+
+    print "Attempting to commit...\n";
+    if ( system("dolt commit -m 'Merged master branch'") eq 0 ) {
+	print "Commit Succeeded\n";
+	run_command("dolt push origin $branch", 'dolt push failed');
+    } else {
+	print "Nothing to commit\n";
+    }
 }
 
 sub create_place_id_map {
@@ -203,6 +211,8 @@ sub extract_data {
 	    $case_details->{$sheet}{$case_id} = $row_data;
 	}
     }
+
+    die "No data found" unless ( scalar keys %{$case_details} > 0 );
 }
     
 sub import_data {
