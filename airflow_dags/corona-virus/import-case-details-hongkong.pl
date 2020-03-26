@@ -124,6 +124,8 @@ sub extract_data {
 	}
 	$i++;
     }
+
+    die "Scrape produced no cases\n" unless ( scalar keys %{$data} > 0 );
 }
     
 sub import_data {
