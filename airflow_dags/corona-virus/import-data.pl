@@ -92,7 +92,6 @@ my $place_id_map = {
 	'Victoria' => 42,
 	'Queensland' => 43,
 	'South Australia' => 45,
-	'From Diamond Princess' => 81,
 	'Western Australia' => 117,
 	'Tasmania' => 134,    
 	'Northern Territory' => 160,
@@ -113,9 +112,11 @@ my $place_id_map = {
 	'Grand Princess' => 468,
 	'Newfoundland and Labrador' => 493,
 	'Prince Edward Island' => 494,
+	'Northwest Territories' => 539,
 	'Nova Scotia' => 501,
 	'Diamond Princess' => 561,
-	'Recovered' => 569,    
+	'Recovered' => 569,
+	'Yukon' => 571,    
     },
     'Italy' => {
 	'' => 47,
@@ -134,8 +135,8 @@ my $place_id_map = {
 	'Montserrat' => 523,
 	'Bermuda' => 525,
 	'Isle of Man' => 537,
-	'Guernsey' => 484,
-	'Jersey' => 475,    
+	# 'Guernsey' => 484,
+	# 'Jersey' => 475,    
     },
     'US' => {
 	'' => 553,    
@@ -655,9 +656,6 @@ my $place_id_map = {
     'Panama' => {
 	'' => 332,
     },
-    'Cruise Ship' => {
-	'Diamond Princess' => 73,
-    },
     'Denmark' => {
 	'' => 104,
 	'Faroe Islands' => 161,
@@ -831,9 +829,9 @@ my $place_id_map = {
     'Zimbabwe' => {
         '' => 538,
     },
-    'Cape Verde' => {
-        '' => 540,
-    },
+    # 'Cape Verde' => {
+    #     '' => 540,
+    # },
     # 'East Timor' => {
     #     '' => 541,
     # },
@@ -880,7 +878,7 @@ my $place_id_map = {
         '' => 511,
     },
     'Diamond Princess' => {
-        '' => 558,
+        '' => 73,
     },
     'Belize' => {
         '' => 562,
