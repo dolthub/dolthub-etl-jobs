@@ -136,7 +136,10 @@ my $place_id_map = {
 	'Bermuda' => 525,
 	'Isle of Man' => 537,
 	# 'Guernsey' => 484,
-	# 'Jersey' => 475,    
+	# 'Jersey' => 475,
+	'Anguilla' => 573,
+	'British Virgin Islands' => 574,
+	'Turks and Caicos Islands' => 575,    
     },
     'US' => {
 	'' => 553,    
@@ -901,6 +904,10 @@ my $place_id_map = {
     'Burma' => {
         '' => 572,
     },
+    'MS Zaandam' => {
+        '' => 576,
+    },
+	       
 };
     
 # Clone the repository
