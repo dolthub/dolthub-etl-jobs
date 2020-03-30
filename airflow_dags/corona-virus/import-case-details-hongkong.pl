@@ -180,6 +180,13 @@ sub publish {
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
 
+    run_command('dolt pull', 'Could not pull latest master');
+
+    if ( `dolt status` =~ /merging/ ) {
+	run_command('dolt commit -m "Merging latest master"',
+		    "dolt commit failed");
+    }
+    
     run_command('dolt push origin master', 'dolt push failed');
 }
 
