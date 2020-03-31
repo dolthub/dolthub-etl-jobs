@@ -15,6 +15,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from functools import partial
 from typing import Tuple
+from coin_metrics.dolt_load import get_coin_metrics_loaders
 
 
 def get_default_args_helper(start_date: datetime):
@@ -299,3 +300,18 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     datetime(2019, 12, 3),
     get_five_thirty_eight_nfl_forecasts_loaders
 )
+
+
+# coin metrics
+def get_coin_metrics_dag():
+    task_id = 'coin_metrics_eod'
+    dag = DAG(task_id,
+              default_args=get_default_args_helper(datetime(2020, 3, 30)),
+              schedule_interval=timedelta(days=1))
+    operator = PythonOperator(task_id=task_id,
+                              python_callable=dolthub_loader,
+                              op_kwargs=get_args_helper(get_coin_metrics_loaders, 'Liquidata/coint-metrics-data'))
+    return dag, operator
+
+
+coint_metrics_dag, coin_metrics_operator = get_coin_metrics_dag()
