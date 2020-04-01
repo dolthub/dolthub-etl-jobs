@@ -910,6 +910,12 @@ my $place_id_map = {
     'Botswana' => {
         '' => 577,
     },	       
+    'Burundi' => {
+        '' => 578,
+    },
+    'Sierra Leone' => {
+        '' => 579,
+    },
 };
     
 # Clone the repository
