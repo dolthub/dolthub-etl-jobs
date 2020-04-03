@@ -13,7 +13,6 @@ if ( !url || !file ) {
     // Set up browser and page.
     const browser = await puppeteer.launch({
 	args: ['--no-sandbox', '--disable-setuid-sandbox'],
-	headless: false,
     });
     const page = await browser.newPage();
     page.setViewport({ width: 1280, height: 926 });
