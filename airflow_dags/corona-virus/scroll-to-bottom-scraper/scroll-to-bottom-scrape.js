@@ -13,6 +13,7 @@ if ( !url || !file ) {
     // Set up browser and page.
     const browser = await puppeteer.launch({
 	args: ['--no-sandbox', '--disable-setuid-sandbox'],
+	headless: false,
     });
     const page = await browser.newPage();
     page.setViewport({ width: 1280, height: 926 });
@@ -37,17 +38,21 @@ async function autoScroll(page){
     await page.evaluate(async () => {
         await new Promise((resolve, reject) => {
             var totalHeight = 0;
-            var distance = 50;
+            var distance = 5000;
+	    var scrolls = 0;
+	    
             var timer = setInterval(() => {
                 var scrollHeight = document.body.scrollHeight;
                 window.scrollBy(0, distance);
-                totalHeight += distance;
-
-                if(totalHeight >= scrollHeight){
+		totalHeight += distance;
+		scrolls++;
+		
+                // if(totalHeight >= scrollHeight){
+		if ( scrolls > 300 ) {
                     clearInterval(timer);
                     resolve();
                 }
-            }, 500);
+            }, 1000);
         });
     });
 }
