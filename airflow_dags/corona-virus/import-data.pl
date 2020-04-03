@@ -483,7 +483,8 @@ my $place_id_map = {
         '' => 106,
         'Curacao' => 480,
 	'Aruba' => 466,
-	'Sint Maarten' => 534,    
+	'Sint Maarten' => 534,
+	'Bonaire, Sint Eustatius and Saba' => 580,    
     },
     'San Marino' => {
         '' => 107,
@@ -915,6 +916,9 @@ my $place_id_map = {
     },
     'Sierra Leone' => {
         '' => 579,
+    },
+    'Malawi' => {
+        '' => 581,
     },
 };
     
