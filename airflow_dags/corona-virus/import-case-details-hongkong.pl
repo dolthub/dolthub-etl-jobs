@@ -63,7 +63,7 @@ sub extract_data {
     my $found = 1;
     my $i = 1;
     while ( $found ) {
-	my $regex = qr/(#$i\s+\((Confirmed|Probable)\).+?Confirmed date.{17})/s;
+	my $regex = qr/(#$i\s+\((Discharged|Deceased|Hospitalised|Critical|Serious|Pending\sadmission)\).+?Confirmed date.{17})/s;
 	if ( $html_string =~ $regex ) {
 	    print "Found case $i\n";
 	    print $1 . "\n" if $debug;
@@ -111,7 +111,7 @@ sub extract_data {
             }
 
 	    $status = 'In hospital'
-		if ( $snippet =~ /(Hospitalised|Critical|Serious)/ );
+		if ( $snippet =~ /(Hospitalised|Critical|Serious|Pending\sadmission)/ );
 	    $status = 'Recovered' if ( $snippet =~ /Discharged/ );
 	    $status = 'Deceased' if ( $snippet =~ /Deceased/ );
 	    print "Status: $status\n" if $debug;
@@ -125,7 +125,7 @@ sub extract_data {
 	$i++;
     }
 
-    die "Scrape produced no cases\n" unless ( scalar keys %{$data} > 0 );
+    die "Scrape produced no cases\n" unless ( scalar keys %{$data} > 0 ); 
 }
     
 sub import_data {
