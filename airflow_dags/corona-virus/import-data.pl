@@ -139,7 +139,8 @@ my $place_id_map = {
 	# 'Jersey' => 475,
 	'Anguilla' => 573,
 	'British Virgin Islands' => 574,
-	'Turks and Caicos Islands' => 575,    
+	'Turks and Caicos Islands' => 575,
+	'Falkland Islands (Islas Malvinas)' => 582,    
     },
     'US' => {
 	'' => 553,    
