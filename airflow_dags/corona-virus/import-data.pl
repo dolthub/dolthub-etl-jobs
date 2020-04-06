@@ -85,7 +85,8 @@ my $place_id_map = {
 	'Mayotte' => 498,
 	'Reunion' => 399,
 	'New Caledonia' => 524,
-	'Martinique' => 559,   
+	'Martinique' => 559,
+	'Saint Pierre and Miquelon' => 583,
     },
     'Australia' => {
 	'New South Wales' => 41,
@@ -920,6 +921,12 @@ my $place_id_map = {
     },
     'Malawi' => {
         '' => 581,
+    },
+    'South Sudan' => {
+        '' => 584,
+    },
+    'Western Sahara' => {
+        '' => 585,
     },
 };
     
