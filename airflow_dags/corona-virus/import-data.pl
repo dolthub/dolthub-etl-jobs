@@ -928,6 +928,9 @@ my $place_id_map = {
     'Western Sahara' => {
         '' => 585,
     },
+    'Sao Tome and Principe' => {
+        '' => 586,
+    }
 };
     
 # Clone the repository
