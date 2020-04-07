@@ -15,7 +15,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from functools import partial
 from typing import Tuple
-from coin_metrics.dolt_load import get_coin_metrics_loaders
+from coin_metrics.dolt_load import get_loaders as get_coin_metrics_loaders
 
 
 def get_default_args_helper(start_date: datetime):
