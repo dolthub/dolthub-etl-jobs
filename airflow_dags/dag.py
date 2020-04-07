@@ -15,6 +15,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from functools import partial
 from typing import Tuple
+from coin_metrics.dolt_load import get_coin_metrics_loaders
 
 
 def get_default_args_helper(start_date: datetime):
@@ -350,6 +351,20 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     get_five_thirty_eight_nfl_forecasts_loaders
 )
 
+# coin metrics
+def get_coin_metrics_dag():
+    task_id = 'coin_metrics_eod'
+    dag = DAG(task_id,
+              default_args=get_default_args_helper(datetime(2020, 3, 30)),
+              schedule_interval=timedelta(days=1))
+    operator = PythonOperator(task_id=task_id,
+                              python_callable=dolthub_loader,
+                              op_kwargs=get_args_helper(get_coin_metrics_loaders, 'Liquidata/coint-metrics-data'))
+    return dag, operator
+
+
+coint_metrics_dag, coin_metrics_operator = get_coin_metrics_dag()
+
 # Common Crawl Index Summary
 ccis_dag = DAG('common_crawl_index_summary',
                default_args=get_default_args_helper(datetime(2020, 2, 6)),
@@ -378,3 +393,4 @@ stock_tickers_dag = DAG('stock_tickers',
 raw_stock_tickers = BashOperator(task_id='import-data',
                                  bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
                                  dag=stock_tickers_dag)
+
