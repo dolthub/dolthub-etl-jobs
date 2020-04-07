@@ -91,6 +91,14 @@ raw_word_net = BashOperator(task_id='import-data',
                             bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
                             dag=word_net_dag)
 
+# GitHub repos
+github_repos_dag = DAG('github_repos',
+                   default_args=get_default_args_helper(datetime(2020, 3, 5)),
+                   schedule_interval=timedelta(days=1))
+
+raw_github_repos = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -b -p ',
+                                dag=github_repos_dag)
 
 # Code Search Net database
 code_search_net_dag = DAG('code_search_net',
@@ -192,6 +200,48 @@ baseball_databank_dag = DAG('baseball_databank',
 raw_baseball_databank = BashOperator(task_id='import-data',
                                      bash_command='{{conf.get("core", "dags_folder")}}/baseball-databank/import-data.pl ',
                                      dag=baseball_databank_dag)
+
+# US Baby Names
+us_baby_names_dag = DAG('us_baby_names',
+                        default_args=get_default_args_helper(datetime(2020,1,15)),
+                        schedule_interval=timedelta(days=7))
+
+raw_us_baby_names = BashOperator(task_id='import-data',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/us_baby_names/import-data.pl ',
+                                 dag=us_baby_names_dag)
+
+# Corona Virus
+corona_virus_dag = DAG('corona_virus',
+                        default_args=get_default_args_helper(datetime(2020,2,5)),
+                        schedule_interval=timedelta(hours=12))
+
+raw_corona_virus = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-data.pl ',
+                                dag=corona_virus_dag)
+
+corona_virus_details_dag = DAG('corona_virus_details',
+                               default_args=get_default_args_helper(datetime(2020,3,3)),
+	                       schedule_interval=timedelta(hours=1))
+
+singapore_details = BashOperator(task_id='singapore-details',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-singapore.pl ',
+                                 dag=corona_virus_details_dag)
+
+hongkong_details = BashOperator(task_id='hongkong-details',
+                                bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-hongkong.pl ',
+                                dag=corona_virus_details_dag)
+
+southkorea_details = BashOperator(task_id='southkorea-details',
+                                  bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-southkorea.pl ',
+                                  dag=corona_virus_details_dag)
+
+philippines_details = BashOperator(task_id='philippines-details',
+                                   bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-philippines.pl ',
+                                   dag=corona_virus_details_dag)
+
+viro_dot_org_details = BashOperator(task_id='viro-dot-org-details',
+                                    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-viro-dot-org.pl ',
+                                    dag=corona_virus_details_dag)
 
 # Wikipedia word frequency
 WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
@@ -301,7 +351,6 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     get_five_thirty_eight_nfl_forecasts_loaders
 )
 
-
 # coin metrics
 def get_coin_metrics_dag():
     task_id = 'coin_metrics_eod'
@@ -315,3 +364,33 @@ def get_coin_metrics_dag():
 
 
 coint_metrics_dag, coin_metrics_operator = get_coin_metrics_dag()
+
+# Common Crawl Index Summary
+ccis_dag = DAG('common_crawl_index_summary',
+               default_args=get_default_args_helper(datetime(2020, 2, 6)),
+               schedule_interval=timedelta(days=28))
+
+ccis = BashOperator(
+    task_id='common_crawl_index_summary',
+    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
+    dag=ccis_dag
+)
+
+# Open Flights 
+open_flights_dag = DAG('open_flights',
+                       default_args=get_default_args_helper(datetime(2020,3,19)),
+                       schedule_interval=timedelta(days=1))
+
+raw_open_flights = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
+                                dag=open_flights_dag)
+
+# Stock Tickers
+stock_tickers_dag = DAG('stock_tickers',
+                        default_args=get_default_args_helper(datetime(2020,3,26)),
+                        schedule_interval=timedelta(days=1))
+
+raw_stock_tickers = BashOperator(task_id='import-data',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
+                                 dag=stock_tickers_dag)
+

@@ -72,8 +72,11 @@ sub import_csvs {
 	
 	my @primary_keys = determine_pks($table_name, $csv, $pk_override);
 	my $pk_string    = join ',', @primary_keys;
+
+	run_command("dolt schema import -r -pks $pk_string $table_name $csv",
+                    "Could not create schema for $table_name from $csv");
 	
-	run_command("dolt table import -c -f -pk $pk_string $table_name $csv",
+	run_command("dolt table import -r -pk $pk_string $table_name $csv",
 		    "Could not create $table_name from $csv");
     }
 }
