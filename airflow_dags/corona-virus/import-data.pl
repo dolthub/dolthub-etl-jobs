@@ -930,7 +930,10 @@ my $place_id_map = {
     },
     'Sao Tome and Principe' => {
         '' => 586,
-    }
+    },
+    'Yemen' => {
+	'' => 587,
+    },
 };
     
 # Clone the repository
