@@ -34,7 +34,6 @@ my %expected_sense_relation_keys = (
 
 my %expected_synset_keys = (
     'Definition' => 'Definition',
-    'Example' => 'Example',
     'dc:subject' => 'dc_subject',
     'ili' => 'ili',
     'partOfSpeech' => 'partOfSpeech',
@@ -53,45 +52,60 @@ sub import_data {
 
     my $data = XMLin($file);
 
-    my $lemmas          = [];
-    my $senses          = [];
-    my $sense_relations = [];
+    my $lemmas               = [];
+    my $senses               = [];
+    my $sense_relations      = [];
+    my $syntactic_behaviours = [];
+
     my $lexical_entries = $data->{'Lexicon'}{'LexicalEntry'};
 
     process_lexical_entries($lexical_entries,
-			    $lemmas,
-			    $senses,
-			    $sense_relations);
+    			    $lemmas,
+    			    $senses,
+    			    $sense_relations,
+    			    $syntactic_behaviours);
     
     import_table('Lemmas', $lemmas);
     import_table('Senses', $senses);
     import_table('SenseRelations', $sense_relations);
+    import_table('SyntacticBehaviours', $syntactic_behaviours);
 
     my $synsets          = [];
     my $synset_relations = [];
-    my $synsets_in       = $data->{'Lexicon'}{'Synset'};
+    my $synset_examples  = [];
+
+    my $synsets_in = $data->{'Lexicon'}{'Synset'};
 
     process_synsets($synsets_in,
 		    $synsets,
-		    $synset_relations);
+		    $synset_relations,
+		    $synset_examples);
 
     import_table('Synsets', $synsets);
     import_table('SynsetRelations', $synset_relations);
+    import_table('SynsetExamples', $synset_examples);
 }
 
 sub process_lexical_entries {
-    my $lexical_entries = shift;
-    my $lemmas          = shift;
-    my $senses          = shift;
-    my $sense_relations = shift;
+    my $lexical_entries      = shift;
+    my $lemmas               = shift;
+    my $senses               = shift;
+    my $sense_relations      = shift;
+    my $syntactic_behaviours = shift;
 
     foreach my $lemma_id ( keys %{$lexical_entries} ) {
-	# These contain a Lemma and a Sense
+	# These contain a Lemma, one to many Senses, and 0 to many
+	# SyntacticBehavious
+
+	# Lemmas
+	
 	my $lemma_in = $lexical_entries->{$lemma_id}{'Lemma'};
 	my %lemma_out = ( 'LemmaID' => $lemma_id );
 	flatten_entry($lemma_in, \%lemma_out, \%expected_lemma_keys);
 	push @{$lemmas}, \%lemma_out;
 
+	# Senses
+	
 	my $senses_in = $lexical_entries->{$lemma_id}{'Sense'};
 
 	# For a lemma with a single sense id is a key.
@@ -150,13 +164,37 @@ sub process_lexical_entries {
 			  \%expected_sense_keys);
 	    push @{$senses}, \%sense_out;
 	}
+
+	# Syntactic Behaviours
+	my $sbs_in = $lexical_entries->{$lemma_id}{'SyntacticBehaviour'};
+	if ( ref($sbs_in)  eq 'HASH' ) {
+	    $sbs_in = [$sbs_in];
+	}
+
+	# Syntactic Behaviours have dupes so I have to dedupe
+	my $dedupe = {};
+	foreach my $sb_in ( @{$sbs_in} ) {
+	    # Senses come in a space separated list
+	    my @senses = split /\s+/, $sb_in->{'senses'};
+	    foreach my $sense ( @senses ) {
+		my $frame = $sb_in->{'subcategorizationFrame'};
+		next if $dedupe->{$lemma_id}{$sense}{$frame};
+		$dedupe->{$lemma_id}{$sense}{$frame} = 1;
+		    
+		my %sb_out = ( 'LemmaID' => $lemma_id,
+			       'SenseID' => $sense,
+			       'subcategorizationFrame' => $frame );
+		push @{$syntactic_behaviours}, \%sb_out;
+	    }
+	}
     }
 }
 
 sub process_synsets {
     my $synsets_in       = shift;
-    my $synsets         = shift;
+    my $synsets          = shift;
     my $synset_relations = shift;
+    my $synset_examples  = shift;
 
     foreach my $id ( keys %{$synsets_in} ) {
 	my $synset_in  = $synsets_in->{$id};
@@ -179,10 +217,23 @@ sub process_synsets {
 		push @{$synset_relations}, \%synset_relation_out;
 	    }
 	    
-
-	    # Must delete the key so we have a clean entry for the next part
 	    delete $synset_in->{'SynsetRelation'};
 	}
+
+	if ( $synset_in->{'Example'} ) {
+	    my $examples_in = $synset_in->{'Example'};
+	    unless ( ref($examples_in) ) {
+		$examples_in = [ $examples_in ];
+	    }
+
+	    foreach my $example_in ( @{$examples_in} ) {
+		my %example_out = ( 'SynsetID' => $id,
+				    'Example' => $example_in );
+		push @{$synset_examples}, \%example_out;
+	    }
+	    delete $synset_in->{'Example'};
+	}
+	
 	flatten_entry($synsets_in->{$id},
 		      \%synset_out,
 		      \%expected_synset_keys);
