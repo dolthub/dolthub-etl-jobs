@@ -2,6 +2,8 @@
 
 use strict;
 
+use open qw(:std :utf8);
+
 use Data::Dumper;
 use XML::Simple;
 
@@ -10,7 +12,7 @@ use XML::Simple;
 # This script assumes you have downloaded a release from
 # https://github.com/globalwordnet/english-wordnet/releases,
 # unpacked it, and assembled it into a single XML file using merge.py
-my $db_file = 'english-wordnet-3.1/wn31.xml';
+my $db_file = 'english-wordnet-2020-edition/wn.xml';
 
 my $organization = 'Liquidata';
 my $repo         = 'english-wordnet';
@@ -25,6 +27,7 @@ my %expected_sense_keys = (
     'id' => 'SenseID',
     'synset' => 'SynsetID',
     'dc:identifier'  => 'dc_identifier',
+    'adjposition' => 'adjposition',
     );
 
 my %expected_sense_relation_keys = (
@@ -38,6 +41,7 @@ my %expected_synset_keys = (
     'ili' => 'ili',
     'partOfSpeech' => 'partOfSpeech',
     'ILIDefinition' => 'ILIDefinition',
+    'dc:source' => 'dc_source',
     );
 
 my %expected_synset_relation_keys = (
@@ -59,12 +63,14 @@ sub import_data {
 
     my $lexical_entries = $data->{'Lexicon'}{'LexicalEntry'};
 
+    print "Processing LexicalEntry...\n";
     process_lexical_entries($lexical_entries,
     			    $lemmas,
     			    $senses,
     			    $sense_relations,
     			    $syntactic_behaviours);
-    
+
+    print "Importing LeicalEntry tables...\n";
     import_table('Lemmas', $lemmas);
     import_table('Senses', $senses);
     import_table('SenseRelations', $sense_relations);
@@ -76,11 +82,13 @@ sub import_data {
 
     my $synsets_in = $data->{'Lexicon'}{'Synset'};
 
+    print "Processing Synsets...\n";
     process_synsets($synsets_in,
 		    $synsets,
 		    $synset_relations,
 		    $synset_examples);
 
+    print "Importing Synset tables...\n";
     import_table('Synsets', $synsets);
     import_table('SynsetRelations', $synset_relations);
     import_table('SynsetExamples', $synset_examples);
@@ -98,14 +106,12 @@ sub process_lexical_entries {
 	# SyntacticBehavious
 
 	# Lemmas
-	
 	my $lemma_in = $lexical_entries->{$lemma_id}{'Lemma'};
 	my %lemma_out = ( 'LemmaID' => $lemma_id );
 	flatten_entry($lemma_in, \%lemma_out, \%expected_lemma_keys);
 	push @{$lemmas}, \%lemma_out;
 
 	# Senses
-	
 	my $senses_in = $lexical_entries->{$lemma_id}{'Sense'};
 
 	# For a lemma with a single sense id is a key.
@@ -220,12 +226,11 @@ sub process_synsets {
 	    delete $synset_in->{'SynsetRelation'};
 	}
 
-	if ( $synset_in->{'Example'} ) {
-	    my $examples_in = $synset_in->{'Example'};
-	    unless ( ref($examples_in) ) {
+	if ( my $examples_in = $synset_in->{'Example'} ) {
+	    unless ( ref($examples_in) eq 'ARRAY' ) {
 		$examples_in = [ $examples_in ];
 	    }
-
+	    
 	    foreach my $example_in ( @{$examples_in} ) {
 		my %example_out = ( 'SynsetID' => $id,
 				    'Example' => $example_in );
