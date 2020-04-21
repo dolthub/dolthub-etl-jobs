@@ -15,6 +15,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from functools import partial
 from typing import Tuple
+from coin_metrics.dolt_load import get_loaders as get_coin_metrics_loaders
 
 
 def get_default_args_helper(start_date: datetime):
@@ -350,6 +351,20 @@ five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_
     get_five_thirty_eight_nfl_forecasts_loaders
 )
 
+# coin metrics
+def get_coin_metrics_dag():
+    task_id = 'coin_metrics_eod'
+    dag = DAG(task_id,
+              default_args=get_default_args_helper(datetime(2020, 3, 30)),
+              schedule_interval=timedelta(days=1))
+    operator = PythonOperator(task_id=task_id,
+                              python_callable=dolthub_loader,
+                              op_kwargs=get_args_helper(get_coin_metrics_loaders, 'Liquidata/coint-metrics-data'))
+    return dag, operator
+
+
+coint_metrics_dag, coin_metrics_operator = get_coin_metrics_dag()
+
 # Common Crawl Index Summary
 ccis_dag = DAG('common_crawl_index_summary',
                default_args=get_default_args_helper(datetime(2020, 2, 6)),
@@ -361,7 +376,7 @@ ccis = BashOperator(
     dag=ccis_dag
 )
 
-# bad-words
+# Bad Words
 bad_words_dag = DAG(
     'bad-words',
     default_args=get_default_args_helper(datetime(2020, 4, 21)),
@@ -373,3 +388,22 @@ bad_words = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}/bad-words/check_new_commits.sh ',
     dag=bad_words_dag
 )
+
+# Open Flights 
+open_flights_dag = DAG('open_flights',
+                       default_args=get_default_args_helper(datetime(2020,3,19)),
+                       schedule_interval=timedelta(days=1))
+
+raw_open_flights = BashOperator(task_id='import-data',
+                                bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
+                                dag=open_flights_dag)
+
+# Stock Tickers
+stock_tickers_dag = DAG('stock_tickers',
+                        default_args=get_default_args_helper(datetime(2020,3,26)),
+                        schedule_interval=timedelta(days=1))
+
+raw_stock_tickers = BashOperator(task_id='import-data',
+                                 bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
+                                 dag=stock_tickers_dag)
+

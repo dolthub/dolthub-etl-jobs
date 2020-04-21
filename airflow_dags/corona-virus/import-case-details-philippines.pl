@@ -11,11 +11,10 @@ my $json_file = 'phillipines-cases.json';
 
 my $fields = {
     'case_no' => 'case_id',
-    'other_information' => 'case_name',
     'age' => 'age',
     'gender' => 'sex',
     'nationality' => 'nationality',
-    'status' => 'current_status',
+    'other_information' => 'current_status',
     'date' => 'confirmed_date',
 };
 
@@ -73,6 +72,7 @@ sub extract_data {
 	my $case_id = $case_data->{'case_id'} or die "Could not find case id";
 	delete $case_data->{'case_id'};
 	$data->{$case_id} = $case_data;
+
     }
 }
     
@@ -122,11 +122,18 @@ sub publish {
 
     my $datestring = gmtime();
     my $commit_message =
- 	"Automated import of cases and places tables downloaded from $url at $datestring GMT";
+	"Automated import of case_details table downloaded from $url at $datestring GMT";
 
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
 
+    run_command('dolt pull', 'Could not pull latest master');
+
+    if ( `dolt status` =~ /merging/ ) {
+	run_command('dolt commit -m "Merging latest master"',
+		    "dolt commit failed");
+    }
+    
     run_command('dolt push origin master', 'dolt push failed');
 }
 

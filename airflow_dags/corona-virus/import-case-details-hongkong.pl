@@ -63,7 +63,7 @@ sub extract_data {
     my $found = 1;
     my $i = 1;
     while ( $found ) {
-	my $regex = qr/(#$i\s+\((Confirmed|Probable)\).+?Confirmed date.{17})/s;
+	my $regex = qr/(#$i\s+\((Discharged|Deceased|Hospitalised|Critical|Serious|Pending\sadmission)\).+?Confirmed date.{17})/s;
 	if ( $html_string =~ $regex ) {
 	    print "Found case $i\n";
 	    print $1 . "\n" if $debug;
@@ -89,7 +89,9 @@ sub extract_data {
 		$data->{$case_id}{'age'} = $age if $age;
 		$data->{$case_id}{'sex'} = substr($sex,0,1) if $sex;
 	    } else {
-		die "Could not find age or sex for case $case_id";
+		$age = '';
+		$sex = '';
+	        print "Could not find age or sex for case $case_id";
 	    }
 
 	    if ( $snippet =~ /Onset\sdate<\/p><b>(\d{4}-\d{2}-\d{2})<\/b>/ ) {
@@ -109,10 +111,9 @@ sub extract_data {
             }
 
 	    $status = 'In hospital'
-		if ( $snippet =~ /(Hospitalised|Critical|Serious)/ );
+		if ( $snippet =~ /(Hospitalised|Critical|Serious|Pending\sadmission)/ );
 	    $status = 'Recovered' if ( $snippet =~ /Discharged/ );
 	    $status = 'Deceased' if ( $snippet =~ /Deceased/ );
-	    die "No status found" unless $status;
 	    print "Status: $status\n" if $debug;
 	    
 	    $data->{$case_id}{'current_status'} = $status;
@@ -123,6 +124,8 @@ sub extract_data {
 	}
 	$i++;
     }
+
+    die "Scrape produced no cases\n" unless ( scalar keys %{$data} > 0 ); 
 }
     
 sub import_data {
@@ -177,6 +180,13 @@ sub publish {
     run_command('dolt commit -m "' . $commit_message . '"', 
                 "dolt commit failed");
 
+    run_command('dolt pull', 'Could not pull latest master');
+
+    if ( `dolt status` =~ /merging/ ) {
+	run_command('dolt commit -m "Merging latest master"',
+		    "dolt commit failed");
+    }
+    
     run_command('dolt push origin master', 'dolt push failed');
 }
 

@@ -6,7 +6,8 @@ PACKAGE_DIRS = ['local_write_example',
                 'mta',
                 'ip_to_country',
                 'wikipedia',
-                'five_thirty_eight']
+                'five_thirty_eight',
+                'coin_metrics']
 PREFIX = 'liquidata_etl'
 PREFIXED_PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): os.path.join('airflow_dags', package)
                                      for package in PACKAGE_DIRS}
