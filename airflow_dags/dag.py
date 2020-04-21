@@ -360,3 +360,16 @@ ccis = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
     dag=ccis_dag
 )
+
+# bad-words
+bad_words_dag = DAG(
+    'bad-words',
+    default_args=get_default_args_helper(datetime(2020, 4, 21)),
+    schedule_interval=timedelta(days=7)
+)
+
+bad_words = BashOperator(
+    task_id='check_new_commits',
+    bash_command='{{conf.get("core", "dags_folder")}}/bad-words/check_new_commits.sh ',
+    dag=bad_words_dag
+)
