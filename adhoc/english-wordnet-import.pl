@@ -62,8 +62,11 @@ sub import_data {
 			    $lemmas,
 			    $senses,
 			    $sense_relations);
-
     
+    import_table('Lemmas', $lemmas);
+    import_table('Senses', $senses);
+    import_table('SenseRelations', $sense_relations);
+
     my $synsets          = [];
     my $synset_relations = [];
     my $synsets_in       = $data->{'Lexicon'}{'Synset'};
@@ -71,10 +74,7 @@ sub import_data {
     process_synsets($synsets_in,
 		    $synsets,
 		    $synset_relations);
-    
-    import_table('Lemmas', $lemmas);
-    import_table('Senses', $senses);
-    import_table('SenseRelations', $sense_relations);
+
     import_table('Synsets', $synsets);
     import_table('SynsetRelations', $synset_relations);
 }
@@ -88,10 +88,10 @@ sub process_lexical_entries {
     foreach my $lemma_id ( keys %{$lexical_entries} ) {
 	# These contain a Lemma and a Sense
 	my $lemma_in = $lexical_entries->{$lemma_id}{'Lemma'};
-	my $lemma_out = { 'LemmaID' => $lemma_id };
-	flatten_entry($lemma_in, $lemma_out, \%expected_lemma_keys);
-	push @{$lemmas}, $lemma_out;
-	
+	my %lemma_out = ( 'LemmaID' => $lemma_id );
+	flatten_entry($lemma_in, \%lemma_out, \%expected_lemma_keys);
+	push @{$lemmas}, \%lemma_out;
+
 	my $senses_in = $lexical_entries->{$lemma_id}{'Sense'};
 
 	# For a lemma with a single sense id is a key.
@@ -100,12 +100,12 @@ sub process_lexical_entries {
 	if ( $senses_in->{'id'} ) {
 	    $sense_id = $senses_in->{'id'};
 	    delete $senses_in->{'id'};
-	    $senses_in = { $sense_id => $senses_in }
+	    $senses_in = { $sense_id => $senses_in };
 	}
 
 	foreach my $id ( keys %{$senses_in} ) {
 	    my $sense_in  = $senses_in->{$id};
-	    my $sense_out = { 'LemmaID' => $lemma_id, 'SenseID' => $id };
+	    my %sense_out = ( 'LemmaID' => $lemma_id, 'SenseID' => $id );
 
 	    # There can be 0, 1 or many sense relations so we           
 	    # see if there is 1 and insert it into a single element      
@@ -115,13 +115,25 @@ sub process_lexical_entries {
 		if ( ref($sense_relations_in) eq 'HASH' ) {
 		    $sense_relations_in = [$sense_relations_in];
 		}
-	    
+
+		# There are dupes in SenseRelations. Ugh.
+		# Going to dedupe
+		my $dedupe = {};
 		foreach my $sense_relation_in ( @{$sense_relations_in} ){
+
+		    # dedupe
+		    my $synset_id = $sense_in->{'synset'};
+		    my $target    = $sense_relation_in->{'target'};
+		    my $type      = $sense_relation_in->{'relType'};
+		    next if $dedupe->{$synset_id}{$id}{$target}{$type};
+		    $dedupe->{$synset_id}{$id}{$target}{$type} = 1;
+
+		    
 		    # Use a hash to guarantee a new reference every time
-		    my %sense_relation_out = {
-			'SynsetID' => $senses_in->{$id}{'synset'},
+		    my %sense_relation_out = (
+			'SynsetID' => $synset_id,
 			'SenseID'  => $id
-		    };
+		    );
 
 		    flatten_entry($sense_relation_in,
 				  \%sense_relation_out,
@@ -133,10 +145,10 @@ sub process_lexical_entries {
 		# Must delete the key so we have a clean entry
 		delete $sense_in->{'SenseRelation'};
 	    }
-	    flatten_entry($senses_in->{$id},
-			  $sense_out,
+	    flatten_entry($sense_in,
+			  \%sense_out,
 			  \%expected_sense_keys);
-	    push @{$senses}, $sense_out;
+	    push @{$senses}, \%sense_out;
 	}
     }
 }
@@ -148,7 +160,7 @@ sub process_synsets {
 
     foreach my $id ( keys %{$synsets_in} ) {
 	my $synset_in  = $synsets_in->{$id};
-	my $synset_out = { 'SynsetID' => $id };
+	my %synset_out = ( 'SynsetID' => $id );
 
 	# There can be 0, 1 or many synset relations so we           
 	# see if there is 1 and insert it into a single element      
@@ -160,7 +172,7 @@ sub process_synsets {
 	    }
 	    
 	    foreach my $synset_relation_in ( @{$synset_relations_in} ){
-		my %synset_relation_out = { 'SynsetID' => $id };
+		my %synset_relation_out = ( 'SynsetID' => $id );
 		flatten_entry($synset_relation_in,
 			      \%synset_relation_out,
 			      \%expected_synset_relation_keys);
@@ -172,9 +184,9 @@ sub process_synsets {
 	    delete $synset_in->{'SynsetRelation'};
 	}
 	flatten_entry($synsets_in->{$id},
-		      $synset_out,
+		      \%synset_out,
 		      \%expected_synset_keys);
-	push @{$synsets}, $synset_out;
+	push @{$synsets}, \%synset_out;
     }	   
 }
 
@@ -230,11 +242,13 @@ sub import_table {
 sub escape_sql {
     my $string = shift;
 
-    die "Passed undefined string" unless $string; 
+    # die "Passed undefined string" unless $string; 
 
     # Looks like some of the quotes are already escaped
     $string =~ s/\\[^\\"]/\\\\/g;
+    $string =~ s/^"/\\"/g;
     $string =~ s/[^\\"]"/\\"/g;
+    
 
     return $string;
 }
