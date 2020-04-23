@@ -394,3 +394,13 @@ raw_stock_tickers = BashOperator(task_id='import-data',
                                  bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
                                  dag=stock_tickers_dag)
 
+# National Vulnerability Database
+nvd_dag = DAG('national_vulnerability_database',
+               default_args=get_default_args_helper(datetime(2020, 4, 22)),
+               schedule_interval=timedelta(hours=1))
+
+nvd = BashOperator(
+    task_id='national_vulnerability_database',
+    bash_command='{{conf.get("core", "dags_folder")}}/nvd/run.sh ',
+    dag=nvd_dag
+)
