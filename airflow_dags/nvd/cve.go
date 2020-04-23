@@ -1,9 +1,9 @@
 package main
 
 type CVE struct {
-	id 					string
-	description 		string
-	problemType 		string
+	id                  string
+	description         string
+	problemType         string
 	exploitabilityScore string
 	impactScore         string
 	datePublished       string

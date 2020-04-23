@@ -7,7 +7,7 @@ import (
 )
 
 type CVSS2 struct {
-	cveID					   string
+	cveID string
 
 	AcInsufInfo                bool
 	ObtainAllPrivilege         bool
@@ -37,7 +37,7 @@ type CVSS2 struct {
 }
 
 type CVSS3 struct {
-	cveID						  string
+	cveID string
 
 	AttackComplexity              string
 	AttackVector                  string
@@ -73,14 +73,14 @@ type CVSS3 struct {
 
 func NewCVSS2FromCVEItem(item *schema.NVDCVEFeedJSON10DefCVEItem) CVSS2 {
 	cvss2 := CVSS2{
-		cveID:                      item.CVE.CVEDataMeta.ID,
-		AcInsufInfo:                item.Impact.BaseMetricV2.AcInsufInfo,
-		ObtainAllPrivilege:         item.Impact.BaseMetricV2.ObtainAllPrivilege,
-		ObtainOtherPrivilege:       item.Impact.BaseMetricV2.ObtainOtherPrivilege,
-		ObtainUserPrivilege:        item.Impact.BaseMetricV2.ObtainUserPrivilege,
-		Severity:                   item.Impact.BaseMetricV2.Severity,
-		UserInteractionRequired:    item.Impact.BaseMetricV2.UserInteractionRequired,
-		AccessComplexity:           item.Impact.BaseMetricV2.CVSSV2.AccessComplexity,
+		cveID:                   item.CVE.CVEDataMeta.ID,
+		AcInsufInfo:             item.Impact.BaseMetricV2.AcInsufInfo,
+		ObtainAllPrivilege:      item.Impact.BaseMetricV2.ObtainAllPrivilege,
+		ObtainOtherPrivilege:    item.Impact.BaseMetricV2.ObtainOtherPrivilege,
+		ObtainUserPrivilege:     item.Impact.BaseMetricV2.ObtainUserPrivilege,
+		Severity:                item.Impact.BaseMetricV2.Severity,
+		UserInteractionRequired: item.Impact.BaseMetricV2.UserInteractionRequired,
+		AccessComplexity:        item.Impact.BaseMetricV2.CVSSV2.AccessComplexity,
 	}
 	if item.Impact.BaseMetricV2.CVSSV2 != nil {
 		cvss2.AccessVector = item.Impact.BaseMetricV2.CVSSV2.AccessVector
@@ -180,35 +180,35 @@ func NewCVSS3FromCVEItem(item *schema.NVDCVEFeedJSON10DefCVEItem) CVSS3 {
 	return CVSS3{
 		cveID:                         item.CVE.CVEDataMeta.ID,
 		AttackComplexity:              item.Impact.BaseMetricV3.CVSSV3.AttackComplexity,
-		AttackVector:                   item.Impact.BaseMetricV3.CVSSV3.AttackVector,
-		AvailabilityImpact:             item.Impact.BaseMetricV3.CVSSV3.AvailabilityImpact,
-		AvailabilityRequirement:        item.Impact.BaseMetricV3.CVSSV3.AvailabilityRequirement,
-		BaseScore:                      fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.BaseScore),
-		BaseSeverity:                   item.Impact.BaseMetricV3.CVSSV3.BaseSeverity,
-		ConfidentialityImpact:          item.Impact.BaseMetricV3.CVSSV3.ConfidentialityImpact,
-		ConfidentialityRequirement:     item.Impact.BaseMetricV3.CVSSV3.ConfidentialityRequirement,
-		EnvironmentalScore:             fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.EnvironmentalScore),
-		EnvironmentalSeverity:          item.Impact.BaseMetricV3.CVSSV3.EnvironmentalSeverity,
-		ExploitCodeMaturity:            item.Impact.BaseMetricV3.CVSSV3.ExploitCodeMaturity,
-		IntegrityImpact:                item.Impact.BaseMetricV3.CVSSV3.IntegrityImpact,
-		IntegrityRequirement:           item.Impact.BaseMetricV3.CVSSV3.IntegrityRequirement,
-		ModifiedAttackComplexity:       item.Impact.BaseMetricV3.CVSSV3.ModifiedAttackComplexity,
-		ModifiedAttackVector:           item.Impact.BaseMetricV3.CVSSV3.ModifiedAttackVector,
-		ModifiedAvailabilityImpact:     item.Impact.BaseMetricV3.CVSSV3.ModifiedAvailabilityImpact,
-		ModifiedConfidentialityImpact:  item.Impact.BaseMetricV3.CVSSV3.ModifiedConfidentialityImpact,
-		ModifiedIntegrityImpact:        item.Impact.BaseMetricV3.CVSSV3.ModifiedIntegrityImpact,
-		ModifiedPrivilegesRequired:     item.Impact.BaseMetricV3.CVSSV3.ModifiedPrivilegesRequired,
-		ModifiedScope:                  item.Impact.BaseMetricV3.CVSSV3.ModifiedScope,
-		ModifiedUserInteraction:        item.Impact.BaseMetricV3.CVSSV3.ModifiedUserInteraction,
-		PrivilegesRequired:             item.Impact.BaseMetricV3.CVSSV3.PrivilegesRequired,
-		RemediationLevel:               item.Impact.BaseMetricV3.CVSSV3.RemediationLevel,
-		ReportConfidence:               item.Impact.BaseMetricV3.CVSSV3.ReportConfidence,
-		Scope:                          item.Impact.BaseMetricV3.CVSSV3.Scope,
-		TemporalScore:                  fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.TemporalScore),
-		TemporalSeverity:               item.Impact.BaseMetricV3.CVSSV3.TemporalSeverity,
-		UserInteraction:                item.Impact.BaseMetricV3.CVSSV3.UserInteraction,
-		VectorString:                   item.Impact.BaseMetricV3.CVSSV3.VectorString,
-		Version:                        item.Impact.BaseMetricV3.CVSSV3.Version,
+		AttackVector:                  item.Impact.BaseMetricV3.CVSSV3.AttackVector,
+		AvailabilityImpact:            item.Impact.BaseMetricV3.CVSSV3.AvailabilityImpact,
+		AvailabilityRequirement:       item.Impact.BaseMetricV3.CVSSV3.AvailabilityRequirement,
+		BaseScore:                     fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.BaseScore),
+		BaseSeverity:                  item.Impact.BaseMetricV3.CVSSV3.BaseSeverity,
+		ConfidentialityImpact:         item.Impact.BaseMetricV3.CVSSV3.ConfidentialityImpact,
+		ConfidentialityRequirement:    item.Impact.BaseMetricV3.CVSSV3.ConfidentialityRequirement,
+		EnvironmentalScore:            fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.EnvironmentalScore),
+		EnvironmentalSeverity:         item.Impact.BaseMetricV3.CVSSV3.EnvironmentalSeverity,
+		ExploitCodeMaturity:           item.Impact.BaseMetricV3.CVSSV3.ExploitCodeMaturity,
+		IntegrityImpact:               item.Impact.BaseMetricV3.CVSSV3.IntegrityImpact,
+		IntegrityRequirement:          item.Impact.BaseMetricV3.CVSSV3.IntegrityRequirement,
+		ModifiedAttackComplexity:      item.Impact.BaseMetricV3.CVSSV3.ModifiedAttackComplexity,
+		ModifiedAttackVector:          item.Impact.BaseMetricV3.CVSSV3.ModifiedAttackVector,
+		ModifiedAvailabilityImpact:    item.Impact.BaseMetricV3.CVSSV3.ModifiedAvailabilityImpact,
+		ModifiedConfidentialityImpact: item.Impact.BaseMetricV3.CVSSV3.ModifiedConfidentialityImpact,
+		ModifiedIntegrityImpact:       item.Impact.BaseMetricV3.CVSSV3.ModifiedIntegrityImpact,
+		ModifiedPrivilegesRequired:    item.Impact.BaseMetricV3.CVSSV3.ModifiedPrivilegesRequired,
+		ModifiedScope:                 item.Impact.BaseMetricV3.CVSSV3.ModifiedScope,
+		ModifiedUserInteraction:       item.Impact.BaseMetricV3.CVSSV3.ModifiedUserInteraction,
+		PrivilegesRequired:            item.Impact.BaseMetricV3.CVSSV3.PrivilegesRequired,
+		RemediationLevel:              item.Impact.BaseMetricV3.CVSSV3.RemediationLevel,
+		ReportConfidence:              item.Impact.BaseMetricV3.CVSSV3.ReportConfidence,
+		Scope:                         item.Impact.BaseMetricV3.CVSSV3.Scope,
+		TemporalScore:                 fmt.Sprintf("%.2f", item.Impact.BaseMetricV3.CVSSV3.TemporalScore),
+		TemporalSeverity:              item.Impact.BaseMetricV3.CVSSV3.TemporalSeverity,
+		UserInteraction:               item.Impact.BaseMetricV3.CVSSV3.UserInteraction,
+		VectorString:                  item.Impact.BaseMetricV3.CVSSV3.VectorString,
+		Version:                       item.Impact.BaseMetricV3.CVSSV3.Version,
 	}
 }
 

@@ -1,11 +1,11 @@
 package main
 
 type AffectedProduct struct {
-	cveID    		 string
-	vendor   		 string
-	product  		 string
-	versionAffected  string
-	versionValue     string
+	cveID           string
+	vendor          string
+	product         string
+	versionAffected string
+	versionValue    string
 }
 
 func (ap AffectedProduct) headerLine() []string {

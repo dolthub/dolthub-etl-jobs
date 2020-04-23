@@ -22,20 +22,20 @@ const (
 
 	languageEnglish = "en"
 
-	tableCVE = "CVE"
-	tableCVSS2 = "CVSS2"
-	tableCVSS3 = "CVSS3"
-	tableReferences = "references"
+	tableCVE           = "CVE"
+	tableCVSS2         = "CVSS2"
+	tableCVSS3         = "CVSS3"
+	tableReferences    = "references"
 	tableReferenceTags = "reference_tags"
-	tableProducts = "affected_products"
+	tableProducts      = "affected_products"
 )
 
 func main() {
 
 	const (
-		timeout           = 5*time.Minute
-		cvefeed   nvd.CVE = 4
-		cpefeed   nvd.CPE = 0
+		timeout         = 5 * time.Minute
+		cvefeed nvd.CVE = 4
+		cpefeed nvd.CPE = 0
 	)
 
 	dfs := nvd.Sync{
@@ -78,32 +78,38 @@ func main() {
 
 	CveFile, err := os.Create(fmt.Sprintf("%s.csv", tableCVE))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer CveFile.Close()
 	Cvss2File, err := os.Create(fmt.Sprintf("%s.csv", tableCVSS2))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer Cvss2File.Close()
 	Cvss3File, err := os.Create(fmt.Sprintf("%s.csv", tableCVSS3))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer Cvss3File.Close()
 	RefFile, err := os.Create(fmt.Sprintf("%s.csv", tableReferences))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer RefFile.Close()
 	TagFile, err := os.Create(fmt.Sprintf("%s.csv", tableReferenceTags))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer TagFile.Close()
 	ProductFile, err := os.Create(fmt.Sprintf("%s.csv", tableProducts))
 	if err != nil {
-		fmt.Println(err); return
+		fmt.Println(err)
+		return
 	}
 	defer ProductFile.Close()
 
@@ -277,7 +283,6 @@ func NormalizeCVEItems(lang string, tw *TableWriter, feeds ...*schema.NVDCVEFeed
 							return err
 						}
 
-
 						for _, t := range ref.Tags {
 							rt := CVEReferenceTag{refID: referenceID, tag: t}
 							err = tw.TagWr.Write(rt.toStringSlice())
@@ -337,7 +342,6 @@ func NormalizeCVEItems(lang string, tw *TableWriter, feeds ...*schema.NVDCVEFeed
 						}
 					}
 				}
-
 
 				err = tw.CveWr.Write(cve.toStringSlice())
 				if err != nil {
