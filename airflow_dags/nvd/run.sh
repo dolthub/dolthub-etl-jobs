@@ -1,6 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
+workdir=$(pwd)
+root=$(dirname "$0")
+cp "$root/main.go" "$workdir"
+cp "$root/cve.go" "$workdir"
+cp "$root/cvss.go" "$workdir"
+cp "$root/products.go" "$workdir"
+cp "$root/references.go" "$workdir"
+
 go run .
 dolt clone Liquidata/NVD
 mv *.csv NVD/
