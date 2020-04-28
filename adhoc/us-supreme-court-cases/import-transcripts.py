@@ -122,9 +122,6 @@ def convert_dates(data, cols):
                 data[col] = datetime.datetime.strptime(data[col], '%b %d, %Y')
             except ValueError:
                 data[col] = ''
-        else:
-            # Need to put all the multi-column date logic here
-            continue
 
 #
 # Start main
@@ -136,12 +133,14 @@ for file in glob.glob('supreme-court-cases/cases/*/*.js'):
     if ( file == '.js' ): continue
     
     case = {}
-    transcripts = []
     import_case_file(file, case, transcripts)
     convert_dates(case, date_convert)
     
     cases.append(case)    
 
+#
+# Import to Dolt
+#   
 cases_df       = pandas.DataFrame(cases)
 transcripts_df = pandas.DataFrame(transcripts) 
 
