@@ -111,9 +111,6 @@ def import_case_file(path, case, transcripts):
                 normalize(text, text_column_map, transcript_out)
                 transcripts.append(copy.copy(transcript_out))
             
-    
-    
-            
 def convert_dates(data, cols):
     for col in cols:
         if ( col in data and
