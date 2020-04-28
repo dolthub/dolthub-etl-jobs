@@ -91,6 +91,7 @@ def normalize(data, mapper, output):
             else:
                 # Strip unicode
                 if isinstance(data[key], str):
+                    data[key] = re.sub('<!--.*-->', '', data[key])
                     output[mapper[key]] = unidecode.unidecode(data[key])
                 else:
                     output[mapper[key]] = data[key]
@@ -98,11 +99,7 @@ def normalize(data, mapper, output):
 def import_case_file(path, case, transcripts):
     with open(path) as file:
         case_dict = json.load(file)
-    pprint(path)
-    # pprint(case_dict)
-    # case_df = pandas.json_normalize(case_dict)
-    # print(case_df.columns)
-    
+
     normalize(case_dict, case_column_map, case)
 
     transcript_out = { 'case_name': case['case_name'] }
@@ -132,11 +129,6 @@ def convert_dates(data, cols):
             # Need to put all the multi-column date logic here
             continue
 
-def convert_lists(data, cols):
-    for col in cols:
-        if ( col in data and
-             isinstance(data[col], list) ):
-            data[col].join(data[col])
 #
 # Start main
 #
@@ -152,3 +144,15 @@ for file in glob.glob('supreme-court-cases/cases/*/*.js'):
     convert_dates(case, date_convert)
     
     cases.append(case)    
+
+cases_df       = pandas.DataFrame(cases)
+transcripts_df = pandas.DataFrame(transcripts) 
+
+transcripts_pks = ['case_name', 'title', 'speaker', 'start']
+
+repo = Dolt('./')
+repo.import_df('cases', cases_df, ['case_name'], import_mode='replace')
+repo.import_df('transcripts',
+               transcripts_df,
+               transcripts_pks,
+               import_mode='replace')
