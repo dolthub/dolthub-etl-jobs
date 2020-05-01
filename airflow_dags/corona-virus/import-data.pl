@@ -934,6 +934,12 @@ my $place_id_map = {
     'Yemen' => {
 	'' => 587,
     },
+    'Comoros' => {
+	'' => 588,
+    },
+    'Tajikistan' => {
+        '' => 589,
+    },
 };
     
 # Clone the repository
