@@ -19,55 +19,40 @@ table_map = {
     'CareerTotalsAllStarSeason': 'career_totals_allstar',
     'CareerTotalsPostSeason': 'career_totals_post_season',
     'CareerTotalsRegularSeason': 'career_totals_regular_season',
-    'SeasonRankingsPostSeason': 'season_rankings_post_season',
-    'SeasonRankingsRegularSeason': 'season_rankings_regular_season',
+    'SeasonRankingsPostSeason': 'rankings_post_season',
+    'SeasonRankingsRegularSeason': 'rankings_regular_season',
     'SeasonTotalsAllStarSeason': 'season_totals_allstar',
     'SeasonTotalsPostSeason': 'season_totals_post_season',
     'SeasonTotalsRegularSeason': 'season_totals_regular_season'
     }
 
-players_df = pandas.DataFrame(players.get_players())
+repo = Dolt('.')
 
 count = 1
-total = len(players_df.index)
-for player_id in players_df['id']:
+base = 'player-data'
+player_ids = os.listdir(base)
+total = len(player_ids)
+for player_id in player_ids:
     print(f'{count}/{total}: {player_id}')
 
-    dirpath = f'player-data/{player_id}'
-    if not os.path.isdir(dirpath):
-        try:
-            os.mkdir(dirpath)
-        except OSError:
-            print ("Creation of the directory %s failed" % dirpath)
-    
-    career = playercareerstats.PlayerCareerStats(player_id=player_id)
-    stats_dicts = career.get_dict()
+    for csvfile in os.listdir(f'{base}/{player_id}'):
+        table_lookup = csvfile.split('.')[0]
+        table_name = table_map.get(table_lookup)
 
-    write_header = 1;
-    for stats_dict in stats_dicts['resultSets']:
-        table_name = stats_dict['name']                                       
-        filepath = f'player-data/{player_id}/{table_name}.csv'
+        if not table_name: continue
 
-        columns = [x.lower() for x in stats_dict['headers']]
-        if write_header:
-            with open(filepath, 'w', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile)
-                csvwriter.writerow(columns)
-                write_header = 0
+        csvpath = f'{base}/{player_id}/{csvfile}'
 
-        
-        with open(filepath, 'a', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            for row in stats_dict['rowSet']:
-                cleanrow = []
-                for stat in row:
-                    if isinstance(stat, str) and stat == 'NR':
-                        stat = ''
-                    cleanrow.append(stat)
-                        
-                csvwriter.writerow(cleanrow)
-                    
-        write_header = 1
-    
+        with open(csvpath, newline='') as csvhandle:
+            csvreader = csv.reader(csvhandle)
+
+            header = next(csvreader)
+
+            pks = [col for col in header if '_id' in col]
+
+            repo.bulk_import(table_name,
+                             open(csvpath),
+                             pks,
+                             'update')
     count += 1
-    time.sleep(random.random()*30)
+

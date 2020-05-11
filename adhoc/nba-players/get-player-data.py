@@ -15,17 +15,6 @@ from nba_api.stats.static import players
 
 from nba_api.stats.endpoints import playercareerstats
 
-table_map = {
-    'CareerTotalsAllStarSeason': 'career_totals_allstar',
-    'CareerTotalsPostSeason': 'career_totals_post_season',
-    'CareerTotalsRegularSeason': 'career_totals_regular_season',
-    'SeasonRankingsPostSeason': 'season_rankings_post_season',
-    'SeasonRankingsRegularSeason': 'season_rankings_regular_season',
-    'SeasonTotalsAllStarSeason': 'season_totals_allstar',
-    'SeasonTotalsPostSeason': 'season_totals_post_season',
-    'SeasonTotalsRegularSeason': 'season_totals_regular_season'
-    }
-
 players_df = pandas.DataFrame(players.get_players())
 
 count = 1
