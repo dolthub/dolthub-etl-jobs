@@ -49,12 +49,20 @@ outcsvfile = 'dolt-import.csv'
 
 tmpdir = '.'
 
-repo = clone_repo('Liquidata/covid-stimulus-watch', '.')
+org = 'Liquidata'
+repo_name = 'covid-stimulus-watch'
 
+target = f'{org}/{repo_name}'
+
+print(f'Cloning {target}')
+repo = clone_repo(target, '.')
+
+print(f'Reading {url}')
 with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhandle:
     csvreader = csv.reader(io.StringIO(response.read().decode('utf-8')))
     csvwriter = csv.writer(outcsvhandle)
 
+    print('Converting to Dolt format')
     header = next(csvreader)
 
     header_out = [column_map.get(col) for col in header]
@@ -72,11 +80,13 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
         
         csvwriter.writerow(row)
 
+print('Importing to Dolt')
 repo.bulk_import('recipients', open(outcsvfile), pks, 'replace')
 
 if repo.repo_is_clean:
     print('No changes to repo. Exiting')
 else:
+    print('Commiting and pushing to DoltHub')
     repo.add_table_to_next_commit('recipients')
 
     now = datetime.datetime.now()
