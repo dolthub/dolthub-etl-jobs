@@ -417,3 +417,14 @@ nvd = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}nvd/run.sh ',
     dag=nvd_dag
 )
+
+# COVID Stimulus Watch
+covid_stimulus_watch_dag = DAG('covid_stimulus_watch',
+               default_args=get_default_args_helper(datetime(2020, 5, 13)),
+               schedule_interval=timedelta(days=1))
+
+covid_stimulus_watch = BashOperator(
+    task_id='import-csv',
+    bash_command='{{conf.get("core", "dags_folder")}}/covid_stimulus_watch/import-csv.py ',
+    dag=covid_stimulus_watch_dag
+)
