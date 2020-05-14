@@ -116,7 +116,6 @@ my $place_id_map = {
 	'Northwest Territories' => 539,
 	'Nova Scotia' => 501,
 	'Diamond Princess' => 561,
-	'Recovered' => 569,
 	'Yukon' => 571,    
     },
     'Italy' => {
