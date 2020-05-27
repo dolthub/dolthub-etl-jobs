@@ -45,6 +45,7 @@ var IndexFetchers []index.S3Fetcher = []index.S3Fetcher{
 	index.S3Fetcher{Client: nil, Bucket: "commoncrawl", Prefix: "cc-index/collections/CC-MAIN-2019-51/indexes/"}, // 23
 	index.S3Fetcher{Client: nil, Bucket: "commoncrawl", Prefix: "cc-index/collections/CC-MAIN-2020-05/indexes/"}, // 24
 	index.S3Fetcher{Client: nil, Bucket: "commoncrawl", Prefix: "cc-index/collections/CC-MAIN-2020-10/indexes/"}, // 25
+	index.S3Fetcher{Client: nil, Bucket: "commoncrawl", Prefix: "cc-index/collections/CC-MAIN-2020-16/indexes/"}, // 26
 }
 
 func DomainToWebsite(domain string) Website {
