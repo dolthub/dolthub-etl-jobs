@@ -36,7 +36,7 @@ column_map = {
     'Parent Government-contracting-related Penalties Since 2010': 'parent_gov_contract_penalties_since_2010',
     'Parent Environmental / Healthcare / Safety Penalties Since 2010': 'parent_env_health_safety_penalties_since_2010',
     'Parent Consumer Protection / Financial / Competition-related Penaties Since 2010': 'parent_consumer_protect_financial_competition_penalties_since_2010',
-    'Parent Ratio of CEO Pay to that of Average Worker': 'parent_ratio_ceo_pay_avg_worker',
+    'Parent Ratio of CEO Pay to that of Median Worker': 'parent_ratio_ceo_pay_avg_worker',
     'CEO Pay': 'ceo_pay',
     'Median Worker Pay': 'median_worker_pay',
     'Parent TARP Loans Received During Financial Crisis': 'parent_tarp_loans'
@@ -65,8 +65,13 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
     print('Converting to Dolt format')
     header = next(csvreader)
 
-    header_out = [column_map.get(col) for col in header]
-
+    header_out = []
+    for col in header:
+        if column_map.get(col):
+            header_out.append(column_map.get(col))
+        else:
+            raise Exception(f'{col} not found in column map')
+        
     csvwriter.writerow(header_out)
     
     for row in csvreader:
@@ -77,7 +82,7 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
         # Convert dates
         award_date = datetime.datetime.strptime(row[2], '%Y%m%d')
         row[2] = award_date.date()
-        
+
         csvwriter.writerow(row)
 
 print('Importing to Dolt')
