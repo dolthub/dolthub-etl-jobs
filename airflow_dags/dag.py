@@ -428,3 +428,14 @@ covid_stimulus_watch = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}/covid_stimulus_watch/import-csv.py ',
     dag=covid_stimulus_watch_dag
 )
+
+# Terms and Privacy Policies for interesting online services
+online_services_dag = DAG('online_services',
+                          default_args=get_default_args_helper(datetime(2020, 5, 28)),
+                          schedule_interval=timedelta(days=7))
+
+online_services_task = BashOperator(
+    task_id='scrape-docs',
+    bash_command='{{conf.get("core", "dags_folder")}}/online_services/scrape-documents.py ',
+    dag=online_services_dag
+)
