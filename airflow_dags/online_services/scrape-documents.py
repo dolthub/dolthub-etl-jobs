@@ -5,7 +5,7 @@ import shutil
 from doltpy.core import Dolt, clone_repo
 from subprocess import Popen, PIPE
 
-CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+CHROME_PATH = 'Google Chrome'
 
 def scrape_document(url):
     headless_chrome = [CHROME_PATH,
