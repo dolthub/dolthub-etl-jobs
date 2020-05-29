@@ -7,6 +7,7 @@ from doltpy.core import Dolt, clone_repo
 from subprocess import Popen, PIPE
 
 sys.path.append('/Applications/Google\ Chrome.app/Contents/MacOS/')
+sys.path.append('/usr/bin/google-chrome-stable')
 CHROME = 'Google Chrome'
 
 def scrape_document(url):
