@@ -1,14 +1,16 @@
 #!/usr/local/bin/python3
 
 import shutil
+import sys
 
 from doltpy.core import Dolt, clone_repo
 from subprocess import Popen, PIPE
 
-CHROME_PATH = 'Google Chrome'
+sys.path.append('/Applications/Google\ Chrome.app/Contents/MacOS/')
+CHROME = 'Google Chrome'
 
 def scrape_document(url):
-    headless_chrome = [CHROME_PATH,
+    headless_chrome = [CHROME,
                        '--headless',
                        '--disable-gpu',
                        '--dump-dom',
