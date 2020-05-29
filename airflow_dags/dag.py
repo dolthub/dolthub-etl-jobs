@@ -414,7 +414,7 @@ nvd_dag = DAG('national_vulnerability_database',
 
 nvd = BashOperator(
     task_id='national_vulnerability_database',
-    bash_command='{{conf.get("core", "dags_folder")}}nvd/run.sh ',
+    bash_command='{{conf.get("core", "dags_folder")}}/nvd/run.sh ',
     dag=nvd_dag
 )
 
