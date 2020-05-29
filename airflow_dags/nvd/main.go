@@ -34,7 +34,7 @@ func main() {
 
 	if len(os.Args) != 2 {
 		fmt.Println("usage: go run main.go <workdir>")
-		return 1
+		return
 	}
 	workdir := os.Args[1]
 
