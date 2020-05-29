@@ -6,9 +6,10 @@ import sys
 from doltpy.core import Dolt, clone_repo
 from subprocess import Popen, PIPE
 
-sys.path.append('/Applications/Google\ Chrome.app/Contents/MacOS/')
-sys.path.append('/usr/bin/google-chrome-stable')
-CHROME = 'Google Chrome'
+# Uncomment to test locally on a Mac
+# sys.path.append('/Applications/Google\ Chrome.app/Contents/MacOS/')
+# CHROME = 'Google Chrome'
+CHROME = '/usr/bin/google-chrome-stable'
 
 def scrape_document(url):
     headless_chrome = [CHROME,
