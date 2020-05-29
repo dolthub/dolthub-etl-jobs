@@ -9,6 +9,7 @@ cp "$root/cvss.go" "$workdir"
 cp "$root/products.go" "$workdir"
 cp "$root/references.go" "$workdir"
 
+go get ./...
 go run .
 dolt clone Liquidata/NVD
 mv *.csv NVD/
