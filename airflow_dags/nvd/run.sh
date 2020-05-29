@@ -4,7 +4,6 @@ set -eo pipefail
 workdir=$(pwd)
 root=$(dirname "$0")
 cd "$root"
-go get -u ./...
 go run . "$workdir"
 cd "$workdir"
 dolt clone Liquidata/NVD
