@@ -32,6 +32,12 @@ const (
 
 func main() {
 
+	if len(os.Args) != 2 {
+		fmt.Println("usage: go run main.go <workdir>")
+		return 1
+	}
+	workdir := os.Args[1]
+
 	const (
 		timeout         = 5 * time.Minute
 		cvefeed nvd.CVE = 4
@@ -76,37 +82,37 @@ func main() {
 		//break
 	}
 
-	CveFile, err := os.Create(fmt.Sprintf("%s.csv", tableCVE))
+	CveFile, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableCVE))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer CveFile.Close()
-	Cvss2File, err := os.Create(fmt.Sprintf("%s.csv", tableCVSS2))
+	Cvss2File, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableCVSS2))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer Cvss2File.Close()
-	Cvss3File, err := os.Create(fmt.Sprintf("%s.csv", tableCVSS3))
+	Cvss3File, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableCVSS3))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer Cvss3File.Close()
-	RefFile, err := os.Create(fmt.Sprintf("%s.csv", tableReferences))
+	RefFile, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableReferences))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer RefFile.Close()
-	TagFile, err := os.Create(fmt.Sprintf("%s.csv", tableReferenceTags))
+	TagFile, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableReferenceTags))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer TagFile.Close()
-	ProductFile, err := os.Create(fmt.Sprintf("%s.csv", tableProducts))
+	ProductFile, err := os.Create(fmt.Sprintf("%s/%s.csv", workdir, tableProducts))
 	if err != nil {
 		fmt.Println(err)
 		return

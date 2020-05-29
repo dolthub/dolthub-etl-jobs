@@ -3,14 +3,10 @@ set -eo pipefail
 
 workdir=$(pwd)
 root=$(dirname "$0")
-cp "$root/main.go" "$workdir"
-cp "$root/cve.go" "$workdir"
-cp "$root/cvss.go" "$workdir"
-cp "$root/products.go" "$workdir"
-cp "$root/references.go" "$workdir"
-
-go get ./...
-go run .
+cd "$root"
+go get -u ./...
+go run . "$workdir"
+cd "$workdir"
 dolt clone Liquidata/NVD
 mv *.csv NVD/
 cd NVD
