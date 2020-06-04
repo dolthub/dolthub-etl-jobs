@@ -73,7 +73,8 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
             raise Exception(f'{col} not found in column map')
         
     csvwriter.writerow(header_out)
-    
+
+    duplicates = {}
     for row in csvreader:
         # Convert dollars into numbers 
         row = [val.replace('$', '') for val in row]
@@ -83,6 +84,24 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
         award_date = datetime.datetime.strptime(row[2], '%Y%m%d')
         row[2] = award_date.date()
 
+        # Remove duplicate rows
+        company = row[0]
+        parent = row[1]
+        grant = row[4]
+        loan = row[5]
+
+        if duplicates.get(company, {}).get(parent, {}).get(grant, {}).get(loan):
+            continue
+        else:
+            duplicates[company] = {}
+            duplicates[company][parent]= {}
+            duplicates[company][parent][grant] = {}
+            duplicates[company][parent][grant][loan] = 1
+
+        # Insert parent comapny as company if parent does not exist
+        if not parent:
+            row[1]=row[0]
+            
         csvwriter.writerow(row)
 
 print('Importing to Dolt')
