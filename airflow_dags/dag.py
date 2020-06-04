@@ -439,3 +439,14 @@ online_services_task = BashOperator(
     bash_command='{{conf.get("core", "dags_folder")}}/online_services/scrape-documents.py ',
     dag=online_services_dag
 )
+
+# US Census Response Rates
+us_census_response_rates_dag = DAG('us_census_response_rates',
+               default_args=get_default_args_helper(datetime(2020, 5, 13)),
+               schedule_interval=timedelta(days=1))
+
+us_census_response_rates = BashOperator(
+    task_id='daily-import',
+    bash_command='{{conf.get("core", "dags_folder")}}/us_census_response_rates/daily-csv-import.py ',
+    dag=us_census_response_rates_dag
+)
