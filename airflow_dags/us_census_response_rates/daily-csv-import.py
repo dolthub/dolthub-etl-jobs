@@ -112,6 +112,6 @@ else:
     repo.add('.')
 
     now = datetime.datetime.now()
-    print(f'Latest data downloaded from {url} at {now}')
-    repo.commit(f'Latest data downloaded from {url} at {now}')
+    print(f'Latest data downloaded from {data_url} at {now}')
+    repo.commit(f'Latest data downloaded from {data_url} at {now}')
     repo.push('origin', 'master')
