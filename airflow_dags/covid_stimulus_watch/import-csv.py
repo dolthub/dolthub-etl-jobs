@@ -5,7 +5,8 @@ import datetime
 import urllib.request
 import io
 
-from doltpy.core import Dolt, clone_repo
+from doltpy.core import Dolt
+from doltpy.core.write import bulk_import
 
 column_map = {
     'Recipient Company': 'recipient_company',
@@ -55,7 +56,7 @@ repo_name = 'covid-stimulus-watch'
 target = f'{org}/{repo_name}'
 
 print(f'Cloning {target}')
-repo = clone_repo(target, '.')
+repo = Dolt.clone(target, '.')
 
 print(f'Reading {url}')
 with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhandle:
@@ -105,13 +106,13 @@ with urllib.request.urlopen(url) as response, open(outcsvfile, "w") as outcsvhan
         csvwriter.writerow(row)
 
 print('Importing to Dolt')
-repo.bulk_import('recipients', open(outcsvfile), pks, 'replace')
+bulk_import(repo, 'recipients', open(outcsvfile), pks, 'replace')
 
-if repo.repo_is_clean:
+if repo.status().is_clean:
     print('No changes to repo. Exiting')
 else:
     print('Commiting and pushing to DoltHub')
-    repo.add_table_to_next_commit('recipients')
+    repo.add('recipients')
 
     now = datetime.datetime.now()
     print(f'Latest data downloaded from {url} at {now}')
