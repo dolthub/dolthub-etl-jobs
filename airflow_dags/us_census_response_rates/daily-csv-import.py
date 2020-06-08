@@ -5,7 +5,8 @@ import datetime
 import urllib.request
 import io
 
-from doltpy.core import Dolt, clone_repo
+from doltpy.core import Dolt
+from doltpy.core.write import bulk_import
 
 geo_column_map = {
     'GEO_ID': 'geo_id',
@@ -50,7 +51,7 @@ repo_name = 'us-census-response-rates'
 target = f'{org}/{repo_name}'
 
 print(f'Cloning {target}')
-repo = clone_repo(target, '.')
+repo = Dolt.clone(target, '.')
 
 # Import GEO mapping table
 outcsvfile = 'geo.csv'
@@ -74,7 +75,7 @@ with urllib.request.urlopen(geo_url) as response, open(outcsvfile, "w") as outcs
         csvwriter.writerow(row)
 
     print('Importing to Dolt')
-    repo.bulk_import('geos', open(outcsvfile), ['geo_id'], 'replace')
+    bulk_import(repo, 'geos', open(outcsvfile), ['geo_id'], 'replace')
     
 outcsvfile = 'data.csv'
 print(f'Reading {data_url}')
@@ -102,13 +103,13 @@ with urllib.request.urlopen(data_url) as response, open(outcsvfile, "w") as outc
         csvwriter.writerow(row)
 
 
-    repo.bulk_import('responses', open(outcsvfile), pks, 'replace')
+    bulk_import(repo, 'responses', open(outcsvfile), pks, 'replace')
 
-if repo.repo_is_clean:
+if repo.status().is_clean:
     print('No changes to repo. Exiting')
 else:
     print('Commiting and pushing to DoltHub')
-    repo.add_table_to_next_commit('recipients')
+    repo.add('.')
 
     now = datetime.datetime.now()
     print(f'Latest data downloaded from {url} at {now}')
