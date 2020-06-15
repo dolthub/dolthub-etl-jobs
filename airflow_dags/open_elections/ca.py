@@ -1,4 +1,4 @@
-from airflow_dags.open_elections.tools import StateMetadata, load_to_dolt
+from airflow_dags.open_elections.load_by_state import StateMetadata, load_to_dolt
 import argparse
 
 PRECINCT_VOTES_CREATE = '''
