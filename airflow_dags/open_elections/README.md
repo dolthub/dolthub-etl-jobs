@@ -81,43 +81,29 @@ VOTE_COUNT_COLS = ['votes',
                    'provisional']
 ```
 
-We can then pass this module to the `load_by_state.py` script as follows:
+We now step through how to create this file, and then running it through the loader.
+
+### Get State Data
+Go to Open Elections [GitHub](https://github.com/openelections) page and select a whose data you would like to extract, the example above is from [California](https://github.com/openelections/openelections-data-ca). Clone it.
+
+Go to DoltHub and clone Open Elections [repository](https://www.dolthub.com/repositories/open-elections/elections-poc).
+
+### Extract State Schema
+The first thing to do is extract a schema by running the `load_by_state.py` script as follows:
 ```
-$ cd liquidata-etl-jobs && export PYTHONPATH=.
-$ python airflow_dags/open_elections/tools.py --base-dir path/to/openelections-data-ca --dolt-dir path/to/open-elections --state-module airflow_dags.open_elections.ca --load-precinct-votes --load-elections --load-county-votes
+$  python airflow_dags/open_elections/load_by_state.py --state ca --base-dir path/to/open-elections/openelections-data-ca --show-columns
 ```
 
-This will grab all the CSVs in the repository, extract metadata from the file paths, and then create Python data structures representing the tables. It may be necessary to tweak the script to account for oddities in a given state's data. For example the following code is used to fix types:
-```python
-if key in ('election_id', 'state', 'year', 'date', 'election', 'special', 'election'):
-    # We injected these columns so we don't need to worry about the type
-    pass
-elif key in ('candidate', 'precinct', 'county', 'party'):
-    if value is None or pd.isna(value):
-        dic[key] = DEFAULT_PK_VALUE
-elif key == 'election_id':
-    pass
-elif key == 'polling':
-    if pd.isna(value):
-        dic[key] = None
-elif key in vote_count_cols:
-    if type(value) == str:
-        if value in ('X', '-', '', 'S'):
-            dic[key] = None
-        else:
-            dic[key] = int(value.replace(',', ''))
-    elif pd.isna(value):
-        dic[key] = None
-    elif type(value) == int:
-        pass
-    elif type(value) == float:
-        dic[key] = int(value)
-    else:
-        raise ValueError('Value {} is not valid or vote ("{}") column'.format(value, key))
-elif key == 'polling':
-    pass
-else:
-    raise ValueError('Encountered unknown column {}'.format(key))
-```
+`path/to/open-elections/openelections-data-ca` is the directory we just cloned. This script will traverse the repository grabbing CSVs, turn them into DataFrames and state specific column names. Be aware of misnamed columns, for example New York has `vote` and `votes` columns, but we want to `votes`. `ny.py` contains a transformer that fixes this.
 
-You should add special cases as they arise to get the loader working. 
+### Implement Rules
+Implement a list of functions that map a `pd.DataFrame` to a `pd.DataFrame` that encode data clean up rules and will be run on the data before it is loaded.
+
+### Create Tables
+Write a state specific SQL file, see `schema_definitions/ca.sql` for example, containing a create statement for the extracted data. Run it against the Dolt repo.
+
+### Execute the Load
+You now have created a schema for the votes for your state in your Dolt repo, a module with the required information from the schema in Python, and some rules for cleaning the data. Time to load it:
+```
+$  python airflow_dags/open_elections/load_by_state.py --state ca --base-dir path/to/open-elections/openelections-data-ca --dolt-dir path/to/open-elections --state-module airflow_dags.open_elections.ca --load-elections --load-precinct-votes --load-county-votes
+```

@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import pandas as pd
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Callable
 import re
 import argparse
 from doltpy.core import Dolt
@@ -9,6 +9,7 @@ from doltpy.core.write import import_list
 from doltpy.etl.loaders import insert_unique_key
 import logging
 import importlib
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +41,51 @@ ELECTIONS_RAW_COLS = [
 DEFAULT_PK_VALUE = 'NA'
 
 
+def ensure_election_pk_not_null(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sometimes district and office are not set, breaking a write, we set them to a default value.
+    :param df:
+    :return:
+    """
+    def mapper(value: Any):
+        if pd.isna(value):
+            return DEFAULT_PK_VALUE
+        elif type(value) in (float, int):
+            return str(int(value))
+        elif type(value) == str:
+            return value
+        else:
+            raise ValueError('The value {} is not valid for district column'.format(value))
+
+    if 'district' in df:
+        return df.assign(district=df['district'].map(mapper), office=df['office'].map(mapper))
+
+    else:
+        return df
+
+
+def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Some columns have erroneous capitalization and trailing spaces, we remove those.
+    :param df:
+    :return:
+    """
+    temp = df.copy()
+
+    for column in temp.columns:
+        if column.startswith('Unnamed'):
+            temp = temp.drop([column], axis=1)
+
+    return temp.rename(columns={col: col.rstrip().lower() for col in temp.columns})
+
+
 class VoteFile:
 
     DATE_POS = 0
     STATE_POS = 1
     ELECTION_POS = 2
+
+    DEFAULT_TRANSFORMERS = [clean_column_names, ensure_election_pk_not_null]
 
     def __init__(self,
                  path: str,
@@ -53,7 +94,8 @@ class VoteFile:
                  date: datetime,
                  election: str,
                  is_special: bool,
-                 voter_count_cols: List[str]):
+                 voter_count_cols: List[str],
+                 df_transformers: List[Callable[[pd.DataFrame], pd.DataFrame]]):
         self.path = path
         self.date = date
         self.state = state
@@ -61,49 +103,28 @@ class VoteFile:
         self.year = year
         self.is_special = is_special
         self.voter_count_cols = voter_count_cols
+        self.df_transformers = self.DEFAULT_TRANSFORMERS + df_transformers
 
     def to_enriched_df(self) -> pd.DataFrame:
-        print('Parsing file {}'.format(self.path))
-        df = pd.read_csv(self.path)
-        clean_df = self._clean_df(df)
-        deduplicated = clean_df.drop_duplicates(keep='first')
+        logger.info('Parsing file {}'.format(self.path))
+        try:
+            df = pd.read_csv(self.path)
+        except (pd.errors.ParserError, UnicodeDecodeError) as e:
+            logger.error(str(e))
+            return pd.DataFrame()
+        deduplicated = df.drop_duplicates(keep='first')
         enriched_df = deduplicated.assign(state=self.state.upper(),
                                           year=self.year,
                                           date=self.date,
                                           election=self.election,
                                           special=self.is_special)
-        return enriched_df
 
-    @classmethod
-    def _clean_df(cls, df: pd.DataFrame) -> pd.DataFrame:
-        # Takes care of a number of issues:
-        #   - spaces appearing at the end of column names
-        #   - remove columns named "Unnamed : #" that come from empty CSV headers (normally from including index row)
-        #   - downcase Reg_voters column name
-        temp = df.copy()
+        temp = enriched_df.copy()
+        if self.df_transformers:
+            for transformer in self.df_transformers:
+                temp = transformer(temp)
 
-        for column in temp.columns:
-            if column.startswith('Unnamed'):
-                temp = temp.drop([column], axis=1)
-
-        clean_cols = {col: col.rstrip().lower() for col in temp.columns}
-        clean_cols_df = temp.rename(columns=clean_cols)
-
-        # Clean up the district column so it can be used for joins
-        def mapper(value: Any):
-            if pd.isna(value):
-                return DEFAULT_PK_VALUE
-            elif type(value) in (float, int):
-                return str(int(value))
-            elif type(value) == str:
-                return value
-            else:
-                raise ValueError('The value {} is not valid for district column'.format(value))
-
-        district_cleaned = clean_cols_df.assign(district=clean_cols_df['district'].map(mapper),
-                                                office=clean_cols_df['office'].map(mapper))
-
-        return district_cleaned
+        return temp
 
 
 class PrecinctFile(VoteFile):
@@ -125,12 +146,16 @@ class StateMetadata:
                  state: str,
                  vote_count_cols: List[str],
                  county_pks: List[str],
-                 precinct_pks: List[str]):
+                 precinct_pks: List[str],
+                 df_transformers: List[Callable[[pd.DataFrame], pd.DataFrame]] = None,
+                 row_cleaners: Callable[[dict], dict] = None):
         self.source_dir = source_dir
         self.state = state
         self.vote_count_cols = vote_count_cols
         self.county_pks = county_pks
         self.precinct_pks = precinct_pks
+        self.df_transformers = df_transformers
+        self.row_cleaners = row_cleaners
 
 
 def load_to_dolt(dolt_dir: str,
@@ -146,38 +171,63 @@ def load_to_dolt(dolt_dir: str,
         logger.info('Loading election data to "elections" in Dolt repo in {}'.format(dolt_dir))
         import_list(repo, 'elections', all_elections, import_mode='update')
     if load_precinct_votes:
-        logger.info('Loading election data to "{}_precinct_votes" in Dolt repo in {}'.format(state_metadata.state,
-                                                                                             dolt_dir))
+        logger.info('Loading voting data to "{}_precinct_votes" in Dolt repo in {}'.format(state_metadata.state,
+                                                                                           dolt_dir))
         import_list(repo,
                     '{}_precinct_votes'.format(state_metadata.state),
                     all_precinct_votes,
                     import_mode='update',
                     chunk_size=100000)
     if load_county_votes:
-        logger.info('Loading election data to "{}_county_votes" in Dolt repo in {}'.format(state_metadata.state,
-                                                                                           dolt_dir))
+        logger.info('Loading voteing data to "{}_county_votes" in Dolt repo in {}'.format(state_metadata.state,
+                                                                                          dolt_dir))
         import_list(repo, '{}_county_votes'.format(state_metadata.state), all_county_votes, import_mode='update')
 
 
-def parse_for_state(state_metadata: StateMetadata) -> Tuple[List[dict], List[dict], List[dict]]:
-    precinct_vote_objs, county_votes_objs = build_file_objects(state_metadata)
+def print_columns(state_metadata: StateMetadata):
+    all_county_data, all_precinct_data = build_state_dataframes(state_metadata)
 
-    logger.info('Combining DataFrame objects from individual files in directory {}'.format(state_metadata.source_dir))
-    all_precinct_data = pd.concat([precinct_vote_obj.to_enriched_df() for precinct_vote_obj in precinct_vote_objs])
-    all_county_data = pd.concat([county_votes_obj.to_enriched_df() for county_votes_obj in county_votes_objs])
+    logger.info('Printing datatypes for state {} in directory {}'.format(state_metadata.state,
+                                                                         state_metadata.source_dir))
+    output = '''
+    Columns for county:
+        {}
+    Columns for precinct:
+        {}
+    '''.format(all_county_data.columns, all_precinct_data.columns).lstrip()
+
+    logger.info(output)
+
+
+def parse_for_state(state_metadata: StateMetadata) -> Tuple[List[dict], List[dict], List[dict]]:
+    all_county_data, all_precinct_data = build_state_dataframes(state_metadata)
 
     logger.info('Extracting election and vote tables from county data')
     all_county_elections, all_county_votes = extract_tables(all_county_data, state_metadata, False)
     logger.info('Extracting election and vote tables from precinct data')
     all_precinct_elections, all_precinct_votes = extract_tables(all_precinct_data, state_metadata, True)
 
-    logger.info('Deduplicating election for statewide election table')
+    logger.info('De-duplicating election for statewide election table')
     all_elections = deduplicate_elections(all_county_elections, all_precinct_elections)
 
     return all_elections, all_precinct_votes, all_county_votes
 
 
-def build_vote_file_object(year: int, path: str, file_name: str, vote_count_cols: List[str]):
+def build_state_dataframes(state_metadata: StateMetadata) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    precinct_vote_objs, county_votes_objs = build_file_objects(state_metadata)
+
+    logger.info('Combining DataFrame objects from individual files in directory {}'.format(state_metadata.source_dir))
+    all_precinct_data = pd.concat([precinct_vote_obj.to_enriched_df() for precinct_vote_obj in precinct_vote_objs])
+    all_county_data = pd.concat([county_votes_obj.to_enriched_df() for county_votes_obj in county_votes_objs])
+
+    return all_county_data, all_precinct_data
+
+
+def build_vote_file_object(year: int,
+                           path: str,
+                           file_name: str,
+                           vote_count_cols: List[str],
+                           df_transformers: List[Callable[[pd.DataFrame], pd.DataFrame]]):
     split = file_name.split('.')[0].split('__')
 
     special = 'special' in split
@@ -212,7 +262,8 @@ def build_vote_file_object(year: int, path: str, file_name: str, vote_count_cols
                      datetime.strptime(date_str, '%Y%m%d'),
                      election,
                      special,
-                     vote_count_cols)
+                     vote_count_cols,
+                     df_transformers)
 
 
 def gather_files(base_dir: str) -> List[Tuple[int, str, str]]:
@@ -234,7 +285,11 @@ def build_file_objects(state_metadata: StateMetadata) -> Tuple[List[CountyFile],
 
     precinct_votes, county_votes = [], []
     for year, dirpath, filename in files:
-        result = build_vote_file_object(year, dirpath, filename, state_metadata.vote_count_cols)
+        result = build_vote_file_object(year,
+                                        dirpath,
+                                        filename,
+                                        state_metadata.vote_count_cols,
+                                        state_metadata.df_transformers)
         if type(result) == PrecinctFile:
             precinct_votes.append(result)
         elif type(result) == CountyFile:
@@ -313,7 +368,7 @@ def votes_df_to_dicts(votes_df: pd.DataFrame, vote_count_cols: List[str]) -> Lis
                     if value in ('X', '-', '', 'S'):
                         dic[key] = None
                     else:
-                        dic[key] = int(value.replace(',', ''))
+                        dic[key] = int(value.replace(',', '').replace('*', ''))
                 elif pd.isna(value):
                     dic[key] = None
                 elif type(value) == int:
@@ -362,40 +417,77 @@ def deduplicate_votes(votes: List[dict], primary_keys: List[str]):
     return result
 
 
-def build_state_metadta(base_dir: str, state_module: str):
+def build_state_metadata(state: str, base_dir: str, state_module: str = None):
     required_members = dict(VOTE_COUNT_COLS=None, COUNTY_VOTE_PKS=None, PRECINCT_VOTE_PKS=None)
+    df_transformers, row_cleaners = None, None
 
-    try:
-        retrieved_module = importlib.import_module(state_module)
-        for key in required_members.keys():
-            if hasattr(retrieved_module, key):
-                required_members[key] = getattr(retrieved_module, key)
-            else:
-                raise ValueError('Module {} does not have member {}'.format(state_module, key))
-    except ModuleNotFoundError as e:
-        raise ModuleNotFoundError('Missing module {}, provide module with required attributes'.format(state_module))
+    if state_module:
+        try:
+            retrieved_module = importlib.import_module(state_module)
+            for key in required_members.keys():
+                if hasattr(retrieved_module, key):
+                    required_members[key] = getattr(retrieved_module, key)
+                else:
+                    raise ValueError('Module {} does not have member {}'.format(state_module, key))
+
+            if hasattr(retrieved_module, 'df_transformers'):
+                df_transformers = getattr(retrieved_module, 'df_transformers')
+
+            if hasattr(retrieved_module, 'row_cleaners'):
+                row_cleaners = getattr(retrieved_module, 'row_cleaners')
+
+        except ModuleNotFoundError as e:
+            raise ModuleNotFoundError('Missing module {}, provide module with required attributes'.format(state_module))
 
     return StateMetadata(base_dir,
-                         'ca',
+                         state,
                          required_members['VOTE_COUNT_COLS'],
                          required_members['COUNTY_VOTE_PKS'],
-                         required_members['PRECINCT_VOTE_PKS'])
+                         required_members['PRECINCT_VOTE_PKS'],
+                         df_transformers,
+                         row_cleaners)
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--state', type=str, help='State to load data for', required=True)
     parser.add_argument('--base-dir', type=str, help='Git repo containing raw data files', required=True)
-    parser.add_argument('--dolt-dir', type=str, help='Dolt repo directory', required=True)
-    parser.add_argument('--state-module', type=str, help='Module containing information for state', required=True)
+    parser.add_argument('--dolt-dir', type=str, help='Dolt repo directory')
+    parser.add_argument('--state-module', type=str, help='Module containing information for state')
     parser.add_argument('--load-elections', help='Load elections data', action='store_true')
     parser.add_argument('--load-precinct-votes', help='Load elections data', action='store_true')
     parser.add_argument('--load-county-votes', help='Load elections data', action='store_true')
+    parser.add_argument('--show-columns', help='', action='store_true')
     args = parser.parse_args()
-    load_to_dolt(args.dolt_dir,
-                 build_state_metadta(args.base_dir, args.state_module),
-                 args.load_elections,
-                 args.load_precinct_votes,
-                 args.load_county_votes)
+    state_metadata = build_state_metadata(args.state, args.base_dir, args.state_module)
+
+    logger.setLevel('INFO')
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+
+    if args.show_columns:
+        valid = not any([args.load_precinct_votes, args.load_elections, args.load_county_votes])
+        assert valid, '--load-* arguments not valid when printing schema'
+        logger.info('Printing schema of county and precinct data files for state {} in directory {}'.format(
+            state_metadata.state,
+            state_metadata.source_dir
+        ))
+        print_columns(state_metadata)
+    else:
+        assert args.state_module and args.dolt_dir, 'When loading to Dolt --state-module and --dolt-dir required'
+        logger.info('''Loading the following data to Dolt repo in {} from Open Elections data in {}:
+            - elections         : {}
+            - county votes      : {}
+            - precinct votes    : {}   
+        '''.format(args.dolt_dir,
+                   state_metadata.source_dir,
+                   args.load_elections,
+                   args.load_precinct_votes,
+                   args.load_county_votes))
+        load_to_dolt(args.dolt_dir,
+                     state_metadata,
+                     args.load_elections,
+                     args.load_precinct_votes,
+                     args.load_county_votes)
 
 
 if __name__ == '__main__':
