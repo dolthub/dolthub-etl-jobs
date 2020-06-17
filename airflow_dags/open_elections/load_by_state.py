@@ -115,15 +115,15 @@ class VoteFile:
 
 
 class PrecinctFile(VoteFile):
-    SPLIT_NAME_LENGTH = 5
+    SPLIT_NAME_LENGTHS = [4, 5]
 
 
 class CountyFile(VoteFile):
-    SPLIT_NAME_LENGTH = 3
+    SPLIT_NAME_LENGTHS = [3]
 
 
 class OfficeFile(VoteFile):
-    SPLIT_NAME_LENGTH = 4
+    SPLIT_NAME_LENGTHS = [4]
 
 
 class StateMetadata:
@@ -211,8 +211,14 @@ def build_state_dataframes(state_metadata: StateMetadata) -> Tuple[pd.DataFrame,
     precinct_vote_objs, county_votes_objs = build_file_objects(state_metadata)
 
     logger.info('Combining DataFrame objects from individual files in directory {}'.format(state_metadata.source_dir))
-    all_precinct_data = pd.concat([precinct_vote_obj.to_enriched_df() for precinct_vote_obj in precinct_vote_objs])
-    all_county_data = pd.concat([county_votes_obj.to_enriched_df() for county_votes_obj in county_votes_objs])
+    if precinct_vote_objs:
+        all_precinct_data = pd.concat([precinct_vote_obj.to_enriched_df() for precinct_vote_obj in precinct_vote_objs])
+    else:
+        all_precinct_data = pd.DataFrame()
+    if county_votes_objs:
+        all_county_data = pd.concat([county_votes_obj.to_enriched_df() for county_votes_obj in county_votes_objs])
+    else:
+        all_county_data = pd.DataFrame()
 
     # Some NY county data has precinct in it
     if 'precinct' in all_county_data:
@@ -241,11 +247,11 @@ def build_vote_file_object(year: int,
         if 'democrat' in split:
             split.remove('democrat')
 
-    if len(split) == PrecinctFile.SPLIT_NAME_LENGTH:
+    if len(split) in PrecinctFile.SPLIT_NAME_LENGTHS:
         file_type = PrecinctFile
-    elif len(split) == CountyFile.SPLIT_NAME_LENGTH:
+    elif len(split) in CountyFile.SPLIT_NAME_LENGTHS:
         file_type = CountyFile
-    elif len(split) == OfficeFile.SPLIT_NAME_LENGTH:
+    elif len(split) in OfficeFile.SPLIT_NAME_LENGTHS:
         file_type = OfficeFile
     else:
         raise ValueError('File with name {} cannot be processed'.format(file_name))
