@@ -23,6 +23,9 @@ ELECTIONS_RAW_COLS = [
     'state'
 ]
 
+PRECINCT_VOTE_PKS = ['election_id', 'precinct', 'party', 'candidate']
+COUNTY_VOTE_PKS = ['election_id', 'county', 'party', 'candidate']
+
 DEFAULT_PK_VALUE = 'NA'
 
 
@@ -132,15 +135,11 @@ class StateMetadata:
                  source_dir: Union[None, str],
                  state: str,
                  vote_count_cols: List[str] = None,
-                 county_pks: List[str] = None,
-                 precinct_pks: List[str] = None,
                  df_transformers: List[Callable[[pd.DataFrame], pd.DataFrame]] = None,
                  row_cleaners: Callable[[dict], dict] = None):
         self._source_dir = source_dir
         self.state = state
         self.vote_count_cols = vote_count_cols
-        self.county_pks = county_pks
-        self.precinct_pks = precinct_pks
         self.df_transformers = df_transformers
         self.row_cleaners = row_cleaners
 
@@ -181,14 +180,24 @@ def load_to_dolt(dolt_dir: str,
 def print_columns(state_metadata: StateMetadata):
     all_county_data, all_precinct_data = build_state_dataframes(state_metadata)
 
-    logger.info('Printing datatypes for state {} in directory {}'.format(state_metadata.state,
+    logger.info('Printing raw column names for state {} in source die {}'.format(state_metadata.state,
                                                                          state_metadata.source_dir))
     output = '''
-    Columns for county:
-        {}
-    Columns for precinct:
-        {}
-    '''.format(all_county_data.columns, all_precinct_data.columns).lstrip()
+Columns for county data are:
+    {}
+{}_county_votes should have PK {}
+Columns for precinct data are:
+    {}
+{}_county_votes should have PK {}
+
+We generate election_id so the other columns should be tored as VOTE_COUNT_COLS in {}, or discarded by transformers.
+    '''.format([col for col in all_county_data.columns],
+               state_metadata.state,
+               COUNTY_VOTE_PKS,
+               [col for col in all_precinct_data.columns],
+               state_metadata.state,
+               PRECINCT_VOTE_PKS,
+               'airflow_dags.open_elections.{}.py'.format(state_metadata.state)).lstrip()
 
     logger.info(output)
 
@@ -323,12 +332,11 @@ def extract_tables(enriched_df: pd.DataFrame, state_metadata: StateMetadata, pre
                    .drop(columns=['count', 'filepath']))
 
     if precinct:
-        clean_votes = clean_votes.drop(columns=['county']).drop_duplicates(subset=state_metadata.precinct_pks)
+        clean_votes = clean_votes.drop(columns=['county']).drop_duplicates(subset=PRECINCT_VOTE_PKS)
     else:
-        clean_votes = clean_votes.drop_duplicates(subset=state_metadata.county_pks)
+        clean_votes = clean_votes.drop_duplicates(subset=COUNTY_VOTE_PKS)
 
-    # ((12797,"743ae437cd843e17273cc2881d4135ec",13575,"101",7803,"REP",12436,"David King"))
-    # Convert the frames to dictionaries and remove Panda Poo
+    # Convert the frames to dictionaries and remove Panda Poop
     votes = votes_df_to_dicts(clean_votes, state_metadata.vote_count_cols)
     elections_dict = election_df_to_dict(keyed_elections)
     return elections_dict, votes
@@ -422,7 +430,7 @@ def deduplicate_votes(votes: List[dict], primary_keys: List[str]):
             seen.add(hashable)
             result.append(el)
 
-    print('Found {} unique records from {} records'.format(len(seen), len(votes)))
+    logger.info('Found {} unique records from {} records'.format(len(seen), len(votes)))
     return result
 
 
