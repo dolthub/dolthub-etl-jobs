@@ -1,3 +1,5 @@
+from airflow_dags.open_elections.load_by_state import StateMetadata
+
 PRECINCT_VOTE_PKS = ['election_id', 'precinct', 'party', 'candidate']
 
 PRECINCT_VOTES_COLS = [
@@ -27,4 +29,4 @@ VOTE_COUNT_COLS = ['votes',
                    'early_votes',
                    'provisional']
 
-
+metadata = StateMetadata(None, 'ca', VOTE_COUNT_COLS, COUNTY_VOTE_PKS, PRECINCT_VOTE_PKS, None, None)

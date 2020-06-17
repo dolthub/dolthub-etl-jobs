@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import pandas as pd
-from typing import List, Tuple, Any, Callable
+from typing import List, Tuple, Any, Callable, Union
 import re
 import argparse
 from doltpy.core import Dolt
@@ -12,21 +12,6 @@ import importlib
 import sys
 
 logger = logging.getLogger(__name__)
-
-ELECTIONS_TABLE_SCHEMA = '''
-    CREATE TABLE elections (
-        `state` VARCHAR(256),
-        `year` INT,
-        `date` DATETIME,
-        `election` VARCHAR(256),
-        `special` BOOLEAN,
-        `office` VARCHAR(256),
-        `district` VARCHAR(256),
-        `hash_id` VARCHAR(256),
-        `count` INT,
-        PRIMARY KEY (`hash_id`)
-    )
-'''
 
 ELECTIONS_RAW_COLS = [
     'year',
@@ -103,7 +88,7 @@ class VoteFile:
         self.year = year
         self.is_special = is_special
         self.voter_count_cols = voter_count_cols
-        self.df_transformers = self.DEFAULT_TRANSFORMERS + df_transformers
+        self.df_transformers = self.DEFAULT_TRANSFORMERS + df_transformers if df_transformers else self.DEFAULT_TRANSFORMERS
 
     def to_enriched_df(self) -> pd.DataFrame:
         logger.info('Parsing file {}'.format(self.path))
@@ -113,11 +98,13 @@ class VoteFile:
             logger.error(str(e))
             return pd.DataFrame()
         deduplicated = df.drop_duplicates(keep='first')
+        # Add some columns that we extracted from the filepath, and the filepath for debugging
         enriched_df = deduplicated.assign(state=self.state.upper(),
                                           year=self.year,
                                           date=self.date,
                                           election=self.election,
-                                          special=self.is_special)
+                                          special=self.is_special,
+                                          filepath=self.path)
 
         temp = enriched_df.copy()
         if self.df_transformers:
@@ -142,20 +129,27 @@ class OfficeFile(VoteFile):
 class StateMetadata:
 
     def __init__(self,
-                 source_dir: str,
+                 source_dir: Union[None, str],
                  state: str,
-                 vote_count_cols: List[str],
-                 county_pks: List[str],
-                 precinct_pks: List[str],
+                 vote_count_cols: List[str] = None,
+                 county_pks: List[str] = None,
+                 precinct_pks: List[str] = None,
                  df_transformers: List[Callable[[pd.DataFrame], pd.DataFrame]] = None,
                  row_cleaners: Callable[[dict], dict] = None):
-        self.source_dir = source_dir
+        self._source_dir = source_dir
         self.state = state
         self.vote_count_cols = vote_count_cols
         self.county_pks = county_pks
         self.precinct_pks = precinct_pks
         self.df_transformers = df_transformers
         self.row_cleaners = row_cleaners
+
+    @property
+    def source_dir(self):
+        return self._source_dir
+
+    def set_source_dir(self, value: str):
+        self._source_dir = value
 
 
 def load_to_dolt(dolt_dir: str,
@@ -219,6 +213,10 @@ def build_state_dataframes(state_metadata: StateMetadata) -> Tuple[pd.DataFrame,
     logger.info('Combining DataFrame objects from individual files in directory {}'.format(state_metadata.source_dir))
     all_precinct_data = pd.concat([precinct_vote_obj.to_enriched_df() for precinct_vote_obj in precinct_vote_objs])
     all_county_data = pd.concat([county_votes_obj.to_enriched_df() for county_votes_obj in county_votes_objs])
+
+    # Some NY county data has precinct in it
+    if 'precinct' in all_county_data:
+        all_county_data = all_county_data.drop(columns=['precinct'])
 
     return all_county_data, all_precinct_data
 
@@ -314,11 +312,16 @@ def extract_tables(enriched_df: pd.DataFrame, state_metadata: StateMetadata, pre
                                                              left_index=True,
                                                              right_index=True,
                                                              how='left').reset_index(drop=True)
-    clean_votes = vote_counts_with_election_id.rename(columns={'hash_id': 'election_id'}).drop(columns=['count'])
+    clean_votes = (vote_counts_with_election_id
+                   .rename(columns={'hash_id': 'election_id'})
+                   .drop(columns=['count', 'filepath']))
 
     if precinct:
         clean_votes = clean_votes.drop(columns=['county']).drop_duplicates(subset=state_metadata.precinct_pks)
+    else:
+        clean_votes = clean_votes.drop_duplicates(subset=state_metadata.county_pks)
 
+    # ((12797,"743ae437cd843e17273cc2881d4135ec",13575,"101",7803,"REP",12436,"David King"))
     # Convert the frames to dictionaries and remove Panda Poo
     votes = votes_df_to_dicts(clean_votes, state_metadata.vote_count_cols)
     elections_dict = election_df_to_dict(keyed_elections)
@@ -418,34 +421,19 @@ def deduplicate_votes(votes: List[dict], primary_keys: List[str]):
 
 
 def build_state_metadata(state: str, base_dir: str, state_module: str = None):
-    required_members = dict(VOTE_COUNT_COLS=None, COUNTY_VOTE_PKS=None, PRECINCT_VOTE_PKS=None)
-    df_transformers, row_cleaners = None, None
-
     if state_module:
         try:
             retrieved_module = importlib.import_module(state_module)
-            for key in required_members.keys():
-                if hasattr(retrieved_module, key):
-                    required_members[key] = getattr(retrieved_module, key)
-                else:
-                    raise ValueError('Module {} does not have member {}'.format(state_module, key))
 
-            if hasattr(retrieved_module, 'df_transformers'):
-                df_transformers = getattr(retrieved_module, 'df_transformers')
-
-            if hasattr(retrieved_module, 'row_cleaners'):
-                row_cleaners = getattr(retrieved_module, 'row_cleaners')
-
-        except ModuleNotFoundError as e:
+            if hasattr(retrieved_module, 'metadata'):
+                state_metadata = getattr(retrieved_module, 'metadata')
+                state_metadata.set_source_dir(base_dir)
+                return state_metadata
+        except ModuleNotFoundError as _:
             raise ModuleNotFoundError('Missing module {}, provide module with required attributes'.format(state_module))
 
-    return StateMetadata(base_dir,
-                         state,
-                         required_members['VOTE_COUNT_COLS'],
-                         required_members['COUNTY_VOTE_PKS'],
-                         required_members['PRECINCT_VOTE_PKS'],
-                         df_transformers,
-                         row_cleaners)
+    else:
+        return StateMetadata(base_dir, state)
 
 
 def main():

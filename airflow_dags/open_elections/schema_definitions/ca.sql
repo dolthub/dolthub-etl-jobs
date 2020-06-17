@@ -1,4 +1,3 @@
-
 CREATE TABLE ca_precinct_votes (
     `election_id` VARCHAR(256),
     `precinct` VARCHAR(256),

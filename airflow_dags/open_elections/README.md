@@ -1,3 +1,7 @@
+# TODO 6/15
+- remove the module resolution mechanism, instead just have state implement a class
+- get state into the elections table, and remove the hash mechanism as a PK (just fix that)
+- do a few more states
 
 ## Background
 [Open Elections](http://openelections.net/) is a project to make high quality election data freely available. The main challenge in doing so is that the various state and county bodies that administer elections do not have uniform reporting methods. At a high level the process involves:

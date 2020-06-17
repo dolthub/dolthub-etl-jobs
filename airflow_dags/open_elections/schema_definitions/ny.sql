@@ -1,5 +1,3 @@
-
-
 CREATE TABLE ny_precinct_votes (
     `election_id` VARCHAR(256),
     `precinct` VARCHAR(256),
