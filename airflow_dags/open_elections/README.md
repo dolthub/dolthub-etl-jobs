@@ -25,7 +25,7 @@ Thus we have to engage in a "schema discovery" step for each state to define tha
 There are a few things needed before you start:
 1. clone the Open Elections repository for whichever state you are interested in, for example California can be found [here](https://github.com/openelections/openelections-data-ca)
 2. clone [liquidata-etl-jobs](https://github.com/liquidata-inc/liquidata-etl-jobs) and fetch branch `oscarbatori/open-elections` which contains the relevant code, if you need to update this code make a branch off of this branch and then make a pull request against (it's almost certain you will need to make changes)
-3. ensure Doltpy 1.0.2 is installed as this contains critical code
+3. ensure Doltpy 1.0.3 is installed as this contains critical code
 
 ### Schema Discovery
 In order to create the schema you need to figure what the collection of vote count columns for each state are. For example this is California's vote count column set in `airflow_dags.open_elections.ca`: 
