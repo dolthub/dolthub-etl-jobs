@@ -9,4 +9,6 @@ VOTE_COUNT_COLS = ['votes',
                    'early_votes',
                    'provisional']
 
-metadata = StateMetadata(None, 'ca', VOTE_COUNT_COLS, None, None)
+transformers = [lambda df: df.drop(columns=['early_voting']) if 'early_voting' in df.columns else df]
+
+metadata = StateMetadata(None, 'ca', VOTE_COUNT_COLS, transformers, None)

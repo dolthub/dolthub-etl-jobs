@@ -25,7 +25,6 @@ ELECTIONS_RAW_COLS = [
 ]
 
 
-
 PRECINCT_VOTE_PKS = ['election_id', 'precinct', 'party', 'candidate']
 COUNTY_VOTE_PKS = ['election_id', 'county', 'party', 'candidate']
 
@@ -159,14 +158,21 @@ def load_to_dolt(dolt_dir: str,
                  load_elections: bool,
                  load_precinct_votes: bool,
                  load_county_votes: bool):
-    all_elections, all_precinct_votes, all_county_votes = parse_for_state(state_metadata)
+    all_county_data_df, all_precinct_data_df,  = build_state_dataframes(state_metadata)
 
     repo = Dolt(dolt_dir)
 
+    all_elections, all_county_votes, all_precinct_votes = None, None, None
+
     if load_elections:
+        all_county_elections, all_county_votes = extract_county_data(all_county_data_df, state_metadata)
+        all_precinct_elections, all_precinct_votes = extract_precinct_data(all_precinct_data_df, state_metadata)
+        all_elections = deduplicate_elections(all_county_elections, all_precinct_elections)
         logger.info('Loading election data to "elections" in Dolt repo in {}'.format(dolt_dir))
         import_list(repo, 'elections', all_elections, import_mode='update')
     if load_precinct_votes:
+        if not all_precinct_votes:
+            _, all_precinct_votes = extract_precinct_data(all_precinct_data_df, state_metadata)
         logger.info('Loading voting data to "{}_precinct_votes" in Dolt repo in {}'.format(state_metadata.state,
                                                                                            dolt_dir))
         import_list(repo,
@@ -175,6 +181,8 @@ def load_to_dolt(dolt_dir: str,
                     import_mode='update',
                     chunk_size=100000)
     if load_county_votes:
+        if not all_county_votes:
+            _, all_county_votes = extract_county_data(all_county_data_df, state_metadata)
         logger.info('Loading voteing data to "{}_county_votes" in Dolt repo in {}'.format(state_metadata.state,
                                                                                           dolt_dir))
         import_list(repo, '{}_county_votes'.format(state_metadata.state), all_county_votes, import_mode='update')
@@ -212,22 +220,8 @@ This columns should be put into metadata in the state's module.
     logger.info(output)
 
 
-def parse_for_state(state_metadata: StateMetadata) -> Tuple[List[dict], List[dict], List[dict]]:
-    all_county_data, all_precinct_data = build_state_dataframes(state_metadata)
-
-    logger.info('Extracting election and vote tables from county data')
-    all_county_elections, all_county_votes = extract_tables(all_county_data, state_metadata, False)
-    logger.info('Extracting election and vote tables from precinct data')
-    all_precinct_elections, all_precinct_votes = extract_tables(all_precinct_data, state_metadata, True)
-
-    logger.info('De-duplicating election for statewide election table')
-    all_elections = deduplicate_elections(all_county_elections, all_precinct_elections)
-
-    return all_elections, all_precinct_votes, all_county_votes
-
-
 def build_state_dataframes(state_metadata: StateMetadata) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    precinct_vote_objs, county_votes_objs = build_file_objects(state_metadata)
+    county_votes_objs, precinct_vote_objs = build_file_objects(state_metadata)
 
     logger.info('Combining DataFrame objects from individual files in directory {}'.format(state_metadata.source_dir))
     if precinct_vote_objs:
@@ -319,10 +313,27 @@ def build_file_objects(state_metadata: StateMetadata) -> Tuple[List[CountyFile],
             county_votes.append(result)
 
     # return precinct_votes, county_votes
-    return precinct_votes, county_votes
+    return county_votes, precinct_votes
 
 
-def extract_tables(enriched_df: pd.DataFrame, state_metadata: StateMetadata, precinct: bool) -> Tuple[List[dict], List[dict]]:
+def extract_precinct_data(enriched_df: pd.DataFrame, state_metadata: StateMetadata) -> Tuple[List[dict], List[dict]]:
+    keyed_elections, clean_votes = _extract_tables_helper(enriched_df)
+    clean_votes = clean_votes.drop(columns=['county']).drop_duplicates(subset=PRECINCT_VOTE_PKS)
+    votes = votes_df_to_dicts(clean_votes, state_metadata.vote_count_cols)
+    elections_dict = election_df_to_dict(keyed_elections)
+    # return keyed_elections, clean_votes#, votes, elections_dict
+    return elections_dict, votes
+
+
+def extract_county_data(enriched_df: pd.DataFrame, state_metadata: StateMetadata) -> Tuple[List[dict], List[dict]]:
+    keyed_elections, clean_votes = _extract_tables_helper(enriched_df)
+    clean_votes = clean_votes.drop_duplicates(subset=COUNTY_VOTE_PKS)
+    votes = votes_df_to_dicts(clean_votes, state_metadata.vote_count_cols)
+    elections_dict = election_df_to_dict(keyed_elections)
+    return elections_dict, votes
+
+
+def _extract_tables_helper(enriched_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     # Grab the nationwide election table data, insert a unique row key, and index it on unique attributes
     elections_df = enriched_df[ELECTIONS_RAW_COLS]
     keyed_elections = insert_unique_key(elections_df).drop_duplicates()
@@ -341,15 +352,7 @@ def extract_tables(enriched_df: pd.DataFrame, state_metadata: StateMetadata, pre
                    .rename(columns={'hash_id': 'election_id'})
                    .drop(columns=['count', 'filepath']))
 
-    if precinct:
-        clean_votes = clean_votes.drop(columns=['county']).drop_duplicates(subset=PRECINCT_VOTE_PKS)
-    else:
-        clean_votes = clean_votes.drop_duplicates(subset=COUNTY_VOTE_PKS)
-
-    # Convert the frames to dictionaries and remove Panda Poop
-    votes = votes_df_to_dicts(clean_votes, state_metadata.vote_count_cols)
-    elections_dict = election_df_to_dict(keyed_elections)
-    return elections_dict, votes
+    return keyed_elections, clean_votes
 
 
 def election_df_to_dict(df: pd.DataFrame) -> List[dict]:
@@ -377,37 +380,43 @@ def votes_df_to_dicts(votes_df: pd.DataFrame, vote_count_cols: List[str]) -> Lis
         for key, value in dic.items():
             # This long conditional basically fixes all the types so that they are correct and compatible with SQL.
             # It's gross but it basically amounts to a way to write down a series of rules that ensure the data will be
-            # correct. The rest of the code is supposed to be clean, simple transformations, and all the ugliness and
+            # correct. The rest of the cbuild_state_dataframesode is supposed to be clean, simple transformations, and all the ugliness and
             # special cases packed into here.
-            if key in ('election_id', 'state', 'year', 'date', 'election', 'special', 'election'):
-                # We injected these columns so we don't need to worry about the type
-                pass
-            elif key in ('candidate', 'precinct', 'county', 'party'):
-                if value is None or pd.isna(value):
-                    dic[key] = DEFAULT_PK_VALUE
-            elif key == 'election_id':
-                pass
-            elif key == 'polling':
-                if pd.isna(value):
-                    dic[key] = None
-            elif key in vote_count_cols:
-                if type(value) == str:
-                    if value in ('X', '-', '', 'S'):
-                        dic[key] = None
-                    else:
-                        dic[key] = int(value.replace(',', '').replace('*', ''))
-                elif pd.isna(value):
-                    dic[key] = None
-                elif type(value) == int:
+            if key == 'votes' and value == 'Bridget M Fleming':
+                print('wow')
+            try:
+                if key in ('election_id', 'state', 'year', 'date', 'election', 'special', 'election'):
+                    # We injected these columns so we don't need to worry about the type
                     pass
-                elif type(value) == float:
-                    dic[key] = int(value)
+                elif key in ('candidate', 'precinct', 'county', 'party'):
+                    if value is None or pd.isna(value):
+                        dic[key] = DEFAULT_PK_VALUE
+                elif key == 'election_id':
+                    pass
+                elif key == 'polling':
+                    if pd.isna(value):
+                        dic[key] = None
+                elif key in vote_count_cols:
+                    if type(value) == str:
+                        if value in ('X', '-', '', 'S'):
+                            dic[key] = None
+                        else:
+                            dic[key] = int(value.replace(',', '').replace('*', ''))
+                    elif pd.isna(value):
+                        dic[key] = None
+                    elif type(value) == int:
+                        pass
+                    elif type(value) == float:
+                        dic[key] = int(value)
+                    else:
+                        raise ValueError('Value {} is not valid or vote ("{}") column'.format(value, key))
+                elif key == 'polling':
+                    pass
                 else:
-                    raise ValueError('Value {} is not valid or vote ("{}") column'.format(value, key))
-            elif key == 'polling':
-                pass
-            else:
-                raise ValueError('Encountered unknown column {}'.format(key))
+                    raise ValueError('Encountered unknown column {}'.format(key))
+            except:
+                logger.error('Error handling key {} in dict {}'.format(key, dic))
+                raise
 
         result.append(dic)
 
