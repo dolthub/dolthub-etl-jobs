@@ -13,6 +13,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+# Table of elections across all states,
 ELECTIONS_RAW_COLS = [
     'year',
     'date',
@@ -22,6 +23,8 @@ ELECTIONS_RAW_COLS = [
     'district',
     'state'
 ]
+
+
 
 PRECINCT_VOTE_PKS = ['election_id', 'precinct', 'party', 'candidate']
 COUNTY_VOTE_PKS = ['election_id', 'county', 'party', 'candidate']
@@ -180,21 +183,28 @@ def load_to_dolt(dolt_dir: str,
 def print_columns(state_metadata: StateMetadata):
     all_county_data, all_precinct_data = build_state_dataframes(state_metadata)
 
+    def filter_cols(cols: List[str], pks: List[str]):
+        return [col for col in cols if col not in pks and col != 'filepath' and col not in ELECTIONS_RAW_COLS]
+
+    potential_county_vote_cols = filter_cols(all_county_data.columns, COUNTY_VOTE_PKS)
+    potential_precinct_vote_cols = filter_cols(all_precinct_data.columns, PRECINCT_VOTE_PKS)
+
     logger.info('Printing raw column names for state {} in source die {}'.format(state_metadata.state,
-                                                                         state_metadata.source_dir))
+                                                                                 state_metadata.source_dir))
     output = '''
-Columns for county data are:
-    {}
-{}_county_votes should have PK {}
-Columns for precinct data are:
+Potential vote count columns for county data are:
     {}
 {}_county_votes should have PK {}
 
-We generate election_id so the other columns should be tored as VOTE_COUNT_COLS in {}, or discarded by transformers.
-    '''.format([col for col in all_county_data.columns],
+Potential vote count columns for precinct data are:
+    {}
+{}_county_votes should have PK {}
+
+This columns should be put into metadata in the state's module.
+    '''.format(potential_county_vote_cols,
                state_metadata.state,
                COUNTY_VOTE_PKS,
-               [col for col in all_precinct_data.columns],
+               potential_precinct_vote_cols,
                state_metadata.state,
                PRECINCT_VOTE_PKS,
                'airflow_dags.open_elections.{}.py'.format(state_metadata.state)).lstrip()
