@@ -79,7 +79,7 @@ Potential vote count columns for precinct data are:
 ca_county_votes should have PK ['election_id', 'precinct', 'party', 'candidate']
 
 ```
-What this out put is telling us the columns that are not part of the nationwide elections table, or primary keys of the state specific table. Each state table as the same set of primary keys, but a different set of voting columns. This tells us those voting columns. Note, we can't generate SQL from this because of columns like `polling` that is a floating point value representing polling at the time of the election. So, this does _most_ of the work for us, but we still need to examine the data to make sure we are doing the right thing.
+What this output is telling us the columns that are not part of the nationwide elections table, or primary keys of the state specific table. Each state table as the same set of primary keys, but a different set of voting columns. This tells us those voting columns. Note, we can't generate SQL from this because of columns like `polling` that is a floating point value representing polling at the time of the election. So, this does _most_ of the work for us, but we still need to examine the data to make sure we are doing the right thing.
 
 We then implement a state specific file, for California it looks like this:
 ```python 
