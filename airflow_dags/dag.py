@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from doltpy.etl import dolthub_loader, DoltLoaderBuilder
 from mta.dolt_load import get_loaders as get_mta_loaders
-from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_raw_loaders,
-                                        get_transformed_table_loaders as get_fx_rates_transform_loaders)
+from airflow_dags.fx_rates_example.dolt_load import load_raw_fx_rates, load_fx_rates_running_averages
 from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
 from wikipedia.word_frequency.dolt_load import get_wikipedia_loaders
 from wikipedia.ngrams.dolt_load import get_dolt_datasets as get_ngram_loaders
@@ -40,20 +39,17 @@ def get_args_helper(loader_builder: DoltLoaderBuilder, remote_url: str):
 
 
 # FX rates DAG
-FX_RATES_REPO_PATH = 'oscarbatori/fx-test-data'
 fx_rates_dag = DAG('fx_rates',
                    default_args=get_default_args_helper(datetime(2019, 10, 9)),
                    schedule_interval=timedelta(hours=1))
 
 
 fx_rates_raw_data = PythonOperator(task_id='fx_rates_raw',
-                                   python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(get_fx_rates_raw_loaders, FX_RATES_REPO_PATH),
+                                   python_callable=load_raw_fx_rates,
                                    dag=fx_rates_dag)
 
 fx_rates_averages = PythonOperator(task_id='fx_rates_averages',
-                                   python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(get_fx_rates_transform_loaders, FX_RATES_REPO_PATH),
+                                   python_callable=load_fx_rates_running_averages,
                                    dag=fx_rates_dag)
 
 fx_rates_averages.set_upstream(fx_rates_raw_data)
