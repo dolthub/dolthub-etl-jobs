@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from doltpy.etl import get_df_table_writer, get_table_transfomer, get_dolt_loader
+from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader
 from doltpy.core import Dolt
 from datetime import datetime
 import logging
@@ -37,7 +37,7 @@ def get_raw_table_loaders():
 
 
 def get_transformed_table_loaders():
-    transformed_table_loaders = [get_table_transfomer(get_raw_fx_rates,
+    transformed_table_loaders = [get_table_transformer(get_raw_fx_rates,
                                                       'eur_fx_rate_averages',
                                                       ['currency'],
                                                       get_average_rates)]

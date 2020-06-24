@@ -6,7 +6,7 @@ from datetime import datetime
 from airflow_dags.scraping_utilities.utilities import get_proxy_cycle
 from retry import retry
 from typing import List
-from doltpy.etl import get_df_table_writer, get_table_transfomer, get_dolt_loader
+from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader
 from doltpy.core import Dolt
 from functools import partial
 import json
@@ -90,6 +90,7 @@ def _get_games_for_team(team_id: str, date_from: datetime, date_to: datetime):
     dfs = gamefinder.get_data_frames()
     if not dfs:
         logger.warning('Missing data for team with ID {}'.format(team_id))
+        logger.warning('Missing data for team with ID {}'.format(team_id))
         return pd.DataFrame()
     if len(dfs) > 1:
         raise ValueError('Endpoint returned more than one DataFrame object')
@@ -110,7 +111,7 @@ def get_game_table_loaders(date_from: datetime, date_to: datetime):
 
 
 def get_play_by_play_table_loaders(game_date: datetime):
-    play_by_play_loaders = [get_table_transfomer(get_games_for_date_builder(game_date),
+    play_by_play_loaders = [get_table_transformer(get_games_for_date_builder(game_date),
                                                  'play_by_play',
                                                  # figure out primary key for play-by-play
                                                  [],
