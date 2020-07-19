@@ -6,17 +6,20 @@ import requests
 from collections import defaultdict
 from os import path
 from pathlib import Path
-from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
+from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator, load_to_dolthub
 from doltpy.core.dolt import Dolt
 import pandas as pd
 from typing import Callable
 from unidecode import unidecode
 from nltk.stem import PorterStemmer
+import argparse
 
 DoltTableLoader = Callable[[Dolt], str]
 
 logger = logging.getLogger(__name__)
 
+
+REPO_PATH = 'Liquidata/wikipedia-word-frequency'
 CURR_DIR = path.dirname(path.abspath(__file__))
 BZ2_FILE_NAME = 'enwiki-latest-pages-articles-multistream.xml.bz2'
 DUMP_URL = 'https://dumps.wikimedia.your.org/enwiki/latest/{}'.format(BZ2_FILE_NAME)
@@ -132,7 +135,7 @@ def get_filter_df_builder(filter_type: str) -> Callable[[], pd.DataFrame]:
     return inner
 
 
-def get_wikipedia_loaders(branch_date: str):
+def load(branch_date: str):
     loaders = []
     master_writer = get_df_table_writer('word_frequency',
                                         get_master_df_builder(),
@@ -153,4 +156,12 @@ def get_wikipedia_loaders(branch_date: str):
                                                                                                    filter_name)
         loaders.append(get_dolt_loader([filter_writer], True, filter_message, branch_name))
 
-    return loaders
+    load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=REPO_PATH)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--branch', type=str, required=True)
+    args = parser.parse_args()
+
+    load(args.branch)
