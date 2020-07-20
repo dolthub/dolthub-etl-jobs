@@ -335,7 +335,7 @@ def create_ngrams_backfill_tasks(dump_dates):
     tasks_list = []
     for i, dump_date in enumerate(dump_dates):
         task = BashOperator(
-            task_id='import-data',
+            task_id='backfill-data-{}'.format(dump_date),
             bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
                 dump_date,
                 dump_date
