@@ -1,16 +1,20 @@
 import pandas as pd
 import requests
-from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader
-from doltpy.core import Dolt
+from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader, load_to_dolthub
+from doltpy.core import Dolt, read
 from datetime import datetime
 import logging
+import argparse
 
 logger = logging.getLogger(__name__)
 API_KEY = 'f5fd4ab6514fa48753cb1083af2b1e33'
 URL = 'http://data.fixer.io/api/latest?access_key={}'.format(API_KEY)
 
 
-def get_data() -> pd.DataFrame:
+FX_RATES_REPO = 'oscarbatori/fx-test-data'
+
+
+def get_raw_data() -> pd.DataFrame:
     r = requests.get(URL)
     logger.info('Fetching rates data from URL {}'.format(URL))
     if r.status_code == 200:
@@ -23,7 +27,7 @@ def get_data() -> pd.DataFrame:
 
 
 def get_raw_fx_rates(repo: Dolt):
-    return repo.read_table('eur_fx_rates')
+    return read.read_table(repo, 'eur_fx_rates')
 
 
 def get_average_rates(df: pd.DataFrame) -> pd.DataFrame:
@@ -31,14 +35,29 @@ def get_average_rates(df: pd.DataFrame) -> pd.DataFrame:
     return df.groupby('currency').mean().reset_index()[['currency', 'rate']].rename(columns={'rate': 'average_rate'})
 
 
-def get_raw_table_loaders():
-    raw_table_loaders = [get_df_table_writer('eur_fx_rates', get_data, ['currency', 'timestamp'])]
-    return [get_dolt_loader(raw_table_loaders, True, 'Updated raw FX rates for date {}'.format(datetime.now()))]
+def load_raw_fx_rates():
+    table_writer = get_df_table_writer('eur_fx_rates', get_raw_data, ['currency', 'timestamp'])
+    message = 'Updated raw FX rates for date {}'.format(datetime.now())
+    loader = get_dolt_loader(table_writer, commit=True, message=message)
+    load_to_dolthub(loader, clone=True, push=True, remote_url=FX_RATES_REPO)
 
 
-def get_transformed_table_loaders():
-    transformed_table_loaders = [get_table_transformer(get_raw_fx_rates,
-                                                      'eur_fx_rate_averages',
-                                                      ['currency'],
-                                                      get_average_rates)]
-    return [get_dolt_loader(transformed_table_loaders, True, 'Updated averages for date {}'.format(datetime.now()))]
+def load_fx_rates_running_averages():
+    table_writer = get_table_transformer(get_raw_fx_rates, 'eur_fx_rate_averages', ['currency'], get_average_rates)
+    loader = get_dolt_loader(table_writer, True, 'Updated averages for date {}'.format(datetime.now()))
+    load_to_dolthub(loader, clone=True, push=True, remote_url=FX_RATES_REPO)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--raw', action='store_true')
+    parser.add_argument('--averages', action='store_true')
+    args = parser.parse_args()
+
+    if args.raw:
+        load_raw_fx_rates()
+    if args.averages:
+        load_fx_rates_running_averages()
+    else:
+        raise argparse.ArgumentError('One of --raw or --averages must be passed')
+

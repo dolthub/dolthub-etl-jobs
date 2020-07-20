@@ -10,15 +10,17 @@ import string
 from collections import defaultdict
 from os import path, remove
 from pathlib import Path
-from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator
+from doltpy.etl import get_df_table_writer, get_dolt_loader, get_branch_creator, load_to_dolthub
 import pandas as pd
 from typing import Callable
 from itertools import islice
 from glob import glob
 from heapq import merge
+import argparse
 
 logger = logging.getLogger(__name__)
 
+REPO_PATH = 'Liquidata/wikipedia-word-frequency'
 CURR_DIR = path.dirname(path.abspath(__file__))
 WIKIEXTRACTOR_PATH = path.join(Path(CURR_DIR).parent, 'wikiextractor/WikiExtractor.py')
 UNI_SHARD_LEN = 150000
@@ -170,7 +172,7 @@ def get_writers(date_string: str, article_count: int, lower=''):
     return writers
 
 
-def get_dolt_datasets(date_string: str, dump_target: str):
+def load(date_string: str, dump_target: str):
     """
     Gets case-sensitive and case-insensitive loader for each Wikipedia dump
     Each loader has a writer for each table
@@ -192,7 +194,7 @@ def get_dolt_datasets(date_string: str, dump_target: str):
     l_writers = get_writers(date_string, article_count, lower='_lower')
     loaders.append(get_dolt_loader(l_writers, True, l_message, '{}/case-insensitive'.format(date_string)))
 
-    return loaders
+    load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=REPO_PATH)
 
 
 # ----------------------------------------------------------------------
@@ -358,3 +360,12 @@ def get_lowered_ngram(ngram: str):
         lowered_words = ' '.join(ngram[:-1]).lower()
         return lowered_words + ' _END_'
     return ngram.lower()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--date-string', type=str, required=True)
+    parser.add_argument('--dump-target', type=str, required=True)
+    args = parser.parse_args()
+
+    load(args.date_string, args.dump_target)

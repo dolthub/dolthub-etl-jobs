@@ -1,7 +1,6 @@
-from five_thirty_eight.utilities import FiveThirtyEightDataset
-from doltpy.etl import get_df_table_writer, get_dolt_loader
-from datetime import datetime
+from five_thirty_eight.utilities import FiveThirtyEightDataset, load_dataset
 
+REPO_PATH = 'liquidata-demo-data/polls'
 BASE_PRIMARY_KEYS = ['question_id', 'poll_id', 'pollster_id', 'sponsor_ids']
 POLLS = {'president_primary_polls': BASE_PRIMARY_KEYS + ['candidate_id'],
          'president_polls': BASE_PRIMARY_KEYS + ['candidate_name'],
@@ -13,7 +12,5 @@ POLLS = {'president_primary_polls': BASE_PRIMARY_KEYS + ['candidate_id'],
 SUBPATH = 'polls-page'
 DATASETS = [FiveThirtyEightDataset(SUBPATH, name, pks) for name, pks in POLLS.items()]
 
-
-def get_loaders():
-    loaders = [get_df_table_writer(poll.name, poll.get_dataset_fetcher(), poll.primary_keys) for poll in DATASETS]
-    return [get_dolt_loader(loaders, True, 'Updated poll data {}'.format(datetime.now()))]
+if __name__ == 'main':
+    load_dataset(REPO_PATH, DATASETS, '')

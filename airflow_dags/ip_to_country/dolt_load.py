@@ -1,5 +1,5 @@
 import pandas as pd
-from doltpy.etl import get_df_table_writer, get_dolt_loader
+from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
 from datetime import datetime
 import io
 import requests
@@ -8,6 +8,8 @@ import gzip
 import logging
 
 logger = logging.getLogger(__name__)
+
+REPO_PATH = 'Liquidata/ip-to-country'
 
 DATASET_COLUMNS = {'IPv4ToCountry': ['IPFrom',
                                      'IpTo',
@@ -99,7 +101,7 @@ def get_df_builder(ip_to_country_dataset: IpToCountryDataset) -> Callable[[], pd
     return inner
 
 
-def get_dolt_datasets():
+def load():
     table_writers = []
     for ip_to_country_dataset in ip_to_country_datasets:
         writer = get_df_table_writer(ip_to_country_dataset.name,
@@ -107,4 +109,11 @@ def get_dolt_datasets():
                                      ip_to_country_dataset.pk_cols)
         table_writers.append(writer)
 
-    return [get_dolt_loader(table_writers, True, 'Update IP to Country for date {}'.format(datetime.now()))]
+    loaders = [get_dolt_loader(table_writers, True, 'Update IP to Country for date {}'.format(datetime.now()))]
+    load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=REPO_PATH)
+
+
+if __name__ == '__main__':
+    load()
+
+

@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 from io import BytesIO
 import logging
+from datetime import datetime
+from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
 
 logger = logging.getLogger(__name__)
 BASE_URL = 'https://projects.fivethirtyeight.com'
@@ -29,3 +31,9 @@ class FiveThirtyEightDataset:
                 raise ValueError('Got status code {}'.format(r.status_code))
 
         return inner
+
+
+def load_dataset(repo_path: str, datasets: List[FiveThirtyEightDataset], message: str):
+    table_writers = [get_df_table_writer(ds.name, ds.get_dataset_fetcher(), ds.primary_keys) for ds in datasets]
+    loaders = [get_dolt_loader(table_writers, True, message)]
+    load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=repo_path)

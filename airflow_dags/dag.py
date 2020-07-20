@@ -1,21 +1,6 @@
 from datetime import datetime, timedelta
-from doltpy.etl import dolthub_loader, DoltLoaderBuilder
-from mta.dolt_load import get_loaders as get_mta_loaders
-from fx_rates_example.dolt_load import (get_raw_table_loaders as get_fx_rates_raw_loaders,
-                                        get_transformed_table_loaders as get_fx_rates_transform_loaders)
-from ip_to_country.dolt_load import get_dolt_datasets as get_ip_loaders
-from wikipedia.word_frequency.dolt_load import get_wikipedia_loaders
-from wikipedia.ngrams.dolt_load import get_dolt_datasets as get_ngram_loaders
-from five_thirty_eight.polls import get_loaders as get_five_thirty_eight_polls_loaders
-from five_thirty_eight.soccer_spi import get_loaders as get_five_thirty_eight_soccer_spi_loaders
-from five_thirty_eight.nba_forecasts import get_loaders as get_five_thirty_eight_nba_forecasts_loaders
-from five_thirty_eight.nfl_forecasts import get_loaders as get_five_thirty_eight_nfl_forecasts_loaders
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from functools import partial
-from typing import Tuple
-from coin_metrics.dolt_load import get_loaders as get_coin_metrics_loaders
 
 
 def get_default_args_helper(start_date: datetime):
@@ -29,85 +14,95 @@ def get_default_args_helper(start_date: datetime):
             'retry_delay': timedelta(minutes=5)}
 
 
-def get_args_helper(loader_builder: DoltLoaderBuilder, remote_url: str):
-    return dict(loader_builder=loader_builder,
-                dolt_dir=None,
-                clone=True,
-                push=True,
-                remote_name='origin',
-                dry_run=False,
-                remote_url=remote_url)
+def _get_bash_command(script_and_args: str):
+    return '{{conf.get("core", "dags_folder")}}/{} '.format(script_and_args)
 
 
 # FX rates DAG
-FX_RATES_REPO_PATH = 'oscarbatori/fx-test-data'
 fx_rates_dag = DAG('fx_rates',
                    default_args=get_default_args_helper(datetime(2019, 10, 9)),
                    schedule_interval=timedelta(hours=1))
 
 
-fx_rates_raw_data = PythonOperator(task_id='fx_rates_raw',
-                                   python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(get_fx_rates_raw_loaders, FX_RATES_REPO_PATH),
-                                   dag=fx_rates_dag)
+fx_rates_raw_data = BashOperator(
+    task_id='fx_rates_raw',
+    bash_command=_get_bash_command('fx_rates_example/dolt_load.py --raw '),
+    dag=fx_rates_dag
+)
 
-fx_rates_averages = PythonOperator(task_id='fx_rates_averages',
-                                   python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(get_fx_rates_transform_loaders, FX_RATES_REPO_PATH),
-                                   dag=fx_rates_dag)
+
+fx_rates_averages = BashOperator(
+    task_id='fx_rates_averages',
+    bash_command=_get_bash_command('fx_rates_example/dolt_load.py --averages '),
+    dag=fx_rates_dag
+)
+
 
 fx_rates_averages.set_upstream(fx_rates_raw_data)
 
 
 # MTA data DAG
-MTA_REPO_PATH = 'oscarbatori/mta-data'
-mta_dag = DAG('mta_data',
-              default_args=get_default_args_helper(datetime(2019, 10, 8)),
-              schedule_interval=timedelta(days=1))
+raw_mta_data_dag = DAG(
+    'mta_data',
+    default_args=get_default_args_helper(datetime(2019, 10, 8)),
+    schedule_interval=timedelta(days=1)
+)
 
-raw_mta_data = PythonOperator(task_id='raw_mta_data',
-                              python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper(get_mta_loaders, MTA_REPO_PATH),
-                              dag=mta_dag)
+raw_mta_data = BashOperator(
+    task_id='raw_mta_data',
+    bash_command=_get_bash_command('mta/dolt_load.py '),
+    dag=raw_mta_data_dag
+)
 
 # IP to country mappings
-IP_TO_COUNTRY_REPO = 'Liquidata/ip-to-country'
-ip_to_country_dag = DAG('ip_to_country',
-                        default_args=get_default_args_helper(datetime(2019, 10, 8)),
-                        schedule_interval=timedelta(days=1))
+ip_to_country_dag = DAG(
+    'ip_to_country',
+    default_args=get_default_args_helper(datetime(2019, 10, 8)),
+    schedule_interval=timedelta(days=1)
+)
 
-raw_ip_to_country = PythonOperator(task_id='ip_to_country',
-                                   python_callable=dolthub_loader,
-                                   op_kwargs=get_args_helper(get_ip_loaders, IP_TO_COUNTRY_REPO),
-                                   dag=ip_to_country_dag)
-
+raw_ip_to_country = BashOperator(
+    task_id='ip_to_country',
+    bash_command=_get_bash_command('ip_to_country/dolt_load.py '),
+    dag=ip_to_country_dag
+)
 
 # WordNet database
-word_net_dag = DAG('word_net',
-                   default_args=get_default_args_helper(datetime(2019, 10, 22)),
-                   schedule_interval=timedelta(days=7))
+word_net_dag = DAG(
+    'word_net',
+    default_args=get_default_args_helper(datetime(2019, 10, 22)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_word_net = BashOperator(task_id='import-data',
-                            bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
-                            dag=word_net_dag)
+raw_word_net = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('word_net/import_from_source.pl '),
+    dag=word_net_dag
+)
 
 # GitHub repos
-github_repos_dag = DAG('github_repos',
-                   default_args=get_default_args_helper(datetime(2020, 3, 5)),
-                   schedule_interval=timedelta(days=1))
+github_repos_dag = DAG(
+    'github_repos',
+    default_args=get_default_args_helper(datetime(2020, 3, 5)),
+    schedule_interval=timedelta(days=1)
+)
 
-raw_github_repos = BashOperator(task_id='import-data',
-                                bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -b -p ',
-                                dag=github_repos_dag)
+raw_github_repos = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('github-repos/import-data.pl -b -p '),
+    dag=github_repos_dag
+)
 
 # Code Search Net database
-code_search_net_dag = DAG('code_search_net',
-                         default_args=get_default_args_helper(datetime(2019, 10, 23)),
-                         schedule_interval=timedelta(days=7))
+code_search_net_dag = DAG(
+    'code_search_net',
+    default_args=get_default_args_helper(datetime(2019, 10, 23)),
+    schedule_interval=timedelta(days=7)
+)
 
 code_search_net = BashOperator(
     task_id='import-data',
-    bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
+    bash_command=_get_bash_command('code_search_net/import_from_source.pl '),
     dag=code_search_net_dag
 )
 
@@ -120,7 +115,7 @@ usda_all_foods_dag = DAG(
 
 raw_usda_all_foods = BashOperator(
     task_id='import-data',
-    bash_command='{{conf.get("core", "dags_folder")}}/usda_all_foods/import_from_source.pl ',
+    bash_command=_get_bash_command('usda_all_foods/import_from_source.pl '),
     dag=usda_all_foods_dag
 )
 
@@ -133,118 +128,165 @@ tatoeba_sentence_translations_dag = DAG(
 
 raw_tatoeba_sentence_translations = BashOperator(
     task_id='import-data',
-    bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
+    bash_command=_get_bash_command('tatoeba_sentence_translations/import-from-source.pl '),
     dag=tatoeba_sentence_translations_dag
 )
 
 # Facebook Neural Code Search Evaluation
-neural_code_search_eval_dag = DAG('neural_code_search_eval',
-                                  default_args=get_default_args_helper(datetime(2019, 10, 25)),
-                                  schedule_interval=timedelta(days=7))
+neural_code_search_eval_dag = DAG(
+    'neural_code_search_eval',
+    default_args=get_default_args_helper(datetime(2019, 10, 25)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_neural_code_search_eval = BashOperator(task_id='import-data',
-                                           bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
-                                           dag=neural_code_search_eval_dag)
+raw_neural_code_search_eval = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('neural_code_search_eval/import_from_source.pl '),
+    dag=neural_code_search_eval_dag
+)
 
 # PPDB - This just checks to make sure PPDB has not changed
 # I accidentally deleted the import code. If PPDB changes, I will rewrite :-(
-ppdb_dag = DAG('ppdb',
-               default_args=get_default_args_helper(datetime(2019, 12, 11)),
-               schedule_interval=timedelta(days=7))
+ppdb_dag = DAG(
+    'ppdb',
+    default_args=get_default_args_helper(datetime(2019, 12, 11)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_ppdb = BashOperator(task_id='is-changed',
-                        bash_command='{{conf.get("core", "dags_folder")}}/ppdb/is-changed.pl ',
-                        dag=ppdb_dag)
+raw_ppdb = BashOperator(
+    task_id='is-changed',
+    bash_command=_get_bash_command('ppdb/is-changed.pl '),
+    dag=ppdb_dag
+)
 
 # Stanford Questions and Answers Database (SQuAD)
-squad_dag = DAG('squad',
-                default_args=get_default_args_helper(datetime(2019, 12, 13)),
-                schedule_interval=timedelta(days=7))
+squad_dag = DAG(
+    'squad',
+    default_args=get_default_args_helper(datetime(2019, 12, 13)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_squad = BashOperator(task_id='import-data',
-                         bash_command='{{conf.get("core", "dags_folder")}}/squad/import-data.pl ',
-                         dag=squad_dag)
+raw_squad = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('squad/import-data.pl '),
+    dag=squad_dag
+)
 
 # Stanford Natural Language Inference (SNLI)
-snli_dag = DAG('snli',
-               default_args=get_default_args_helper(datetime(2020, 1, 3)),
-               schedule_interval=timedelta(days=7))
+snli_dag = DAG(
+    'snli',
+    default_args=get_default_args_helper(datetime(2020, 1, 3)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_snli = BashOperator(task_id='import-data',
-                        bash_command='{{conf.get("core", "dags_folder")}}/snli/import-data.pl ',
-                        dag=snli_dag)
+raw_snli = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('snli/import-data.pl '),
+    dag=snli_dag
+)
 
 # Multi Natural Language Inference (Multi NLI)
-multinli_dag = DAG('multinli',
-                   default_args=get_default_args_helper(datetime(2020, 1, 3)),
-                   schedule_interval=timedelta(days=7))
+multinli_dag = DAG(
+    'multinli',
+    default_args=get_default_args_helper(datetime(2020, 1, 3)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_multinli = BashOperator(task_id='import-data',
-                            bash_command='{{conf.get("core", "dags_folder")}}/multi-nli/import-data.pl ',
-                            dag=multinli_dag)
+raw_multinli = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('multi-nli/import-data.pl '),
+    dag=multinli_dag
+)
 
 # Google Landmarks
-google_landmarks_dag = DAG('google_landmarks',
-                           default_args=get_default_args_helper(datetime(2019, 12, 18)),
-                           schedule_interval=timedelta(days=7))
+google_landmarks_dag = DAG(
+    'google_landmarks',
+    default_args=get_default_args_helper(datetime(2019, 12, 18)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_google_lanadmarks = BashOperator(task_id='import-data',
-                                     bash_command='{{conf.get("core", "dags_folder")}}/google-landmarks/import-data.pl ',
-                                     dag=google_landmarks_dag)
+raw_google_lanadmarks = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('google-landmarks/import-data.pl '),
+    dag=google_landmarks_dag
+)
 
 # Baseball Databank
-baseball_databank_dag = DAG('baseball_databank',
-                            default_args=get_default_args_helper(datetime(2020,1, 6)),
-                            schedule_interval=timedelta(days=7))
+baseball_databank_dag = DAG(
+    'baseball_databank',
+    default_args=get_default_args_helper(datetime(2020,1, 6)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_baseball_databank = BashOperator(task_id='import-data',
-                                     bash_command='{{conf.get("core", "dags_folder")}}/baseball-databank/import-data.pl ',
-                                     dag=baseball_databank_dag)
+raw_baseball_databank = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('baseball-databank/import-data.pl '),
+    dag=baseball_databank_dag
+)
 
 # US Baby Names
-us_baby_names_dag = DAG('us_baby_names',
-                        default_args=get_default_args_helper(datetime(2020,1,15)),
-                        schedule_interval=timedelta(days=7))
+us_baby_names_dag = DAG(
+    'us_baby_names',
+    default_args=get_default_args_helper(datetime(2020,1,15)),
+    schedule_interval=timedelta(days=7)
+)
 
-raw_us_baby_names = BashOperator(task_id='import-data',
-                                 bash_command='{{conf.get("core", "dags_folder")}}/us_baby_names/import-data.pl ',
-                                 dag=us_baby_names_dag)
+raw_us_baby_names = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('us_baby_names/import-data.pl '),
+    dag=us_baby_names_dag
+)
 
 # Corona Virus
-corona_virus_dag = DAG('corona_virus',
-                        default_args=get_default_args_helper(datetime(2020,2,5)),
-                        schedule_interval=timedelta(hours=12))
+corona_virus_dag = DAG(
+    'corona_virus',
+    default_args=get_default_args_helper(datetime(2020,2,5)),
+    schedule_interval=timedelta(hours=12)
+)
 
-raw_corona_virus = BashOperator(task_id='import-data',
-                                bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-data.pl ',
-                                dag=corona_virus_dag)
+raw_corona_virus = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('corona-virus/import-data.pl '),
+    dag=corona_virus_dag
+)
 
-corona_virus_details_dag = DAG('corona_virus_details',
-                               default_args=get_default_args_helper(datetime(2020,3,3)),
-	                       schedule_interval=timedelta(hours=1))
+corona_virus_details_dag = DAG(
+    'corona_virus_details',
+    default_args=get_default_args_helper(datetime(2020,3,3)),
+    schedule_interval=timedelta(hours=1)
+)
 
-singapore_details = BashOperator(task_id='singapore-details',
-                                 bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-singapore.pl ',
-                                 dag=corona_virus_details_dag)
+singapore_details = BashOperator(
+    task_id='singapore-details',
+    bash_command=_get_bash_command('corona-virus/import-case-details-singapore.pl '),
+    dag=corona_virus_details_dag
+)
 
-hongkong_details = BashOperator(task_id='hongkong-details',
-                                bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-hongkong.pl ',
-                                dag=corona_virus_details_dag)
+hongkong_details = BashOperator(
+    task_id='hongkong-details',
+    bash_command=_get_bash_command('corona-virus/import-case-details-hongkong.pl '),
+    dag=corona_virus_details_dag
+)
 
-southkorea_details = BashOperator(task_id='southkorea-details',
-                                  bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-southkorea.pl ',
-                                  dag=corona_virus_details_dag)
+southkorea_details = BashOperator(
+    task_id='southkorea-details',
+    bash_command=_get_bash_command('corona-virus/import-case-details-southkorea.pl '),
+    dag=corona_virus_details_dag
+)
 
-philippines_details = BashOperator(task_id='philippines-details',
-                                   bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-philippines.pl ',
-                                   dag=corona_virus_details_dag)
+philippines_details = BashOperator(
+    task_id='philippines-details',
+    bash_command=_get_bash_command('corona-virus/import-case-details-philippines.pl '),
+    dag=corona_virus_details_dag
+)
 
-viro_dot_org_details = BashOperator(task_id='viro-dot-org-details',
-                                    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-viro-dot-org.pl ',
-                                    dag=corona_virus_details_dag)
+viro_dot_org_details = BashOperator(
+    task_id='viro-dot-org-details',
+    bash_command=_get_bash_command('corona-virus/import-case-details-viro-dot-org.pl '),
+    dag=corona_virus_details_dag
+)
 
 # Wikipedia word frequency
-WIKIPEDIA_REPO = 'Liquidata/wikipedia-word-frequency'
 # Wikipedia dump variables
 DUMP_DATE = datetime.now() - timedelta(days=4)
 FORMATTED_DATE = DUMP_DATE.strftime("%Y%m%d")
@@ -252,32 +294,34 @@ FORMATTED_DATE = DUMP_DATE.strftime("%Y%m%d")
 CRON_FORMAT = '0 8 5,24 * *'
 
 # Wikipedia word frequency
-WIKIPEDIA_WORDS_REPO = 'Liquidata/wikipedia-word-frequency'
-wikipedia_dag = DAG(
+wikipedia_word_frequencies_dag = DAG(
     'wikipedia-word-frequency',
     default_args=get_default_args_helper(datetime(2019, 10, 18)),
-    schedule_interval=CRON_FORMAT)
+    schedule_interval=CRON_FORMAT
+)
 
-wikipedia_word_frequencies = PythonOperator(task_id='import-data',
-                                            python_callable=dolthub_loader,
-                                            op_kwargs=get_args_helper(partial(get_wikipedia_loaders, FORMATTED_DATE),
-                                                                      WIKIPEDIA_WORDS_REPO),
-                                            dag=wikipedia_dag)
+wikipedia_word_frequencies = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('word_frequency/dolt_load.py --branch {}'.format(FORMATTED_DATE)),
+    dag=wikipedia_word_frequencies_dag
+)
+
 
 # Wikipedia ngrams
-WIKIPEDIA_NGRAMS_REPO = 'Liquidata/wikipedia-ngrams'
-DUMP_TARGET = 'latest'
 wikipedia_ngrams_dag = DAG(
     'wikipedia-ngrams',
     default_args=get_default_args_helper(datetime(2019, 11, 5)),
     schedule_interval=CRON_FORMAT
 )
 
-wikipedia_ngrams = PythonOperator(task_id='import-data',
-                                  python_callable=dolthub_loader,
-                                  op_kwargs=get_args_helper(partial(get_ngram_loaders, FORMATTED_DATE, DUMP_TARGET),
-                                                            WIKIPEDIA_NGRAMS_REPO),
-                                  dag=wikipedia_ngrams_dag)
+wikipedia_ngrams = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
+        FORMATTED_DATE,
+        'latest'
+    )),
+    dag=wikipedia_ngrams_dag
+)
 
 # Backfill Wikipedia ngrams
 wikipedia_ngrams_backfill_dag = DAG(
@@ -286,93 +330,99 @@ wikipedia_ngrams_backfill_dag = DAG(
     schedule_interval='@once',
 )
 
+
+def create_ngrams_backfill_tasks(dump_dates):
+    tasks_list = []
+    for i, dump_date in enumerate(dump_dates):
+        task = BashOperator(
+            task_id='import-data',
+            bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
+                dump_date,
+                dump_date
+            )),
+            dag=wikipedia_ngrams_backfill_dag
+        )
+        tasks_list.append(task)
+
+        if i != 0:
+            tasks_list[i-1] >> tasks_list[i]
+
+
 dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201', '20191220']
-tasks_list = []
-for i, dump_date in enumerate(dump_dates):
-    tasks_list.append(PythonOperator(task_id='backfill-data-{}'.format(dump_date),
-                                               python_callable=dolthub_loader,
-                                               op_kwargs=get_args_helper(partial(get_ngram_loaders, dump_date, dump_date),
-                                                                         WIKIPEDIA_NGRAMS_REPO),
-                                               dag=wikipedia_ngrams_backfill_dag))
-    if i != 0:
-        tasks_list[i-1] >> tasks_list[i]
+create_ngrams_backfill_tasks(dump_dates)
 
-
-
-# FiveThirtyEight data
-def get_five_thirty_eight_loader(repo_name: str,
-                                 task_id: str,
-                                 interval: timedelta,
-                                 start_date: datetime,
-                                 loaders: DoltLoaderBuilder) -> Tuple[DAG, PythonOperator]:
-    path = 'liquidata-demo-data/{}'.format(repo_name)
-    task_id = 'five_thirty_eight_{}'.format(task_id)
-    dag = DAG(task_id, default_args=get_default_args_helper(start_date), schedule_interval=interval)
-
-    operator = PythonOperator(task_id=task_id,
-                              python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper(loaders, path),
-                              dag=dag)
-
-    return dag, operator
-
-
-# Polls
-five_thirty_eight_polls_dag, five_thirty_eight_polls = get_five_thirty_eight_loader('polls',
-                                                                                    'polls',
-                                                                                    timedelta(hours=1),
-                                                                                    datetime(2019, 12, 3),
-                                                                                    get_five_thirty_eight_polls_loaders)
-
-# Soccer
-five_thirty_eight_soccer_spi_dag, five_thirty_eight_soccer_spi = get_five_thirty_eight_loader(
-    'soccer-spi',
-    'soccer_spi',
-    timedelta(hours=1),
-    datetime(2019, 12, 3),
-    get_five_thirty_eight_soccer_spi_loaders
+five_thirty_eight_polls_dag = DAG(
+    'five_thirty_eight_polls',
+    default_args=get_default_args_helper(datetime(2019, 12, 3)),
+    schedule_interval=timedelta(hours=1)
 )
 
-# NBA
-five_thirty_eight_nba_forecasts_dag, five_thirty_eight_nba_forecasts = get_five_thirty_eight_loader(
-    'nba-forecasts',
-    'nba_forecasts',
-    timedelta(hours=1),
-    datetime(2019, 12, 3),
-    get_five_thirty_eight_nba_forecasts_loaders
+five_thirty_eight_polls = BashOperator(
+    task_id='five_thirty_eight_polls',
+    bash_command=_get_bash_command('five_thirty_eight/polls.py' ),
+    dag=five_thirty_eight_polls_dag
 )
 
-# NFL
-five_thirty_eight_nfl_forecasts_dag, five_thirty_eight_nfl_forecasts = get_five_thirty_eight_loader(
-    'nfl-forecasts',
-    'nfl_forecasts',
-    timedelta(hours=1),
-    datetime(2019, 12, 3),
-    get_five_thirty_eight_nfl_forecasts_loaders
+five_thirty_eight_soccer_spi_dag = DAG(
+    'five_thirty_eight_soccer_spi',
+    default_args=get_default_args_helper(datetime(2019, 12, 3)),
+    schedule_interval=timedelta(hours=1)
 )
+
+five_thirty_eight_soccer_spi = BashOperator(
+    task_id='five_thirty_eight_polls',
+    bash_command=_get_bash_command('five_thirty_eight/soccer_spi.py '),
+    dag=five_thirty_eight_soccer_spi_dag
+)
+
+five_thirty_eight_nba_forecasts_dag = DAG(
+    'five_thirty_eight_nba_forecasts',
+    default_args=get_default_args_helper(datetime(2019, 12, 3)),
+    schedule_interval=timedelta(hours=1)
+)
+
+five_thirty_eight_nba_forecasts = BashOperator(
+    task_id='five_thirty_eight_nba_forecasts',
+    bash_command=_get_bash_command('five_thirty_eight/nba_forecasts.py'),
+    dag=five_thirty_eight_nba_forecasts_dag
+)
+
+five_thirty_eight_nfl_forecasts_dag = DAG(
+    'five_thirty_eight_nfl_forecasts',
+    default_args=get_default_args_helper(datetime(2019, 12, 3)),
+    schedule_interval=timedelta(hours=1)
+)
+
+five_thirty_eight_nfl_forecasts = BashOperator(
+    task_id='five_thirty_eight_polls',
+    bash_command=_get_bash_command('five_thirty_eight/nfl_forecasts.py'),
+    dag=five_thirty_eight_nfl_forecasts_dag
+)
+
 
 # coin metrics
-def get_coin_metrics_dag():
-    task_id = 'coin_metrics_eod'
-    dag = DAG(task_id,
-              default_args=get_default_args_helper(datetime(2020, 3, 30)),
-              schedule_interval=timedelta(days=1))
-    operator = PythonOperator(task_id=task_id,
-                              python_callable=dolthub_loader,
-                              op_kwargs=get_args_helper(get_coin_metrics_loaders, 'Liquidata/coint-metrics-data'))
-    return dag, operator
+coin_metrics_eod_dag = DAG(
+    'coin_metrics_eod',
+    default_args=get_default_args_helper(datetime(2020, 3, 30)),
+    schedule_interval=timedelta(days=1)
+)
 
-
-coint_metrics_dag, coin_metrics_operator = get_coin_metrics_dag()
+coin_metrics_eod = BashOperator(
+    task_id='coin_metrics_eod',
+    bash_command=_get_bash_command('coin_metrics/dolt_load.py'),
+    dag=coin_metrics_eod_dag
+)
 
 # Common Crawl Index Summary
-ccis_dag = DAG('common_crawl_index_summary',
-               default_args=get_default_args_helper(datetime(2020, 2, 6)),
-               schedule_interval=timedelta(days=28))
+ccis_dag = DAG(
+    'common_crawl_index_summary',
+    default_args=get_default_args_helper(datetime(2020, 2, 6)),
+    schedule_interval=timedelta(days=28)
+)
 
 ccis = BashOperator(
     task_id='common_crawl_index_summary',
-    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
+    bash_command=_get_bash_command('common_crawl_index_summary/run.sh '),
     dag=ccis_dag
 )
 
@@ -385,68 +435,84 @@ bad_words_dag = DAG(
 
 bad_words = BashOperator(
     task_id='check_new_commits',
-    bash_command='{{conf.get("core", "dags_folder")}}/bad-words/check_new_commits.sh ',
+    bash_command=_get_bash_command('bad-words/check_new_commits.sh '),
     dag=bad_words_dag
 )
 
 # Open Flights 
-open_flights_dag = DAG('open_flights',
-                       default_args=get_default_args_helper(datetime(2020,3,19)),
-                       schedule_interval=timedelta(days=1))
+open_flights_dag = DAG(
+    'open_flights',
+    default_args=get_default_args_helper(datetime(2020,3,19)),
+    schedule_interval=timedelta(days=1)
+)
 
-raw_open_flights = BashOperator(task_id='import-data',
-                                bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
-                                dag=open_flights_dag)
+raw_open_flights = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('open_flights/import-data.pl '),
+    dag=open_flights_dag
+)
 
 # Stock Tickers
-stock_tickers_dag = DAG('stock_tickers',
-                        default_args=get_default_args_helper(datetime(2020,3,26)),
-                        schedule_interval=timedelta(days=1))
+stock_tickers_dag = DAG(
+    'stock_tickers',
+    default_args=get_default_args_helper(datetime(2020,3,26)),
+    schedule_interval=timedelta(days=1)
+)
 
-raw_stock_tickers = BashOperator(task_id='import-data',
-                                 bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
-                                 dag=stock_tickers_dag)
+raw_stock_tickers = BashOperator(
+    task_id='import-data',
+    bash_command=_get_bash_command('stock_tickers/import-ticker-data.pl '),
+    dag=stock_tickers_dag
+)
 
 # National Vulnerability Database
-nvd_dag = DAG('national_vulnerability_database',
-               default_args=get_default_args_helper(datetime(2020, 4, 22)),
-               schedule_interval=timedelta(hours=1))
+nvd_dag = DAG(
+    'national_vulnerability_database',
+    default_args=get_default_args_helper(datetime(2020, 4, 22)),
+    schedule_interval=timedelta(hours=1)
+)
 
 nvd = BashOperator(
     task_id='national_vulnerability_database',
-    bash_command='{{conf.get("core", "dags_folder")}}/nvd/run.sh ',
+    bash_command=_get_bash_command('nvd/run.sh '),
     dag=nvd_dag
 )
 
 # COVID Stimulus Watch
-covid_stimulus_watch_dag = DAG('covid_stimulus_watch',
-               default_args=get_default_args_helper(datetime(2020, 5, 13)),
-               schedule_interval=timedelta(days=1))
+covid_stimulus_watch_dag = DAG(
+    'covid_stimulus_watch',
+    default_args=get_default_args_helper(datetime(2020, 5, 13)),
+    schedule_interval=timedelta(days=1)
+)
 
 covid_stimulus_watch = BashOperator(
     task_id='import-csv',
-    bash_command='{{conf.get("core", "dags_folder")}}/covid_stimulus_watch/import-csv.py ',
+    bash_command=_get_bash_command('covid_stimulus_watch/import-csv.py '),
     dag=covid_stimulus_watch_dag
 )
 
 # Terms and Privacy Policies for interesting online services
-online_services_dag = DAG('online_services',
-                          default_args=get_default_args_helper(datetime(2020, 5, 28)),
-                          schedule_interval=timedelta(days=7))
+online_services_dag = DAG(
+    'online_services',
+    default_args=get_default_args_helper(datetime(2020, 5, 28)),
+    schedule_interval=timedelta(days=7)
+)
 
 online_services_task = BashOperator(
     task_id='scrape-docs',
-    bash_command='{{conf.get("core", "dags_folder")}}/online_services/scrape-documents.py ',
+    bash_command=_get_bash_command('online_services/scrape-documents.py '),
     dag=online_services_dag
 )
 
 # US Census Response Rates
-us_census_response_rates_dag = DAG('us_census_response_rates',
-               default_args=get_default_args_helper(datetime(2020, 5, 13)),
-               schedule_interval=timedelta(days=1))
+us_census_response_rates_dag = DAG(
+    'us_census_response_rates',
+    default_args=get_default_args_helper(datetime(2020, 5, 13)),
+    schedule_interval=timedelta(days=1)
+)
 
 us_census_response_rates = BashOperator(
     task_id='daily-import',
-    bash_command='{{conf.get("core", "dags_folder")}}/us_census_response_rates/daily-csv-import.py ',
+    bash_command=_get_bash_command('us_census_response_rates/daily-csv-import.py '),
     dag=us_census_response_rates_dag
 )

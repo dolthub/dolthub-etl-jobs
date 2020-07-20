@@ -1,12 +1,13 @@
 import requests as req
 import pandas as pd
 from typing import List
-from doltpy.etl import get_dolt_loader, get_df_table_writer, insert_unique_key
+from doltpy.etl import get_dolt_loader, get_df_table_writer, insert_unique_key, load_to_dolthub
 import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+REPO_PATH = 'oscarbatori/mta-data'
 OPEN_DATA_NYC_BASE_URL = 'https://data.ny.gov/resource'
 MAXRECS = 10000000
 
@@ -45,7 +46,7 @@ def get_mta_url(dataset_id: str) -> str:
     return '{}/{}.json?$limit={}'.format(OPEN_DATA_NYC_BASE_URL, dataset_id, MAXRECS)
 
 
-def get_loaders():
+def load():
     table_writers = []
     for dataset in DATASETS:
         tramsformers = [] if dataset.pk_cols else [insert_unique_key]
@@ -58,4 +59,9 @@ def get_loaders():
 
         table_writers.append(writer)
 
-    return [get_dolt_loader(table_writers, True, 'Update MTA data for date {}'.format(datetime.now()))]
+    loaders = [get_dolt_loader(table_writers, True, 'Update MTA data for date {}'.format(datetime.now()))]
+    load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=REPO_PATH)
+
+
+if __name__ == '__main__':
+    load()
