@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import pandas as pd
 import requests
 from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader, load_to_dolthub

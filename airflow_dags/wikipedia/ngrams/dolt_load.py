@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import subprocess
 import time
 import logging

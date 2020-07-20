@@ -3,7 +3,6 @@ import requests
 import pandas as pd
 from io import BytesIO
 import logging
-from datetime import datetime
 from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
 
 logger = logging.getLogger(__name__)

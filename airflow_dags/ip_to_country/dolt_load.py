@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import pandas as pd
 from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
 from datetime import datetime

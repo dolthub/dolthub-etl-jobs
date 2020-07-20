@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import re
 import subprocess
 import time

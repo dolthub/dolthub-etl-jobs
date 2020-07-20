@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 from five_thirty_eight.utilities import FiveThirtyEightDataset, load_dataset
 
 SUBPATH = 'nba-model'
