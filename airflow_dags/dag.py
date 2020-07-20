@@ -14,10 +14,6 @@ def get_default_args_helper(start_date: datetime):
             'retry_delay': timedelta(minutes=5)}
 
 
-def _get_bash_command(script_and_args: str):
-    return '{{conf.get("core", "dags_folder")}}/{} '.format(script_and_args)
-
-
 # FX rates DAG
 fx_rates_dag = DAG('fx_rates',
                    default_args=get_default_args_helper(datetime(2019, 10, 9)),
@@ -26,14 +22,14 @@ fx_rates_dag = DAG('fx_rates',
 
 fx_rates_raw_data = BashOperator(
     task_id='fx_rates_raw',
-    bash_command=_get_bash_command('fx_rates_example/dolt_load.py --raw '),
+    bash_command='{{conf.get("core", "dags_folder")}}/fx_rates_example/dolt_load.py --raw ',
     dag=fx_rates_dag
 )
 
 
 fx_rates_averages = BashOperator(
     task_id='fx_rates_averages',
-    bash_command=_get_bash_command('fx_rates_example/dolt_load.py --averages '),
+    bash_command='{{conf.get("core", "dags_folder")}}/fx_rates_example/dolt_load.py --averages ',
     dag=fx_rates_dag
 )
 
@@ -50,7 +46,7 @@ raw_mta_data_dag = DAG(
 
 raw_mta_data = BashOperator(
     task_id='raw_mta_data',
-    bash_command=_get_bash_command('mta/dolt_load.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/mta/dolt_load.py ',
     dag=raw_mta_data_dag
 )
 
@@ -63,7 +59,7 @@ ip_to_country_dag = DAG(
 
 raw_ip_to_country = BashOperator(
     task_id='ip_to_country',
-    bash_command=_get_bash_command('ip_to_country/dolt_load.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/ip_to_country/dolt_load.py ',
     dag=ip_to_country_dag
 )
 
@@ -76,7 +72,7 @@ word_net_dag = DAG(
 
 raw_word_net = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('word_net/import_from_source.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/word_net/import_from_source.pl ',
     dag=word_net_dag
 )
 
@@ -89,7 +85,7 @@ github_repos_dag = DAG(
 
 raw_github_repos = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('github-repos/import-data.pl -b -p '),
+    bash_command='{{conf.get("core", "dags_folder")}}/github-repos/import-data.pl -b -p ',
     dag=github_repos_dag
 )
 
@@ -102,7 +98,7 @@ code_search_net_dag = DAG(
 
 code_search_net = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('code_search_net/import_from_source.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/code_search_net/import_from_source.pl ',
     dag=code_search_net_dag
 )
 
@@ -115,7 +111,7 @@ usda_all_foods_dag = DAG(
 
 raw_usda_all_foods = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('usda_all_foods/import_from_source.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/usda_all_foods/import_from_source.pl ',
     dag=usda_all_foods_dag
 )
 
@@ -128,7 +124,7 @@ tatoeba_sentence_translations_dag = DAG(
 
 raw_tatoeba_sentence_translations = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('tatoeba_sentence_translations/import-from-source.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/tatoeba_sentence_translations/import-from-source.pl ',
     dag=tatoeba_sentence_translations_dag
 )
 
@@ -141,7 +137,7 @@ neural_code_search_eval_dag = DAG(
 
 raw_neural_code_search_eval = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('neural_code_search_eval/import_from_source.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/neural_code_search_eval/import_from_source.pl ',
     dag=neural_code_search_eval_dag
 )
 
@@ -155,7 +151,7 @@ ppdb_dag = DAG(
 
 raw_ppdb = BashOperator(
     task_id='is-changed',
-    bash_command=_get_bash_command('ppdb/is-changed.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/ppdb/is-changed.pl ',
     dag=ppdb_dag
 )
 
@@ -168,7 +164,7 @@ squad_dag = DAG(
 
 raw_squad = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('squad/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/squad/import-data.pl ',
     dag=squad_dag
 )
 
@@ -181,7 +177,7 @@ snli_dag = DAG(
 
 raw_snli = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('snli/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/snli/import-data.pl ',
     dag=snli_dag
 )
 
@@ -194,7 +190,7 @@ multinli_dag = DAG(
 
 raw_multinli = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('multi-nli/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/multi-nli/import-data.pl ',
     dag=multinli_dag
 )
 
@@ -207,7 +203,7 @@ google_landmarks_dag = DAG(
 
 raw_google_lanadmarks = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('google-landmarks/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/google-landmarks/import-data.pl ',
     dag=google_landmarks_dag
 )
 
@@ -220,7 +216,7 @@ baseball_databank_dag = DAG(
 
 raw_baseball_databank = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('baseball-databank/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/baseball-databank/import-data.pl ',
     dag=baseball_databank_dag
 )
 
@@ -233,7 +229,7 @@ us_baby_names_dag = DAG(
 
 raw_us_baby_names = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('us_baby_names/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/us_baby_names/import-data.pl ',
     dag=us_baby_names_dag
 )
 
@@ -246,7 +242,7 @@ corona_virus_dag = DAG(
 
 raw_corona_virus = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('corona-virus/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-data.pl ',
     dag=corona_virus_dag
 )
 
@@ -258,31 +254,31 @@ corona_virus_details_dag = DAG(
 
 singapore_details = BashOperator(
     task_id='singapore-details',
-    bash_command=_get_bash_command('corona-virus/import-case-details-singapore.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-singapore.pl ',
     dag=corona_virus_details_dag
 )
 
 hongkong_details = BashOperator(
     task_id='hongkong-details',
-    bash_command=_get_bash_command('corona-virus/import-case-details-hongkong.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-hongkong.pl ',
     dag=corona_virus_details_dag
 )
 
 southkorea_details = BashOperator(
     task_id='southkorea-details',
-    bash_command=_get_bash_command('corona-virus/import-case-details-southkorea.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-southkorea.pl ',
     dag=corona_virus_details_dag
 )
 
 philippines_details = BashOperator(
     task_id='philippines-details',
-    bash_command=_get_bash_command('corona-virus/import-case-details-philippines.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-philippines.pl ',
     dag=corona_virus_details_dag
 )
 
 viro_dot_org_details = BashOperator(
     task_id='viro-dot-org-details',
-    bash_command=_get_bash_command('corona-virus/import-case-details-viro-dot-org.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/corona-virus/import-case-details-viro-dot-org.pl ',
     dag=corona_virus_details_dag
 )
 
@@ -302,7 +298,7 @@ wikipedia_word_frequencies_dag = DAG(
 
 wikipedia_word_frequencies = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('word_frequency/dolt_load.py --branch {}'.format(FORMATTED_DATE)),
+    bash_command='{{conf.get("core", "dags_folder")}}/word_frequency/dolt_load.py --branch {}'.format(FORMATTED_DATE),
     dag=wikipedia_word_frequencies_dag
 )
 
@@ -316,10 +312,10 @@ wikipedia_ngrams_dag = DAG(
 
 wikipedia_ngrams = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
+    bash_command='{{conf.get("core", "dags_folder")}}/ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
         FORMATTED_DATE,
         'latest'
-    )),
+    ),
     dag=wikipedia_ngrams_dag
 )
 
@@ -336,10 +332,10 @@ def create_ngrams_backfill_tasks(dump_dates):
     for i, dump_date in enumerate(dump_dates):
         task = BashOperator(
             task_id='backfill-data-{}'.format(dump_date),
-            bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
+            bash_command='{{conf.get("core", "dags_folder")}}/ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
                 dump_date,
                 dump_date
-            )),
+            ),
             dag=wikipedia_ngrams_backfill_dag
         )
         tasks_list.append(task)
@@ -359,7 +355,7 @@ five_thirty_eight_polls_dag = DAG(
 
 five_thirty_eight_polls = BashOperator(
     task_id='five_thirty_eight_polls',
-    bash_command=_get_bash_command('five_thirty_eight/polls.py' ),
+    bash_command='{{conf.get("core", "dags_folder")}}/five_thirty_eight/polls.py' ,
     dag=five_thirty_eight_polls_dag
 )
 
@@ -371,7 +367,7 @@ five_thirty_eight_soccer_spi_dag = DAG(
 
 five_thirty_eight_soccer_spi = BashOperator(
     task_id='five_thirty_eight_polls',
-    bash_command=_get_bash_command('five_thirty_eight/soccer_spi.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/five_thirty_eight/soccer_spi.py ',
     dag=five_thirty_eight_soccer_spi_dag
 )
 
@@ -383,7 +379,7 @@ five_thirty_eight_nba_forecasts_dag = DAG(
 
 five_thirty_eight_nba_forecasts = BashOperator(
     task_id='five_thirty_eight_nba_forecasts',
-    bash_command=_get_bash_command('five_thirty_eight/nba_forecasts.py'),
+    bash_command='{{conf.get("core", "dags_folder")}}/five_thirty_eight/nba_forecasts.py',
     dag=five_thirty_eight_nba_forecasts_dag
 )
 
@@ -395,7 +391,7 @@ five_thirty_eight_nfl_forecasts_dag = DAG(
 
 five_thirty_eight_nfl_forecasts = BashOperator(
     task_id='five_thirty_eight_polls',
-    bash_command=_get_bash_command('five_thirty_eight/nfl_forecasts.py'),
+    bash_command='{{conf.get("core", "dags_folder")}}/five_thirty_eight/nfl_forecasts.py',
     dag=five_thirty_eight_nfl_forecasts_dag
 )
 
@@ -409,7 +405,7 @@ coin_metrics_eod_dag = DAG(
 
 coin_metrics_eod = BashOperator(
     task_id='coin_metrics_eod',
-    bash_command=_get_bash_command('coin_metrics/dolt_load.py'),
+    bash_command='{{conf.get("core", "dags_folder")}}/coin_metrics/dolt_load.py',
     dag=coin_metrics_eod_dag
 )
 
@@ -422,7 +418,7 @@ ccis_dag = DAG(
 
 ccis = BashOperator(
     task_id='common_crawl_index_summary',
-    bash_command=_get_bash_command('common_crawl_index_summary/run.sh '),
+    bash_command='{{conf.get("core", "dags_folder")}}/common_crawl_index_summary/run.sh ',
     dag=ccis_dag
 )
 
@@ -435,7 +431,7 @@ bad_words_dag = DAG(
 
 bad_words = BashOperator(
     task_id='check_new_commits',
-    bash_command=_get_bash_command('bad-words/check_new_commits.sh '),
+    bash_command='{{conf.get("core", "dags_folder")}}/bad-words/check_new_commits.sh ',
     dag=bad_words_dag
 )
 
@@ -448,7 +444,7 @@ open_flights_dag = DAG(
 
 raw_open_flights = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('open_flights/import-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/open_flights/import-data.pl ',
     dag=open_flights_dag
 )
 
@@ -461,7 +457,7 @@ stock_tickers_dag = DAG(
 
 raw_stock_tickers = BashOperator(
     task_id='import-data',
-    bash_command=_get_bash_command('stock_tickers/import-ticker-data.pl '),
+    bash_command='{{conf.get("core", "dags_folder")}}/stock_tickers/import-ticker-data.pl ',
     dag=stock_tickers_dag
 )
 
@@ -474,7 +470,7 @@ nvd_dag = DAG(
 
 nvd = BashOperator(
     task_id='national_vulnerability_database',
-    bash_command=_get_bash_command('nvd/run.sh '),
+    bash_command='{{conf.get("core", "dags_folder")}}/nvd/run.sh ',
     dag=nvd_dag
 )
 
@@ -487,7 +483,7 @@ covid_stimulus_watch_dag = DAG(
 
 covid_stimulus_watch = BashOperator(
     task_id='import-csv',
-    bash_command=_get_bash_command('covid_stimulus_watch/import-csv.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/covid_stimulus_watch/import-csv.py ',
     dag=covid_stimulus_watch_dag
 )
 
@@ -500,7 +496,7 @@ online_services_dag = DAG(
 
 online_services_task = BashOperator(
     task_id='scrape-docs',
-    bash_command=_get_bash_command('online_services/scrape-documents.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/online_services/scrape-documents.py ',
     dag=online_services_dag
 )
 
@@ -513,6 +509,6 @@ us_census_response_rates_dag = DAG(
 
 us_census_response_rates = BashOperator(
     task_id='daily-import',
-    bash_command=_get_bash_command('us_census_response_rates/daily-csv-import.py '),
+    bash_command='{{conf.get("core", "dags_folder")}}/us_census_response_rates/daily-csv-import.py ',
     dag=us_census_response_rates_dag
 )
