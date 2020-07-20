@@ -278,24 +278,30 @@ wikipedia_ngrams_backfill_dag = DAG(
     schedule_interval='@once',
 )
 
-dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201', '20191220']
-tasks_list = []
-for i, dump_date in enumerate(dump_dates):
-    task = BashOperator(
-        task_id='import-data',
-        bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
-            dump_date,
-            dump_date
-        )),
-        dag=DAG(
-            'wikipedia-ngrams',
-            default_args=get_default_args_helper(datetime(2019, 11, 5)),
-            schedule_interval=CRON_FORMAT
-        )
-    )
 
-    if i != 0:
-        tasks_list[i-1] >> tasks_list[i]
+def create_ngrams_backfill_tasks(dump_dates):
+    tasks_list = []
+    for i, dump_date in enumerate(dump_dates):
+        task = BashOperator(
+            task_id='import-data',
+            bash_command=_get_bash_command('ngrams/dolt_load.py --date-string  {} --dump-target {} '.format(
+                dump_date,
+                dump_date
+            )),
+            dag=DAG(
+                'wikipedia-ngrams',
+                default_args=get_default_args_helper(datetime(2019, 11, 5)),
+                schedule_interval=CRON_FORMAT
+            )
+        )
+        tasks_list.append(task)
+
+        if i != 0:
+            tasks_list[i-1] >> tasks_list[i]
+
+
+dump_dates = ['20190901', '20190920', '20191001', '20191020', '20191101', '20191120', '20191201', '20191220']
+create_ngrams_backfill_tasks(dump_dates)
 
 
 five_thirty_eight_polls = BashOperator(
