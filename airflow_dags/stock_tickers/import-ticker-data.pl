@@ -59,9 +59,10 @@ sub download_files {
     my @exchanges = @_;
 
     foreach my $exchange ( @exchanges ) {
-	my $url  = $url_base . $exchange;
-	my $file = $exchange . '.csv'; 
-	run_command("curl -m 30 -f -L -o $file '$url'",
+	my $url        = $url_base . $exchange;
+	my $file       = $exchange . '.csv';
+	my $user_agent = "-H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'";
+	run_command("curl -m 30 -f -L -o $file $user_agent '$url'",
 		    "Could not download $url");
     }
 }
