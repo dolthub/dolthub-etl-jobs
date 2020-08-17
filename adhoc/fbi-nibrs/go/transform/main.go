@@ -17,7 +17,7 @@ import (
 var migrateLegacyHeaders = flag.Bool("migrateLegacyHeaders", false, "Migrate legacy headers to uppercase")
 var transformForDolt = flag.Bool("transformForDolt", false, "Transform timestamps and dates to dolt parsable format, add incremented primary keys")
 var removeOldFiles = flag.Bool("removeOldFiles", false, "Removes all files except for whats in /[state]/[year]/[abbr]/transformed")
-var dataDir = flag.String("dataDir", "/Users/dustinbrown/Desktop/data-projects/nibrs-data", "Directory of nibrs data")
+var dataDir = flag.String("dataDir", "", "Directory of nibrs data")
 
 type state struct {
 	Abbr string
@@ -158,13 +158,6 @@ var addColumnsTableMap = map[string][]string{
 	"nibrs_victim_circumstances": {dataYearCol, stateIDCol, "NIBRS_VICTIM_CIRCUMSTANCES_ID"},
 }
 
-var nibrsBiasMotivationID = 1
-var nibrsPropDescID = 1
-var nibrsSuspectUsingID = 1
-var nibrsVictimInjuryID = 1
-var nibrsVictimOffenseID = 1
-var nibrsVictimCircumstancesID = 1
-
 func main() {
 	flag.Parse()
 
@@ -186,61 +179,35 @@ func main() {
 }
 
 func removeFiles (dataDir string) {
-	for stateName, _ := range states {
-		for year := 1991; year < 2019; year++ {
-			directory := filepath.Join(dataDir, stateName, fmt.Sprintf("%d", year))
-			if _, err := os.Stat(directory); os.IsNotExist(err) {
-				continue
-			}
-			files, err := ioutil.ReadDir(directory)
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, f := range files {
-				if strings.HasSuffix(f.Name(), ".csv") ||
-					strings.HasSuffix(f.Name(), ".zip") ||
-					strings.HasSuffix(f.Name(), ".md") ||
-					strings.HasSuffix(f.Name(), ".html") ||
-					strings.HasSuffix(f.Name(), ".pdf") ||
-					strings.HasSuffix(f.Name(), ".sql") {
-					err := os.Remove(filepath.Join(directory, f.Name()))
-					if err != nil {
-						log.Fatal(err)
-					}
-					fmt.Printf("removing file: %s \n", filepath.Join(directory, f.Name()))
-				}
-			}
-
-		}
-	}
-
 	for stateName, s := range states {
 		for year := 1991; year < 2019; year++ {
-			directory := filepath.Join(dataDir, stateName, fmt.Sprintf("%d", year), s.Abbr)
-			if _, err := os.Stat(directory); os.IsNotExist(err) {
-				continue
-			}
-			files, err := ioutil.ReadDir(directory)
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, f := range files {
-				if strings.HasSuffix(f.Name(), ".csv") ||
-					strings.HasSuffix(f.Name(), ".zip") ||
-					strings.HasSuffix(f.Name(), ".md") ||
-					strings.HasSuffix(f.Name(), ".html") ||
-					strings.HasSuffix(f.Name(), ".pdf") ||
-					strings.HasSuffix(f.Name(), ".sql") {
-					err := os.Remove(filepath.Join(directory, f.Name()))
-					if err != nil {
-						log.Fatal(err)
+			dirNoAbbr := filepath.Join(dataDir, stateName, fmt.Sprintf("%d", year))
+			dirWithAbbr := filepath.Join(dataDir, stateName, fmt.Sprintf("%d", year), s.Abbr)
+			for _, dir := range []string{dirNoAbbr, dirWithAbbr} {
+				if _, err := os.Stat(dir); os.IsNotExist(err) {
+					continue
+				}
+				files, err := ioutil.ReadDir(dir)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, f := range files {
+					if strings.HasSuffix(f.Name(), ".csv") ||
+						strings.HasSuffix(f.Name(), ".zip") ||
+						strings.HasSuffix(f.Name(), ".md") ||
+						strings.HasSuffix(f.Name(), ".html") ||
+						strings.HasSuffix(f.Name(), ".pdf") ||
+						strings.HasSuffix(f.Name(), ".sql") {
+						err := os.Remove(filepath.Join(dir, f.Name()))
+						if err != nil {
+							log.Fatal(err)
+						}
+						fmt.Printf("removing file: %s \n", filepath.Join(dir, f.Name()))
 					}
-					fmt.Printf("removing file: %s \n", filepath.Join(directory, f.Name()))
 				}
 			}
 		}
 	}
-
 }
 
 func transform(dataDir string) {
@@ -268,7 +235,6 @@ func transform(dataDir string) {
 
 					_, ok := mainTables[strings.ToLower(trimmed)]
 					if !ok {
-						//fmt.Printf("Skipping ref table: %s \n", trimmed)
 						continue
 					}
 
@@ -278,9 +244,7 @@ func transform(dataDir string) {
 					var addRequiredData bool
 
 					// check if we need to transform date/time
-
 					timeDateCols, ok := timeDateTablesMap[lower]
-					//_, ok := timeDateTablesMap[lower]
 					if ok {
 						transformColumnTimeDate = true
 					}
@@ -321,6 +285,7 @@ func transform(dataDir string) {
 					}
 
 					// if we are adding columns, do this for header
+					// TODO: fix duplicate columns
 					var alteredHeaderStartIdx int
 					var headers []string
 					if addRequiredData {
@@ -344,7 +309,7 @@ func transform(dataDir string) {
 						log.Fatal("something went wrong copying headers")
 					}
 
-					// if we are transforming date do this, for the header only
+					// collect indexes of date columns to modify at the row level
 					headerIdxList := make([]int, 0)
 					if transformColumnTimeDate {
 						for idx, header := range headers {
@@ -376,21 +341,16 @@ func transform(dataDir string) {
 							log.Fatal(err)
 						}
 
-						// if we are adding columns, do this for the body
+						// do the append data work
 						if addRequiredData {
-							// loop over appended cols
 							for i := alteredHeaderStartIdx; i < len(headers); i++ {
-								// for each col
 								col := headers[i]
-								// get the valueFunc based on that column
-
 								valueFunc := fromColumnGetValueFunc(col, year, s.ID)
-								// append in same order as additional headers were appended
 								rec = append(rec, valueFunc())
 							}
 						}
 
-						// if we are transforming date do this, for the body only
+						// do the time/data transform work
 						if transformColumnTimeDate {
 							for _, colIdx := range headerIdxList {
 								timeDateVal := rec[colIdx]
@@ -450,36 +410,6 @@ func fromColumnGetValueFunc(columnName string, year, stateID int) func() string 
 			}
 			return id.String()
 		}
-	//case nibrsPropDescIDCol:
-	//	return func() string {
-	//		old := nibrsPropDescID
-	//		nibrsPropDescID++
-	//		return fmt.Sprintf("%d", old)
-	//	}
-	//case nibrsSuspectUsingIDCol:
-	//	return func() string {
-	//		old := nibrsSuspectUsingID
-	//		nibrsSuspectUsingID++
-	//		return fmt.Sprintf("%d", old)
-	//	}
-	//case nibrsVictimOffenseIDCol:
-	//	return func() string {
-	//		old := nibrsVictimOffenseID
-	//		nibrsVictimOffenseID++
-	//		return fmt.Sprintf("%d", old)
-	//	}
-	//case nibrsVictimInjuryIDCol:
-	//	return func() string {
-	//		old := nibrsVictimInjuryID
-	//		nibrsVictimInjuryID++
-	//		return fmt.Sprintf("%d", old)
-	//	}
-	//case nibrsVictimCircumstancesIDCol:
-	//	return func() string {
-	//		old := nibrsVictimCircumstancesID
-	//		nibrsVictimCircumstancesID++
-	//		return fmt.Sprintf("%d", old)
-	//	}
 	default:
 		panic("unknown column name")
 	}
@@ -545,23 +475,6 @@ func fromTimeDatePartMonth(month string) int {
 }
 
 func migrate(dataDir string) {
-	//wgWatch := &sync.WaitGroup{}
-	//errs := make(chan error)
-	//
-	//wgWatch.Add(1)
-	//go func() {
-	//	defer wgWatch.Done()
-	//	fmt.Printf("watching error channel...")
-	//	for err := range errs {
-	//		if err != nil {
-	//			fmt.Printf("Error: %+v \n", err)
-	//			break
-	//		}
-	//	}
-	//	fmt.Printf("done watching error channel...")
-	//}()
-
-	//wgWrite := &sync.WaitGroup{}
 	for stateName, s := range states {
 		for year := 1991; year < 2016; year++ {
 
@@ -577,18 +490,8 @@ func migrate(dataDir string) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			//wgWrite.Add(1)
-			//go func(dir, state, abbr string, year int, wg *sync.WaitGroup) {
-			//	migrateHeaders(dir, state, abbr, year, errs)
-			//	wg.Done()
-			//}(directory, stateName, s.Abbr, year, wgWrite)
 		}
 	}
-
-	//wgWrite.Wait()
-	//fmt.Println("closing error channel...")
-	//close(errs)
-	//wgWatch.Wait()
 }
 
 func migrateHeaders(directory, state, abbr string, year int) error {
