@@ -80,7 +80,7 @@ raw_word_net = BashOperator(
 github_repos_dag = DAG(
     'github_repos',
     default_args=get_default_args_helper(datetime(2020, 3, 5)),
-    schedule_interval=timedelta(days=1)
+    schedule_interval=timedelta(days=7)
 )
 
 raw_github_repos = BashOperator(
@@ -237,7 +237,7 @@ raw_us_baby_names = BashOperator(
 corona_virus_dag = DAG(
     'corona_virus',
     default_args=get_default_args_helper(datetime(2020,2,5)),
-    schedule_interval=timedelta(hours=12)
+    schedule_interval=timedelta(days=7)
 )
 
 raw_corona_virus = BashOperator(
@@ -249,7 +249,7 @@ raw_corona_virus = BashOperator(
 corona_virus_details_dag = DAG(
     'corona_virus_details',
     default_args=get_default_args_helper(datetime(2020,3,3)),
-    schedule_interval=timedelta(hours=1)
+    schedule_interval=timedelta(days=7)
 )
 
 singapore_details = BashOperator(
