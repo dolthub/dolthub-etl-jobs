@@ -237,7 +237,7 @@ raw_us_baby_names = BashOperator(
 corona_virus_dag = DAG(
     'corona_virus',
     default_args=get_default_args_helper(datetime(2020,2,5)),
-    schedule_interval=timedelta(days=7)
+    schedule_interval=timedelta(hours=12)
 )
 
 raw_corona_virus = BashOperator(
@@ -249,7 +249,7 @@ raw_corona_virus = BashOperator(
 corona_virus_details_dag = DAG(
     'corona_virus_details',
     default_args=get_default_args_helper(datetime(2020,3,3)),
-    schedule_interval=timedelta(days=7)
+    schedule_interval=timedelta(days=1)
 )
 
 singapore_details = BashOperator(
