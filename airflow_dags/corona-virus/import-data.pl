@@ -1101,18 +1101,21 @@ sub import_observations {
 
     foreach my $place_id ( keys %{$observations} ) {
 	foreach my $date ( keys %{$observations->{$place_id}} ) {
-	    my $sql =
-		"insert into cases (place_id, observation_time) values ($place_id, '$date');\n";
-	    print OBS_SQL $sql;
+            my $fields = "place_id, observation_time";
+            my $values = "$place_id, '$date'";
 	    
 	    my $cases = $observations->{$place_id}{$date};
 	    die "No cases found for $place_id, $date" if ( !%{$cases} );
 	    foreach my $type ( keys %{$cases} ) {
 		my $count = $cases->{$type};
 		my $column_name = $type . "_count";
-		$sql = "update cases set $column_name = $count where place_id=$place_id and observation_time='$date';\n";
-		print OBS_SQL $sql;
+                $fields .= ", $column_name";
+                $values .= ", $count";
 	    }
+
+	    my $sql =
+		"insert into cases ($fields) values ($values);\n";
+	    print OBS_SQL $sql;
 	}
     }
     close OBS_SQL;
