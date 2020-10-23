@@ -1,12 +1,9 @@
-#!/usr/local/bin/python3
-
-from doltpy.core import Dolt
-
 import pandas
 import random
 import time
 import os
 import csv
+import requests
 
 from pprint import pprint
 
@@ -28,13 +25,24 @@ for player_id in players_df['id']:
             os.mkdir(dirpath)
         except OSError:
             print ("Creation of the directory %s failed" % dirpath)
+
+    retries = 1
+    max_retries = 10
     
-    career = playercareerstats.PlayerCareerStats(player_id=player_id)
-    stats_dicts = career.get_dict()
+    stats_dicts = {}
+    while ( retries <= max_retries ):
+        try: 
+            career = playercareerstats.PlayerCareerStats(player_id=player_id)
+            stats_dicts = career.get_dict()
+            break
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout) as e:
+            print(f'Request Failed. Retrying {retries}/{max_retries}') 
+            time.sleep(random.random()*30)
+            retries += 1
 
     write_header = 1;
     for stats_dict in stats_dicts['resultSets']:
-        table_name = stats_dict['name']                                       
+        table_name = stats_dict['name']                              
         filepath = f'player-data/{player_id}/{table_name}.csv'
 
         columns = [x.lower() for x in stats_dict['headers']]
@@ -59,4 +67,4 @@ for player_id in players_df['id']:
         write_header = 1
     
     count += 1
-    time.sleep(random.random()*30)
+    time.sleep(random.random()*2)

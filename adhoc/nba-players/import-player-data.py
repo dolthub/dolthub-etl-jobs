@@ -1,6 +1,5 @@
-#!/usr/local/bin/python3
-
 from doltpy.core import Dolt
+from doltpy.core.write import bulk_import
 
 import pandas
 import random
@@ -50,9 +49,10 @@ for player_id in player_ids:
 
             pks = [col for col in header if '_id' in col]
 
-            repo.bulk_import(table_name,
-                             open(csvpath),
-                             pks,
-                             'update')
+            bulk_import(repo,
+                        table_name,
+                        open(csvpath),
+                        pks,
+                        'update')
     count += 1
 
