@@ -19,6 +19,13 @@ total = len(players_df.index)
 for player_id in players_df['id']:
     print(f'{count}/{total}: {player_id}')
 
+    dirpath = 'player-data'
+    if not os.path.isdir(dirpath):
+        try:
+            os.mkdir(dirpath)
+        except OSError:
+            print ("Creation of the directory %s failed" % dirpath)
+    
     dirpath = f'player-data/{player_id}'
     if not os.path.isdir(dirpath):
         try:
