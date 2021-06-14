@@ -1,5 +1,6 @@
-from doltpy.core import Dolt
-from doltpy.core.write import bulk_import
+from doltpy.cli import Dolt
+from doltpy.cli.write import write_file
+
 
 import pandas
 import random
@@ -49,10 +50,10 @@ for player_id in player_ids:
 
             pks = [col for col in header if '_id' in col]
 
-            bulk_import(repo,
-                        table_name,
-                        open(csvpath),
-                        pks,
-                        'update')
+            write_file(repo,
+                       table_name,
+                       open(csvpath),
+                       pks,
+                       'update')
     count += 1
 
