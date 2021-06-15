@@ -1,6 +1,5 @@
 from doltpy.cli import Dolt
-from doltpy.cli.write import write_file
-
+from doltpy.cli.write import write_file,write_pandas
 
 import pandas
 import random
@@ -28,6 +27,19 @@ table_map = {
 
 repo = Dolt('.')
 
+# Import players
+players_df = pandas.DataFrame(players.get_players())
+
+print(players_df)
+
+write_pandas(repo,
+             'players',
+             players_df,
+             import_mode='replace',
+             primary_key=['id'],
+             commit=False)
+
+# Import previously downloaded stats
 count = 1
 base = 'player-data'
 player_ids = os.listdir(base)
