@@ -200,7 +200,7 @@ def load(date_string: str, dump_target: str):
 
 
 # ----------------------------------------------------------------------
-# Load helpers
+# Load loading_helpers
 
 
 def count_article_ngrams(article: str):
