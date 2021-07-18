@@ -3,7 +3,7 @@ from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import leaguegamefinder, playbyplayv2, playbyplay
 import logging
 from datetime import datetime
-from airflow_dags.scraping_utilities.utilities import get_proxy_cycle
+from loaders.scraping_utilities.utilities import get_proxy_cycle
 from retry import retry
 from typing import List
 from doltpy.etl import get_df_table_writer, get_table_transformer, get_dolt_loader

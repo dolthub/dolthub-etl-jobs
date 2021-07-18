@@ -1,0 +1,35 @@
+name: Doltpy Tests
+
+on: workflow_dispatch
+
+jobs:
+  # Run test suite across all major OS types
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install and Setup Dolt
+        run: |
+          sudo curl -L https://github.com/liquidata-inc/dolt/releases/latest/download/install.sh | sudo bash
+          dolt config --global --add user.email oscar@dolthub.com
+          dolt config --global --add user.name "oscarbatori"
+          dolt config --global --add metrics.host eventsapi.awsdev.ld-corp.com
+          dolt config --global --add metrics.port 443
+          echo $DOLTHUB_JWK_FILE | dolt creds import
+          dolt use $DOLTHUB_CRED_PUB_KEY
+      - name: Python Dependencies
+        run: |
+          pip install doltpy
+      - name: Execute Script
+        run: |
+          python loaders/ip_to_country/dolt_load.py \
+            --git-hash $GITHUB_SHA \
+            --github-actions-run-url https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
