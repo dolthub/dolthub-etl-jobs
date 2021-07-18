@@ -23,7 +23,8 @@ jobs:
           dolt config --global --add user.name "oscarbatori"
           dolt config --global --add metrics.host eventsapi.awsdev.ld-corp.com
           dolt config --global --add metrics.port 443
-          echo $DOLTHUB_JWK_FILE | dolt creds import
+          echo $DOLTHUB_JWK_FILE > temp.jwk
+          dolt creds import temp.jwk
           dolt use $DOLTHUB_CRED_PUB_KEY
       - name: Python Dependencies
         run: |
