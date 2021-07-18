@@ -8,6 +8,8 @@ import requests
 from typing import Mapping, Callable, List
 import gzip
 import logging
+from helpers.github_actions import get_commit_message
+import argparse
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +105,7 @@ def get_df_builder(ip_to_country_dataset: IpToCountryDataset) -> Callable[[], pd
     return inner
 
 
-def load():
+def load(git_hash: str, github_actions_run_url: str):
     table_writers = []
     for ip_to_country_dataset in ip_to_country_datasets:
         writer = get_df_table_writer(ip_to_country_dataset.name,
@@ -111,11 +113,17 @@ def load():
                                      ip_to_country_dataset.pk_cols)
         table_writers.append(writer)
 
-    loaders = [get_dolt_loader(table_writers, True, 'Update IP to Country for date {}'.format(datetime.now()))]
+    loaders = [get_dolt_loader(writer_or_writers=table_writers,
+                               commit=True,
+                               message=get_commit_message(git_hash, github_actions_run_url))]
     load_to_dolthub(loaders, clone=True, push=True, remote_name='origin', remote_url=REPO_PATH)
 
 
 if __name__ == '__main__':
-    load()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('git-hash', type=str)
+    parser.add_argument('github-actions-run-url', type=str)
+    args = parser.parse_args()
+    load(args.git_hash, args.github_actions_run_url)
 
 

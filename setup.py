@@ -9,9 +9,9 @@ PACKAGE_DIRS = ['local_write_example',
                 'five_thirty_eight',
                 'coin_metrics']
 PREFIX = 'liquidata_etl'
-PREFIXED_PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): os.path.join('airflow_dags', package)
+PREFIXED_PACKAGES_TO_PACKAGE_DIRS = {'{}.{}'.format(PREFIX, package): os.path.join('loaders', package)
                                      for package in PACKAGE_DIRS}
-PACKAGES_TO_PACKAGE_DIRS = {package: os.path.join('airflow_dags', package)
+PACKAGES_TO_PACKAGE_DIRS = {package: os.path.join('loaders', package)
                             for package in PACKAGE_DIRS}
 
 setup(name='liquidata-etl-jobs',
