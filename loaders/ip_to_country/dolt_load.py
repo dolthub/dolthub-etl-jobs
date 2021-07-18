@@ -2,7 +2,6 @@
 
 import pandas as pd
 from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
-from datetime import datetime
 import io
 import requests
 from typing import Mapping, Callable, List
@@ -121,8 +120,8 @@ def load(git_hash: str, github_actions_run_url: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('git-hash', type=str)
-    parser.add_argument('github-actions-run-url', type=str)
+    parser.add_argument('--git-hash', type=str)
+    parser.add_argument('--github-actions-run-url', type=str)
     args = parser.parse_args()
     load(args.git_hash, args.github_actions_run_url)
 

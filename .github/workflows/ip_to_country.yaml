@@ -32,6 +32,8 @@ jobs:
         run: |
           pip install .
       - name: Execute Script
+        env:
+          PYTHONPATH: .
         run: |
           python loaders/ip_to_country/dolt_load.py \
             --git-hash "$GITHUB_SHA\n" \
