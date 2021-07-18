@@ -30,7 +30,7 @@ jobs:
           dolt creds use $DOLTHUB_CRED_PUB_KEY
       - name: Python Dependencies
         run: |
-          pip install doltpy
+          pip install .
       - name: Execute Script
         run: |
           python loaders/ip_to_country/dolt_load.py \
