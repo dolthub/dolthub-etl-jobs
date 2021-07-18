@@ -1,4 +1,4 @@
-name: Doltpy Tests
+name: IP to Country ETL
 
 on: workflow_dispatch
 
