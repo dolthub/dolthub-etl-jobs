@@ -3,7 +3,6 @@ import os
 
 PACKAGE_DIRS = ['fx_rates_example',
                 'mta',
-                'ip_to_country',
                 'wikipedia',
                 'five_thirty_eight',
                 'coin_metrics']
