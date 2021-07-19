@@ -1,4 +1,4 @@
-name: IP to Country ETL
+name: Coin Metrics ETL
 
 on: workflow_dispatch
 
@@ -35,6 +35,6 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          python loaders/ip_to_country/dolt_load.py \
+          python loaders/coin_metrics/dolt_load.py \
             --git-hash "$GITHUB_SHA\n" \
             --github-actions-run-url https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
