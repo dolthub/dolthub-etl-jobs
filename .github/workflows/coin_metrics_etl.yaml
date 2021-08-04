@@ -1,6 +1,8 @@
 name: Coin Metrics ETL
 
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   # Run test suite across all major OS types
@@ -36,5 +38,5 @@ jobs:
           PYTHONPATH: .
         run: |
           python loaders/coin_metrics/dolt_load.py \
-            --git-hash "$GITHUB_SHA\n" \
+            --git-hash $GITHUB_SHA \
             --github-actions-run-url https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}

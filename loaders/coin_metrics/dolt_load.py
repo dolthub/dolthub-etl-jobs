@@ -6,6 +6,7 @@ import logging
 from doltpy.etl import get_df_table_writer, get_dolt_loader, load_to_dolthub
 import argparse
 from helpers.github_actions import get_commit_message
+
 logger = logging.getLogger(__name__)
 
 REMOTE_DB = "dolthub/coin-metrics-daily-data"
