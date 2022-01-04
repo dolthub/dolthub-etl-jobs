@@ -33,12 +33,11 @@ jobs:
           dolt creds use $DOLTHUB_CRED_PUB_KEY
       - name: Python Dependencies
         run: |
-          pip install requests pymysql web3 
+          pip install requests pymysql web3 doltcli doltpy
       - name: Get database
         run: |
           dolt clone vinai/flashbots
           cd flashbots
-          dolt sql-server --max-connections=100
       - name: Execute Script
         env:
           PYTHONPATH: .

@@ -2,6 +2,7 @@ import pymysql.cursors
 import requests 
 from web3 import Web3
 from datetime import datetime
+import doltcli as dolt
 
 # TODO: Switch to a hosted instance
 conn = pymysql.connect(
@@ -16,6 +17,8 @@ conn = pymysql.connect(
 w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/63c6341ccc124ac39ce4472f3133154b'))
 blocks_schema = ['block_number', 'miner', 'miner_reward', 'coinbase_transfers', 'gas_used', 'gas_price', 'timestamp']
 transactions_schema = ['transaction_hash', 'tx_index', 'bundle_type', 'bundle_index', 'block_number', 'eoa_address', 'to_address', 'gas_used', 'gas_price', 'coinbase_transfer', 'total_miner_reward']
+
+db = dolt.Dolt("flashbots")
 
 def turn_off_autocommit():
     with conn.cursor() as cur:
