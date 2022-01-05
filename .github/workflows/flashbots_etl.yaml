@@ -1,0 +1,47 @@
+name: Flashbots ETL
+
+on:
+  schedule:
+    - cron: '0 0,12 * * *'
+  workflow_dispatch:
+
+jobs:
+  # Run test suite across all major OS types
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install and Setup Dolt
+        env:
+          DOLTHUB_JWK_FILE: ${{ secrets.DOLTHUB_JWK_FILE }}
+          DOLTHUB_CRED_PUB_KEY: ${{ secrets.DOLTHUB_CRED_PUB_KEY }}
+        run: |
+          sudo bash -c 'curl -L https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash'
+          dolt config --global --add user.email vinai@dolthub.com
+          dolt config --global --add user.name "vinai"
+          dolt config --global --add metrics.host eventsapi.awsdev.ld-corp.com
+          dolt config --global --add metrics.port 443
+          echo $DOLTHUB_JWK_FILE > token.jwt
+          dolt creds import token.jwt
+          dolt creds use $DOLTHUB_CRED_PUB_KEY
+      - name: Python Dependencies
+        run: |
+          pip install requests pymysql web3
+      - name: Get database
+        run: |
+          dolt clone vinai/flashbots
+          cd flashbots
+          dolt sql-server &
+      - name: Execute Script
+        env:
+          PYTHONPATH: .
+        run: |
+          python loaders/flashbots/get_latest_data.py
