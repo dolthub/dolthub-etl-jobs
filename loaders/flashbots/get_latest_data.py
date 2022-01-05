@@ -30,7 +30,10 @@ def get_latest_blocks():
 def convert_row_to_insert_tuples(row, schema):
     inorder = []
     for col in schema:
-        inorder.append(row[col])
+        if col in row:
+            inorder.append(row[col])
+        else:
+            inorder.append("NULL")
     return "({})".format(','.join("'{}'".format(str(v)) for v in inorder))
 
 def import_data(blocks):
