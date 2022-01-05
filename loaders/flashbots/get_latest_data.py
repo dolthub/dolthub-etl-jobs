@@ -3,7 +3,6 @@ import requests
 from web3 import Web3
 from datetime import datetime
 
-# TODO: Switch to a hosted instance
 conn = pymysql.connect(
     host="127.0.0.1",
     user="root",
@@ -31,7 +30,10 @@ def get_latest_blocks():
 def convert_row_to_insert_tuples(row, schema):
     inorder = []
     for col in schema:
-        inorder.append(row[col])
+        if col in row:
+            inorder.append(row[col])
+        else:
+            inorder.append("NULL")
     return "({})".format(','.join("'{}'".format(str(v)) for v in inorder))
 
 def import_data(blocks):
@@ -48,3 +50,9 @@ def import_data(blocks):
                 
 blocks = get_latest_blocks()
 import_data(blocks=blocks)
+
+with conn.cursor() as cur:
+    cur.execute("SELECT DOLT_COMMIT('-a', '-m', 'Added blocks')")
+    cur.fetchall()
+    cur.execute("SELECT DOLT_PUSH('origin', 'main')")
+    cur.fetchall()
