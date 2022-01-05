@@ -30,7 +30,7 @@ jobs:
           dolt config --global --add metrics.host eventsapi.awsdev.ld-corp.com
           dolt config --global --add metrics.port 443
           echo $DOLTHUB_JWK_FILE > token.jwt
-          echo token.jwt
+          cat token.jwt
           dolt creds import token.jwt
           dolt creds use $DOLTHUB_CRED_PUB_KEY
       - name: Python Dependencies
