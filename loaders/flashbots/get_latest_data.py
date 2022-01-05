@@ -47,3 +47,9 @@ def import_data(blocks):
                 
 blocks = get_latest_blocks()
 import_data(blocks=blocks)
+
+with conn.cursor() as cur:
+    cur.execute("SELECT DOLT_COMMIT('-a', '-m', 'Added blocks')")
+    cur.fetchall()
+    cur.execute("SELECT DOLT_PUSH('origin', 'main')")
+    cur.fetchall()
